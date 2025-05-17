@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Turret : MonoBehaviour
 {
-    public TurretData turretData { get; private set; } // 인스펙터에서 연결 (테스트용)
+    public TurretData turretData { get; private set; } 
     public int CurrentLevel { get; private set; } = 1;
 
     Coroutine attackRoutine;

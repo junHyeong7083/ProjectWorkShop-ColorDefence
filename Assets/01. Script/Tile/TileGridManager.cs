@@ -24,13 +24,15 @@ public class TileGridManager : MonoBehaviour
 
     void GenerateGrid()
     {
+        GameObject mapParent = new GameObject("Map");
+
         for (int x = 0; x < Width; x++)
         {
             for (int z = 0; z < Height; z++)
             {
                 Vector3 worldPos = new Vector3(x * cubeSize, 0, z * cubeSize);
 
-                GameObject go = Instantiate(TilePrefab, worldPos, Quaternion.identity);
+                GameObject go = Instantiate(TilePrefab, worldPos, Quaternion.identity, mapParent.transform);
                 Tile tile = go.GetComponent<Tile>();
                 tile.Init(x, z);
                 tiles[x, z] = tile;
