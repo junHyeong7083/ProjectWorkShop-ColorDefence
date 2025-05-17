@@ -32,7 +32,7 @@ public class Tile : MonoBehaviour
         Vector3 origin = transform.position;
         float time = 0f;
         float duration = 0.2f;
-        float height = 0.2f;
+        float height = TileGridManager.Instance.cubeSize*0.6f;
 
         while (time < duration)
         {

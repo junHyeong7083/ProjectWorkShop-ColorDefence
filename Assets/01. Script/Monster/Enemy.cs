@@ -18,13 +18,22 @@ public class Enemy : MonoBehaviour
     public Direction moveDirection = Direction.Front;
     Vector3 direction;
 
+    public GameObject OverlayPrefab;
+
     void Awake()
     {
         currentHp = Data.MaxHp;
         direction = GetDirectionVector(moveDirection);
+    }
+
+    private void Start()
+    {
         Vector3 pos = transform.position;
         pos.y = TileGridManager.Instance.cubeSize; // 3d환경이다보니 기본값으로하면 캐릭터가 큐브에 가려짐
         transform.position = pos;
+
+        //ShowOverlayAtSpawm();
+
     }
     public void TakeDamage(int dmg)
     {
@@ -42,11 +51,27 @@ public class Enemy : MonoBehaviour
         InfectTile();
     }
 
+    void ShowOverlayAtSpawm()
+    {
+        int halfW = Data.Width / 2;
+        int halfH = Data.Height / 2;
+
+
+        for (int x = -halfW; x <= halfW; x++)
+        {
+            for (int z = -halfH; z <= halfH; z++)
+            {
+                GameObject overlay = Instantiate(OverlayPrefab, transform); // 부모 먼저 지정
+                overlay.transform.localPosition = new Vector3(x, -0.5f, z);
+            }
+        }
+    }
 
     void Move()
     {
         transform.Translate(direction * Data.Speed * Time.deltaTime);
     }
+
 
     void InfectTile()
     {
