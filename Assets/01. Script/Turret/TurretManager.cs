@@ -32,9 +32,23 @@ public class TurretManager : MonoBehaviour
 
     void Update()
     {
-        if (currentData == null || currentPrefab == null || previewInstance == null) return;
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+
+        // Ç×»ó ½ÇÇàµÇ´Â ºó°÷ Å¬¸¯ Ã³¸®
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (Physics.Raycast(ray, out var hit1))
+            {
+                if (!hit1.collider.TryGetComponent<Turret>(out _))
+                {
+                    HidePanel(); // ºó°÷ Å¬¸¯ ½Ã ÆÐ³Î ²¨Áü
+                }
+            }
+        }
+
+        if (currentData == null || currentPrefab == null || previewInstance == null)
+            return;
+       
         if (Physics.Raycast(ray, out var hit))
         {
             if (previewInstance != null)  previewInstance.transform.position = hit.point;

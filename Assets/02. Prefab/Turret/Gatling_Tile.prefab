@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 3447898055983292622}
   - component: {fileID: 2384382052384565978}
   - component: {fileID: 862497042199388347}
+  - component: {fileID: -1616829201389275636}
   m_Layer: 0
   m_Name: Gatling_Tile
   m_TagString: Untagged
@@ -121,3 +122,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 50930434c069be14b9211b77b51a175e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-1616829201389275636
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8570189920556401514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6372db5e1ef8a0d4e8b6591e808b7809, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rangePrefab: {fileID: 4655392896735956561, guid: 903a8c3d404c9f64bb87b152e64177d1, type: 3}

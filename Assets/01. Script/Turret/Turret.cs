@@ -65,6 +65,11 @@ public class Turret : MonoBehaviour
     private void OnMouseDown()
     {
         TurretManager.Instance.SelectTurret(this);
+        GetComponent<TurretRangeVisualizer>().Show(GetRange());
+    }
+    private void OnMouseUp()
+    {
+        GetComponent<TurretRangeVisualizer>().Hide();
     }
 
 
