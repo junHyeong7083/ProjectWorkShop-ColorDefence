@@ -4,7 +4,7 @@ using UnityEngine;
 public class Turret : MonoBehaviour
 {
     public TurretData turretData { get; private set; } // 인스펙터에서 연결 (테스트용)
-    int currentLevel = 1;
+    public int CurrentLevel { get; private set; } = 1;
 
     Coroutine attackRoutine;
 
@@ -22,7 +22,7 @@ public class Turret : MonoBehaviour
     public void SetTurretData(TurretData _turretData)
     {
         turretData = _turretData;
-        currentLevel = 1;
+        CurrentLevel = 1;
 
         if (attackRoutine != null)
             StopCoroutine(attackRoutine);
@@ -32,33 +32,50 @@ public class Turret : MonoBehaviour
 
     public void Upgrade()
     {
-        currentLevel++;
+        int cost = GetUpgradeCost();
+        if (GameManager.instance.SpendGold(cost))
+            CurrentLevel++;
     }
 
+
+    public void Sell()
+    {
+        int refund = GetSellPrice();
+        GameManager.instance.AddGold(refund);
+        Destroy(this.gameObject);
+    }
 
     void PerformAction()
     {
         switch (turretData.actionType)
         {
             case TurretActionType.AttackEnemy:
-                AttackEnemy();
+                //  AttackEnemy();
                 break;
             case TurretActionType.AttackTile:
-                PaintTiles();
+                //  PaintTiles();
                 break;
             case TurretActionType.Both:
-                AttackEnemy();
-                PaintTiles();
+                //  AttackEnemy();
+                //  PaintTiles();
                 break;
         }
     }
 
+    private void OnMouseDown()
+    {
+        TurretManager.Instance.SelectTurret(this);
+    }
+
+
     void AttackEnemy() => Debug.Log($"[{turretData.turretType}] 공격 ({turretData.baseDamage})");
     void PaintTiles() => Debug.Log($"[{turretData.turretType}] 타일 감염");
 
-    int GetDamage() => turretData.baseDamage + (turretData.damageGrowth * (currentLevel - 1));
-    float GetRange() => turretData.baseAttackRange + (turretData.attackRangeGrowth * (currentLevel - 1)); 
-    float GetAttackRate() => turretData.baseAttackRate + (turretData.attackRateGrowth * (currentLevel - 1));
+    public int GetDamage() => turretData.baseDamage + (turretData.damageGrowth * (CurrentLevel - 1));
+    public float GetRange() => turretData.baseAttackRange + (turretData.attackRangeGrowth * (CurrentLevel - 1));
+    public float GetAttackRate() => turretData.baseAttackRate + (turretData.attackRateGrowth * (CurrentLevel - 1));
 
+    public int GetUpgradeCost() => 100 + (CurrentLevel * 50);
+    public int GetSellPrice() => 50 + (CurrentLevel * 25);
 
 }

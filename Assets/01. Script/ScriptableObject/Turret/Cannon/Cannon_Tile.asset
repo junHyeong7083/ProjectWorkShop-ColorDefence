@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41c6ef2432c01644ba30dfbe6546cf52, type: 3}
-  m_Name: Cannon_Both
+  m_Name: Cannon_Tile
   m_EditorClassIdentifier: 
-  actionType: 2
+  actionType: 1
   turretType: 1
-  baseAttackRange: 0
-  baseAttackRate: 0
-  baseDamage: 0
-  attackRangeGrowth: 0
-  attackRateGrowth: 0
-  damageGrowth: 0
+  baseAttackRange: 8
+  baseAttackRate: 7
+  baseDamage: 3
+  attackRangeGrowth: 1
+  attackRateGrowth: 1
+  damageGrowth: 2
+  placementCost: 20

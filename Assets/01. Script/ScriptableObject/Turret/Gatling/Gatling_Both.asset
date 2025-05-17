@@ -10,10 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41c6ef2432c01644ba30dfbe6546cf52, type: 3}
-  m_Name: Gatling_Enemy
+  m_Name: Gatling_Both
   m_EditorClassIdentifier: 
-  actionType: 0
+  actionType: 2
   turretType: 0
-  attackRange: 0
-  attackRate: 0
-  damage: 0
+  baseAttackRange: 2
+  baseAttackRate: 1
+  baseDamage: 1
+  attackRangeGrowth: 1
+  attackRateGrowth: 1
+  damageGrowth: 2
+  placementCost: 15

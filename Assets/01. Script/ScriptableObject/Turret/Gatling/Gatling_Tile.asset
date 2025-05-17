@@ -10,13 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41c6ef2432c01644ba30dfbe6546cf52, type: 3}
-  m_Name: Raser_Enemy
+  m_Name: Gatling_Tile
   m_EditorClassIdentifier: 
-  actionType: 0
-  turretType: 2
-  baseAttackRange: 0
-  baseAttackRate: 0
-  baseDamage: 0
-  attackRangeGrowth: 0
-  attackRateGrowth: 0
-  damageGrowth: 0
+  actionType: 1
+  turretType: 0
+  baseAttackRange: 2
+  baseAttackRate: 1
+  baseDamage: 1
+  attackRangeGrowth: 1
+  attackRateGrowth: 1
+  damageGrowth: 1
+  placementCost: 10

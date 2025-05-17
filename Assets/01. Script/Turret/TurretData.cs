@@ -28,4 +28,5 @@ public class TurretData : ScriptableObject
     public float attackRangeGrowth;
     public float attackRateGrowth;
     public int damageGrowth;
+    public int placementCost;
 }
