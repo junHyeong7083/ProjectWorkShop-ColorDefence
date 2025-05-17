@@ -10,10 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 41c6ef2432c01644ba30dfbe6546cf52, type: 3}
-  m_Name: TurretData
+  m_Name: Raser_Both
   m_EditorClassIdentifier: 
-  actionType: 0
-  turretType: 0
-  attackRange: 0
-  attackRate: 0
-  damage: 0
+  actionType: 2
+  turretType: 2
+  baseAttackRange: 0
+  baseAttackRate: 0
+  baseDamage: 0
+  attackRangeGrowth: 0
+  attackRateGrowth: 0
+  damageGrowth: 0
