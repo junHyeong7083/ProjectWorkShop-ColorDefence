@@ -121,8 +121,10 @@ public class TurretManager : MonoBehaviour
         );
 
         Destroy(previewInstance);
+
         GameObject turret = Instantiate(currentPrefab, placePos, Quaternion.identity);
-        turret.GetComponent<TurretBase>().SetTurretData(currentData);
+        TurretBase turretBase = turret.GetComponent<TurretBase>();
+        turretBase.SetTurretData(currentData);
 
         // 타일 점유 마킹
         for (int x = 0; x < width; x++)
@@ -131,7 +133,10 @@ public class TurretManager : MonoBehaviour
             {
                 var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
                 if (tile != null)
+                {
                     tile.IsOccupied = true;
+                    turretBase.occupiedTiles.Add(tile);
+                }
             }
         }
 

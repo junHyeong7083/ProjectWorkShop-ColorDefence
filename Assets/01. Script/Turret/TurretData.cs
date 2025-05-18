@@ -32,4 +32,10 @@ public class TurretData : ScriptableObject
 
     public int width;
     public int height;
+
+    //---------------레이저 전용 파라미터---------------//
+    [Header("레이저 전용")]
+    public float laserDuration;
+    public float laserTickInterval;
+
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public abstract class TurretBase : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public abstract class TurretBase : MonoBehaviour
     public TurretData turretData { get; private set; } 
     public int CurrentLevel { get; private set; } = 1;
 
+    public List<Tile> occupiedTiles = new();
     // 공격 루프를 돌리기 위한 핸들
     Coroutine attackRoutine;
 
@@ -49,6 +51,10 @@ public abstract class TurretBase : MonoBehaviour
     {
         int refund = GetSellPrice();
         GameManager.instance.AddGold(refund);
+
+        foreach (var tile in occupiedTiles)
+            tile.IsOccupied = false;
+
         Destroy(this.gameObject);
     }
 
@@ -98,35 +104,44 @@ public abstract class TurretBase : MonoBehaviour
         return closest;
     }
 
-    // 가장 오래된 적 타일 탐색( 다른 터렛이 조준 -> 제외 )
+    // 가장 오래된 적 타일 탐색( 다른 터렛이 조준 => 제외 )
     protected virtual Tile FindOldestEnemyTile()
     {
         float range = GetRange();
+        float rangeSqr = range * range;
         Vector3 center = transform.position;
 
         Tile result = null;
-        float oldestTime = Mathf.Infinity;
+        float bestScore = float.MaxValue;
 
         var nearbyTiles = TileGridManager.Instance.GetTilesInRange(center, range);
         foreach (var tile in nearbyTiles)
         {
-            if (tile.ColorState != TileColorState.Enemy) continue;
-            
-            // Bumping 애니메이션 재생중 => 이거 안막으니 자꾸 통통튀면면서 시각적으로 맛없어짐
-            if (tile.IsBumping) continue;
-
-            // 다른터렛이 타겟팅 && 타겟팅중인게 내가 아니라면 continue
+            if (tile.ColorState != TileColorState.Enemy || tile.IsBumping || tile.IsReserved) continue;
             if (tile.TargetingTurret != null && tile.TargetingTurret != this) continue;
 
-            if(tile.LastChangedTime < oldestTime)
+
+            float dx = tile.CenterWorldPos.x - center.x;
+            float dz = tile.CenterWorldPos.z - center.z;
+            float distSqr = dx * dx + dz * dz;
+
+            if (distSqr > rangeSqr) continue;
+
+            float score = tile.LastChangedTime * 1000f + distSqr;
+
+            if (score < bestScore)
             {
-                oldestTime = tile.LastChangedTime;
+                bestScore = score;
                 result = tile;
             }
         }
-        if (result != null)
-            result.TargetingTurret = this;
 
+        if (result != null)
+        {
+            result.TargetingTurret = this;
+            result.Reserve();
+        }
+            
 
         return result;
     }
@@ -150,7 +165,10 @@ public abstract class TurretBase : MonoBehaviour
         float value = turretData.baseAttackRate - (turretData.attackRateGrowth * (CurrentLevel - 1)*0.2f);
 
         if (turretData.turretType != TurretType.Laser)
+        {
             value = Mathf.Max(0.3f, value); // 최소공격속도 0.3초 주기
+
+        }
         return value;
     }
 

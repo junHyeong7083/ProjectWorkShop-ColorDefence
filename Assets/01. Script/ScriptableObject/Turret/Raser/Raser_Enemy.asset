@@ -23,3 +23,5 @@ MonoBehaviour:
   placementCost: 30
   width: 5
   height: 5
+  laserDuration: 4
+  laserTickInterval: 0.2

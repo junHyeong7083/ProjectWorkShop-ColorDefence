@@ -42,6 +42,7 @@ public class GatlingTurret : TurretBase
 
         Vector3 dir = (currentTarget.transform.position - firePoint.position).normalized;
         BulletPool.Instance.Get(firePoint.position, dir);
+
     }
 
 
@@ -50,26 +51,28 @@ public class GatlingTurret : TurretBase
     {
         if (targetTile == null) return;
 
+        Tile tileToHit = targetTile;
         Vector3 dir = (targetTile.CenterWorldPos - firePoint.position).normalized;
 
         BulletPool.Instance.Get(firePoint.position, dir, () =>
         {
-            if (targetTile != null && targetTile.ColorState == TileColorState.Enemy) 
+            if (tileToHit != null && tileToHit.ColorState == TileColorState.Enemy)
             {
-                targetTile.SetColor(TileColorState.Player);
-                targetTile.AnimateBump();
+                tileToHit.SetColor(TileColorState.Player);
+                tileToHit.AnimateBump();
+            }
 
+            if (tileToHit != null)
+            {
+                tileToHit.Release();
+                tileToHit.TargetingTurret = null;
 
-                targetTile.TargetingTurret = null;
-
-                // 이펙트 넣을곳
                 EffectManager.Instance.PlayEffect(
                     TurretType.Gatling,
                     TurretActionType.AttackTile,
-                    targetTile.CenterWorldPos
-                    );
+                    tileToHit.CenterWorldPos
+                );
             }
-          
         });
     }
 

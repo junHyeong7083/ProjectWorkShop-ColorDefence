@@ -45,6 +45,11 @@ public class Bullet : MonoBehaviour
         {
             // 데미지 처리 (원하면 확장)
             ReturnToPool();
+
+            EffectManager.Instance.PlayEffect(TurretType.Gatling, TurretActionType.AttackEnemy, this.transform.position);
+
         }
+
+
     }
 }

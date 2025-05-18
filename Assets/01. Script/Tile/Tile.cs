@@ -5,13 +5,13 @@ public enum TileColorState { Neutral, Player, Enemy }
 
 public class Tile : MonoBehaviour
 {
-    public static List<Tile> EnemyTiles = new();
-
     public Vector2Int GridPos { get; private set; }
+    
     public TileColorState ColorState { get; private set; }
     public float LastChangedTime { get; private set; } = -999f;
     public Vector3 CenterWorldPos => transform.position;
     public bool IsOccupied { get; set; }
+    public bool IsReserved { get; private set; } = false;
     public bool IsBumping => isBumping;
 
     private Renderer rend;
@@ -38,19 +38,18 @@ public class Tile : MonoBehaviour
     public void SetColor(TileColorState newColor)
     {
         if (ColorState == newColor || isBumping) return;
-
-        if (ColorState == TileColorState.Enemy)
-            EnemyTiles.Remove(this);
+        Release();
+        Debug.Log($"[Tile {transform.position}] »ö º¯°æ: {ColorState} ¡æ {newColor}");
 
         ColorState = newColor;
         LastChangedTime = Time.time;
         AnimateBump();
 
-        if (ColorState == TileColorState.Enemy)
-            EnemyTiles.Add(this);
 
         Color c = GetColorFromState(newColor);
         rend.GetPropertyBlock(block);
+
+        block.Clear();
         block.SetColor("_BaseColor", c);
         rend.SetPropertyBlock(block);
     }
@@ -82,7 +81,15 @@ public class Tile : MonoBehaviour
         isBumping = false;
     }
 
+    public void Reserve()
+    {
+        IsReserved = true;
+    }
 
+    public void Release()
+    {
+        IsReserved = false;
+    }
     private Color GetColorFromState(TileColorState state)
     {
         return state switch

@@ -1,5 +1,5 @@
 using UnityEngine;
-
+using UnityEngine.UI;
 public enum Direction
 {
     Front, 
@@ -18,6 +18,11 @@ public class Enemy : MonoBehaviour
     public Direction moveDirection = Direction.Front;
     Vector3 direction;
 
+
+    [SerializeField] GameObject hpBarPrefab;
+    GameObject hpBarInstance;
+    Image hpBarFillImage;
+
     public GameObject OverlayPrefab;
 
     void Awake()
@@ -33,7 +38,7 @@ public class Enemy : MonoBehaviour
         transform.position = pos;
 
         //ShowOverlayAtSpawm();
-
+        CreateHpBar();
     }
     public void TakeDamage(int dmg)
     {
@@ -43,6 +48,19 @@ public class Enemy : MonoBehaviour
             Destroy(gameObject);
         }
     }
+
+    void CreateHpBar()
+    {
+        if (hpBarPrefab == null) return;
+        hpBarInstance = Instantiate(hpBarPrefab, this.transform);
+        hpBarInstance.transform.localPosition = new Vector3(0, 2.5f, 0);
+
+        hpBarFillImage = hpBarInstance.GetComponentInChildren<Image>();
+        hpBarFillImage.fillAmount = 1f;
+
+        Debug.Log(hpBarFillImage.fillAmount);
+    }
+
 
     private void Update()
     {
