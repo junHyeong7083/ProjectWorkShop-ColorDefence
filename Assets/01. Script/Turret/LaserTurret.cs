@@ -23,31 +23,36 @@ public class LaserTurret : TurretBase
                 continue;
             }
 
-            // 타겟이 없거나, 타겟이 더 이상 유효하지 않다면 새로 찾음
-            if (targetTile == null || !IsValidTarget(targetTile))
+            if (turretData.actionType == TurretActionType.AttackTile)
             {
-                targetTile = FindOldestEnemyTile();
-
-                if (targetTile == null)
+                // 타겟이 없거나, 타겟이 더 이상 유효하지 않다면 새로 찾음
+                if (targetTile == null || !IsValidTarget(targetTile))
                 {
-                    lineRenderer.enabled = false;
-                    yield return new WaitForSeconds(0.05f); // 잠깐 대기 후 재탐색
-                    continue;
+                    targetTile = FindOldestEnemyTile();
+
+                    if (targetTile == null)
+                    {
+                        lineRenderer.enabled = false;
+                        yield return new WaitForSeconds(0.05f); // 잠깐 대기 후 재탐색
+                        continue;
+                    }
+
+                    yield return RotateToTarget(targetTile.CenterWorldPos);
+
+                    // 시각적으로 레이저 보여주기
+                    FireLaserToTarget(targetTile);
+                    // 틱 데미지 또는 색상 변경 처리
+                    AttackTile(targetTile);
                 }
 
-                yield return RotateToTarget(targetTile.CenterWorldPos);
             }
-
-            // 시각적으로 레이저 보여주기
-            FireLaserToTarget(targetTile);
-            // 틱 데미지 또는 색상 변경 처리
-            TickLaserDamage(targetTile);
+            else if (turretData.actionType == TurretActionType.AttackEnemy) ;
 
             yield return new WaitForSeconds(turretData.laserTickInterval);
         }
     }
 
-    // 유효한 타겟인지 확인 (Enemy 상태인지 등)
+    // 유효한 타겟인지 확인
     private bool IsValidTarget(Tile tile)
     {
         return tile != null && tile.ColorState == TileColorState.Enemy;
@@ -62,7 +67,7 @@ public class LaserTurret : TurretBase
     }
 
     // 틱마다 타일에 데미지 또는 색상 변경 처리
-    private void TickLaserDamage(Tile tile)
+    void AttackTile(Tile tile)
     {
         if (tile.ColorState == TileColorState.Enemy)
         {
@@ -90,7 +95,7 @@ public class LaserTurret : TurretBase
             StartCoroutine(CooldownDelay());
         }
     }
-
+    protected override void AttackTile() { /* 틱 구조에서는 사용 안 함 */ }
     // 장전 대기 코루틴
     private IEnumerator CooldownDelay()
     {
@@ -99,7 +104,6 @@ public class LaserTurret : TurretBase
         isCoolingDown = false;
     }
 
-    protected override void AttackTile() { /* 틱 구조에서는 사용 안 함 */ }
     protected override void AttackEnemy() { /* 레이저는 Enemy 대상 아님 */ }
 
     // 타겟을 향해 부드럽게 회전
