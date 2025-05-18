@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 1
   turretType: 0
-  baseAttackRange: 2
+  baseAttackRange: 6
   baseAttackRate: 1
   baseDamage: 1
-  attackRangeGrowth: 1
+  attackRangeGrowth: 2
   attackRateGrowth: 1
   damageGrowth: 1
   placementCost: 10
+  width: 2
+  height: 2

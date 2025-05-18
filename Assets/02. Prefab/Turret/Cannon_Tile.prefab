@@ -12,8 +12,8 @@ GameObject:
   - component: {fileID: 1619494245175314252}
   - component: {fileID: 6630517961465341445}
   - component: {fileID: 7175750109371598125}
-  - component: {fileID: 7607262896313087503}
   - component: {fileID: -1155400062177581101}
+  - component: {fileID: 9091883726587585891}
   m_Layer: 0
   m_Name: Cannon_Tile
   m_TagString: Untagged
@@ -112,18 +112,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
---- !u!114 &7607262896313087503
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 232714186913778390}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 50930434c069be14b9211b77b51a175e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &-1155400062177581101
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -137,3 +125,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rangePrefab: {fileID: 4655392896735956561, guid: 903a8c3d404c9f64bb87b152e64177d1, type: 3}
+--- !u!114 &9091883726587585891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232714186913778390}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df3dc89c71846eb4f85c80f2b772ccdc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

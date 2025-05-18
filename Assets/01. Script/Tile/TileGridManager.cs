@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TileGridManager : MonoBehaviour
@@ -10,16 +11,18 @@ public class TileGridManager : MonoBehaviour
     private Tile[,] tiles;
     public float cubeSize;
 
+    private Dictionary<Vector2Int, Tile> tileMap = new();
+
     void Awake()
     {
         Instance = this;
         tiles = new Tile[Width, Height];
         GenerateGrid();
 
-        // test
+       /* // test
         tiles[0, 0].SetColor(TileColorState.Player);
         tiles[10, 10].SetColor(TileColorState.Enemy);
-        tiles[20, 20].SetColor(TileColorState.Player);
+        tiles[20, 20].SetColor(TileColorState.Player);*/
     }
 
     void GenerateGrid()
@@ -35,7 +38,9 @@ public class TileGridManager : MonoBehaviour
                 GameObject go = Instantiate(TilePrefab, worldPos, Quaternion.identity, mapParent.transform);
                 Tile tile = go.GetComponent<Tile>();
                 tile.Init(x, z);
+
                 tiles[x, z] = tile;
+                tileMap[new Vector2Int(x, z)] = tile;
             }
         }
     }
@@ -45,4 +50,56 @@ public class TileGridManager : MonoBehaviour
         if (x < 0 || x >= Width || z < 0 || z >= Height) return null;
         return tiles[x, z];
     }
+
+    public Tile GetTileFast(int x, int z)
+    {
+        tileMap.TryGetValue(new Vector2Int(x, z), out var tile);
+        return tile;
+    }
+
+
+    public bool CanPlaceTurret(int startX, int startZ, int width, int height)
+    {
+        for(int x = 0; x < width; x++)
+        {
+            for(int z = 0; z < height; z++)
+            {
+                Tile tile = GetTile(startX + x, startZ +z);
+                if (tile == null || tile.IsOccupied)
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    public List<Tile> GetTilesInRange(Vector3 worldPos, float range)
+    {
+        List<Tile> result = new();
+
+        float halfRange = range;
+        int minX = Mathf.FloorToInt((worldPos.x - halfRange) / cubeSize);
+        int maxX = Mathf.FloorToInt((worldPos.x + halfRange) / cubeSize);
+        int minZ = Mathf.FloorToInt((worldPos.z - halfRange) / cubeSize);
+        int maxZ = Mathf.FloorToInt((worldPos.z + halfRange) / cubeSize);
+
+        for (int x = minX; x <= maxX; x++)
+        {
+            for (int z = minZ; z <= maxZ; z++)
+            {
+                Tile tile = GetTile(x, z); // 배열 접근
+                if (tile == null) continue;
+
+                Vector3 tilePos = new Vector3((x + 0.5f) * cubeSize, 0, (z + 0.5f) * cubeSize);
+                Vector3 diff = tilePos - worldPos;
+
+
+                if (diff.x * diff.x + diff.z * diff.z > range * range) continue;
+
+                result.Add(tile);
+            }
+        }
+
+        return result;
+    }
 }
+

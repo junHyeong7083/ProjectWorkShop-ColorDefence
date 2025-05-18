@@ -19,7 +19,7 @@ public class TurretRangeVisualizer : MonoBehaviour
             rangeInstance.transform.localPosition = Vector3.zero;
             rangeInstance.transform.localRotation = Quaternion.Euler(90, 0, 0);
         }
-        rangeInstance.transform.localScale = Vector3.one * (range * 2f);
+        rangeInstance.transform.localScale = Vector3.one * range/2;
         rangeInstance.SetActive(true);
     }
 

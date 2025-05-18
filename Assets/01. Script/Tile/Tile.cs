@@ -1,71 +1,97 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 public enum TileColorState { Neutral, Player, Enemy }
 
 public class Tile : MonoBehaviour
 {
+    public static List<Tile> EnemyTiles = new();
+
     public Vector2Int GridPos { get; private set; }
     public TileColorState ColorState { get; private set; }
+    public float LastChangedTime { get; private set; } = -999f;
+    public Vector3 CenterWorldPos => transform.position;
+    public bool IsOccupied { get; set; }
+    public bool IsBumping => isBumping;
 
     private Renderer rend;
-    MaterialPropertyBlock block;
+    private MaterialPropertyBlock block;
+    private bool isBumping = false;
+
+
+    public TurretBase TargetingTurret { get; set; } = null;
+
 
     private void Awake()
     {
         block = new MaterialPropertyBlock();
         rend = GetComponent<Renderer>();
     }
+
     public void Init(int x, int z)
     {
         GridPos = new Vector2Int(x, z);
         SetColor(TileColorState.Neutral);
-
+        IsOccupied = false;
     }
 
-    public void AnimateBump()
-    {
-        StartCoroutine(BumpRoutine());
-    }
-
-    IEnumerator BumpRoutine()
-    {
-        Vector3 origin = transform.position;
-        float time = 0f;
-        float duration = 0.2f;
-        float height = TileGridManager.Instance.cubeSize*0.6f;
-
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-            float progress = time / duration;
-            float yOffset = Mathf.Sin(progress * Mathf.PI) * height; // 부드럽게 올렸다가 내림
-            transform.position = origin + new Vector3(0, yOffset, 0);
-            yield return null;
-        }
-
-        transform.position = origin;
-    }
     public void SetColor(TileColorState newColor)
     {
-        if (ColorState == newColor) return;
-        AnimateBump();
+        if (ColorState == newColor || isBumping) return;
+
+        if (ColorState == TileColorState.Enemy)
+            EnemyTiles.Remove(this);
+
         ColorState = newColor;
+        LastChangedTime = Time.time;
+        AnimateBump();
+
+        if (ColorState == TileColorState.Enemy)
+            EnemyTiles.Add(this);
 
         Color c = GetColorFromState(newColor);
-
         rend.GetPropertyBlock(block);
         block.SetColor("_BaseColor", c);
         rend.SetPropertyBlock(block);
     }
 
-    Color GetColorFromState(TileColorState state)
+    public void AnimateBump()
     {
-        switch (state)
+        if (isBumping) return;
+        StartCoroutine(BumpRoutine());
+    }
+
+    private IEnumerator BumpRoutine()
+    {
+        isBumping = true;
+        Vector3 origin = transform.position;
+        float time = 0f;
+        float duration = 0.3f;
+        float height = TileGridManager.Instance.cubeSize * 0.6f;
+
+        while (time < duration)
         {
-            case TileColorState.Player: return Color.blue;
-            case TileColorState.Enemy: return Color.red;
-            case TileColorState.Neutral: return Color.gray;
-            default: return Color.black;
+            time += Time.deltaTime;
+            float progress = time / duration;
+            float yOffset = Mathf.Sin(progress * Mathf.PI) * height;
+            transform.position = origin + new Vector3(0, yOffset, 0);
+            yield return null;
         }
+
+        transform.position = origin;
+        isBumping = false;
+    }
+
+
+    private Color GetColorFromState(TileColorState state)
+    {
+        return state switch
+        {
+            TileColorState.Player => Color.blue,
+            TileColorState.Enemy => Color.red,
+            TileColorState.Neutral => Color.gray,
+            _ => Color.black
+        };
     }
 }
+

@@ -21,3 +21,5 @@ MonoBehaviour:
   attackRateGrowth: 1
   damageGrowth: 2
   placementCost: 35
+  width: 4
+  height: 4
