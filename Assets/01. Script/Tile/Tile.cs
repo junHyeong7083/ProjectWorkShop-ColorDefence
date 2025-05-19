@@ -10,8 +10,14 @@ public class Tile : MonoBehaviour
     public TileColorState ColorState { get; private set; }
     public float LastChangedTime { get; private set; } = -999f;
     public Vector3 CenterWorldPos => transform.position;
+    
+    // 해당 타일이 점유되어있는지 확인하는 프로퍼티
     public bool IsOccupied { get; set; }
+
+    // 공격시스템시 타게팅 되었는지 확인가능한 프로퍼티
     public bool IsReserved { get; private set; } = false;
+    
+    // 애니메이션 중복재생 막기위해
     public bool IsBumping => isBumping;
 
     private Renderer rend;
@@ -39,7 +45,7 @@ public class Tile : MonoBehaviour
     {
         if (ColorState == newColor || isBumping) return;
         Release();
-        Debug.Log($"[Tile {transform.position}] 색 변경: {ColorState} → {newColor}");
+       // Debug.Log($"[Tile {transform.position}] 색 변경: {ColorState} → {newColor}");
 
         ColorState = newColor;
         LastChangedTime = Time.time;

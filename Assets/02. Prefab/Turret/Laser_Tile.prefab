@@ -137,6 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b22b7535386cac34ab6f09d12cc57af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  occupiedTiles: []
   firePoint: {fileID: 1144550821841639274}
   headToRotate: {fileID: 6360161105186168528}
   lineRenderer: {fileID: 4803868277841697891}
@@ -185,7 +186,7 @@ LineRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Positions:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 1}
@@ -239,7 +240,7 @@ LineRenderer:
       m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
-    alignment: 0
+    alignment: 1
     textureMode: 0
     textureScale: {x: 1, y: 1}
     shadowBias: 0.5

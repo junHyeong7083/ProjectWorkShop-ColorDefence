@@ -12,6 +12,13 @@ public class LaserTurret : TurretBase
     private float elapsed = 0f;                            // 누적 시간 (레이저 유지 시간 계산용)
     private bool isCoolingDown = false;                    // 장전 시간 중인지 여부
 
+
+    private void Start()
+    {
+        lineRenderer.widthMultiplier = 0.1f;
+        lineRenderer.widthCurve = AnimationCurve.Linear(0, 1, 1, 1);
+    }
+    float isTickTime = 0;
     protected override IEnumerator PerformActionRoutine()
     {
         while (true)
@@ -23,33 +30,42 @@ public class LaserTurret : TurretBase
                 continue;
             }
 
+            // AttackTile 터렛일때
             if (turretData.actionType == TurretActionType.AttackTile)
             {
-                // 타겟이 없거나, 타겟이 더 이상 유효하지 않다면 새로 찾음
+                // 타게팅 된 타일이 존재하지않을때
                 if (targetTile == null || !IsValidTarget(targetTile))
                 {
+                    // 타일찾기
                     targetTile = FindOldestEnemyTile();
+                   // Debug.Log("Tile Found..");
+                    // 변수
+                    elapsed = 0f;
 
                     if (targetTile == null)
                     {
                         lineRenderer.enabled = false;
-                        yield return new WaitForSeconds(0.05f); // 잠깐 대기 후 재탐색
+                        yield return new WaitForSeconds(0.05f);
                         continue;
                     }
 
                     yield return RotateToTarget(targetTile.CenterWorldPos);
-
-                    // 시각적으로 레이저 보여주기
-                    FireLaserToTarget(targetTile);
-                    // 틱 데미지 또는 색상 변경 처리
-                    AttackTile(targetTile);
                 }
-
+               // Debug.Log("Tile Detect!");
+                FireLaserToTarget(targetTile);
+                AttackTile(targetTile);
             }
-            else if (turretData.actionType == TurretActionType.AttackEnemy) ;
 
-            yield return new WaitForSeconds(turretData.laserTickInterval);
+            else if (turretData.actionType == TurretActionType.AttackEnemy) { }
+
+           // yield return new WaitForSeconds(turretData.laserTickInterval);
         }
+    }
+    private IEnumerator CooldownDelay()
+    {
+        isCoolingDown = true;
+        yield return new WaitForSeconds(3f); // 고정 장전 시간
+        isCoolingDown = false;
     }
 
     // 유효한 타겟인지 확인
@@ -61,49 +77,55 @@ public class LaserTurret : TurretBase
     // 레이저 시각 효과
     private void FireLaserToTarget(Tile tile)
     {
+        Vector3 startPos = firePoint.position + Vector3.up * 2f;
+        Vector3 endPos = tile.CenterWorldPos + Vector3.up *2f;
+
+
         lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, firePoint.position);
-        lineRenderer.SetPosition(1, tile.CenterWorldPos);
+        lineRenderer.SetPosition(0, startPos);
+        lineRenderer.SetPosition(1, endPos);
     }
+
 
     // 틱마다 타일에 데미지 또는 색상 변경 처리
     void AttackTile(Tile tile)
     {
+        elapsed += Time.deltaTime; // 전체 공격시간 계산변수
         if (tile.ColorState == TileColorState.Enemy)
         {
-            tile.SetColor(TileColorState.Player);
-            tile.AnimateBump();
+            isTickTime += Time.deltaTime; // 틱을 계산할 변수
+            if (isTickTime >= turretData.laserTickInterval) // 만약 틱시간이 attrate(공격까지 걸리는시간) 
+            {
+                // 이펙트 재생
+                EffectManager.Instance.PlayEffect( TurretType.Laser, TurretActionType.AttackTile,tile.CenterWorldPos);
 
-            EffectManager.Instance.PlayEffect(
-                TurretType.Laser,
-                TurretActionType.AttackTile,
-                tile.CenterWorldPos
-            );
+                // 타일 색 -> 플레이어로
+                tile.SetColor(TileColorState.Player);
+                // 타일의 애니메이션재생
+                tile.AnimateBump();
+
+                // 공격이 끝났으니 타게팅 터렛을 null로 비우고
+                tile.TargetingTurret = null;
+                targetTile = null;
+                // 틱 값을 0으로
+                isTickTime = 0;
+            }
         }
-
-        // 누적 시간 증가
-        elapsed += turretData.laserTickInterval;
 
         // 레이저 유지 시간 초과 시 타겟 초기화 및 장전 대기 시작
         if (elapsed >= turretData.laserDuration)
         {
             tile.Release();
             tile.TargetingTurret = null;
+
             elapsed = 0f;
-            targetTile = null;
             lineRenderer.enabled = false;
             StartCoroutine(CooldownDelay());
         }
     }
     protected override void AttackTile() { /* 틱 구조에서는 사용 안 함 */ }
     // 장전 대기 코루틴
-    private IEnumerator CooldownDelay()
-    {
-        isCoolingDown = true;
-        yield return new WaitForSeconds(3f); // 고정 장전 시간
-        isCoolingDown = false;
-    }
-
+ 
     protected override void AttackEnemy() { /* 레이저는 Enemy 대상 아님 */ }
 
     // 타겟을 향해 부드럽게 회전
