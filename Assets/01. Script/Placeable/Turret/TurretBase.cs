@@ -140,12 +140,9 @@ public abstract class TurretBase : PlaceableBase
     }
 
     // Enemy 타일 우선순위 평가 함수 (가중치 기반)
-    protected virtual float EvaluateTileScore(Tile tile, Vector3 origin)
+    protected float EvaluateTileScore(Tile tile, Vector3 origin)
     {
-        float timeFactor = Time.time - tile.LastChangedTime;
-        float distSqr = (tile.CenterWorldPos - origin).sqrMagnitude;
-
-        return timeFactor * 1.0f + distSqr * 0.5f;
+        return Time.time - tile.LastChangedTime;
     }
 
     #region 반환 메서드

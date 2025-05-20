@@ -41,7 +41,7 @@ public class GatlingTurret : TurretBase
         if (currentTarget == null) return;
 
         Vector3 dir = (currentTarget.transform.position - firePoint.position).normalized;
-        BulletPool.Instance.Get(firePoint.position, dir);
+        BulletPool.Instance.GetEnemyBullet(firePoint.position, dir);
 
     }
 
@@ -54,7 +54,7 @@ public class GatlingTurret : TurretBase
         Tile tileToHit = targetTile;
         Vector3 dir = (targetTile.CenterWorldPos - firePoint.position).normalized;
 
-        BulletPool.Instance.Get(firePoint.position, dir, () =>
+        BulletPool.Instance.GetTileBullet(firePoint.position, dir, () =>
         {
             if (tileToHit != null && tileToHit.ColorState == TileColorState.Enemy)
             {

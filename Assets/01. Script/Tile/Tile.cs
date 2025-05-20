@@ -45,9 +45,13 @@ public class Tile : MonoBehaviour
     {
         if (ColorState == newColor || isBumping) return;
         Release();
-       // Debug.Log($"[Tile {transform.position}] 색 변경: {ColorState} → {newColor}");
+        // Debug.Log($"[Tile {transform.position}] 색 변경: {ColorState} → {newColor}");
+        TileCounter.Instance.Decrement(ColorState);
+
 
         ColorState = newColor;
+
+        TileCounter.Instance.Increment(newColor);
         LastChangedTime = Time.time;
         AnimateBump();
 

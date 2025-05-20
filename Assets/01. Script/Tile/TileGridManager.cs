@@ -19,7 +19,7 @@ public class TileGridManager : MonoBehaviour
     {
         Instance = this;
         tiles = new Tile[Width, Height];
-        StartCoroutine( GenerateGrid());
+        GenerateGrid();
 
        /* // test
         tiles[0, 0].SetColor(TileColorState.Player);
@@ -27,11 +27,11 @@ public class TileGridManager : MonoBehaviour
         tiles[20, 20].SetColor(TileColorState.Player);*/
     }
 
-    IEnumerator GenerateGrid()
+    void GenerateGrid()
     {
         GameObject mapParent = new GameObject("Map");
 
-        int createdCnt = 0;
+       // int createdCnt = 0;
         for (int x = 0; x < Width; x++)
         {
             for (int z = 0; z < Height; z++)
@@ -45,9 +45,9 @@ public class TileGridManager : MonoBehaviour
                 tileMap[new Vector2Int(x, z)] = tile;
 
                 // 프레임 나눠서 처리
-                createdCnt++;
+              /*  createdCnt++;
                 if (createdCnt % 50 == 0)
-                    yield return null;
+                    yield return null;*/
             }
         }
         IsInitialized = true;

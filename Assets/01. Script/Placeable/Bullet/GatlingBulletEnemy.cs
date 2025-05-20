@@ -1,12 +1,12 @@
-using System;
 using UnityEngine;
-
-public class Bullet : MonoBehaviour
+using System;
+public class GatlingBulletEnemy : MonoBehaviour
 {
     public float speed = 20f;
     Vector3 direction;
     float lifeTime = 5f;
 
+    bool hasHit = false;
     // 도착시 실행될 콜백 함수
     private Action onArrive;
     public void Init(Vector3 dir, Action onArriveCallback = null)
@@ -19,37 +19,32 @@ public class Bullet : MonoBehaviour
         Invoke(nameof(ReturnToPool), lifeTime);
     }
 
+    private void OnEnable() => hasHit = false;
     void Update()
     {
         transform.position += direction * speed * Time.deltaTime;
-
-        if (onArrive != null)
-        {
-            float groundY = 0f;
-            if (transform.position.y <= groundY + 0.1f)
-            {
-                onArrive?.Invoke();
-                onArrive = null;
-                ReturnToPool();
-            }
-        }
     }
     void ReturnToPool()
     {
         BulletPool.Instance.Return(this);
     }
-
     void OnTriggerEnter(Collider other)
     {
+        if (hasHit) return;
+
         if (other.CompareTag("Enemy"))
         {
+            hasHit = true;
+
+            onArrive?.Invoke();
+            onArrive = null;
             // 데미지 처리 (원하면 확장)
-            ReturnToPool();
 
             EffectManager.Instance.PlayEffect(TurretType.Gatling, TurretActionType.AttackEnemy, this.transform.position);
 
+            ReturnToPool();
         }
-
+      
 
     }
 }

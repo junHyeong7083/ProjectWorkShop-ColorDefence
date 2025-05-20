@@ -35,12 +35,17 @@ public class EnemyPathfinder : MonoBehaviour
 
 
     // A* 알고리즘을 이용해 경로 계산
-    public void RecalculatePath()
+    public void RecalculatePath(Dictionary<Tile, int> distanceMap = null)
     {
+        if (distanceMap != null && distanceMap.ContainsKey(currentTile))
+        {
+            RecalculatePathFromMap(distanceMap);
+            return;
+        }
+
         Tile goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
         var newPath = Pathfinding.APointFindPath(currentTile, goalTile);
 
-        // 경로가 있으면 path 큐에 저장하고, 없으면 비움
         if (newPath != null)
             path = new Queue<Tile>(newPath);
         else

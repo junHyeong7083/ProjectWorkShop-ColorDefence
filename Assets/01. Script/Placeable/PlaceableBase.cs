@@ -14,7 +14,6 @@ public abstract class PlaceableBase : MonoBehaviour
 
     protected virtual void OnMouseDown()
     {
-        Debug.Log("fucking");
         PlaceableUIManager.Instance.Select(this);
     }
 }
