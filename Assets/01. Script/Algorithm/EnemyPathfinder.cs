@@ -1,6 +1,7 @@
 // EnemyPathfinder.cs - distanceMap 기반 경로 추적 최적화
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class EnemyPathfinder : MonoBehaviour
 {
@@ -15,9 +16,13 @@ public class EnemyPathfinder : MonoBehaviour
 
     public Tile CurrentTile => currentTile;
 
-    void Start()
+    IEnumerator Start()
     {
         speed = data.Speed;
+
+        // 타일 초기화 끝날 때까지 대기
+        while (!TileGridManager.Instance || !TileGridManager.Instance.IsInitialized)
+            yield return null;
 
         currentTile = TileGridManager.Instance.GetTile(
             Mathf.FloorToInt(transform.position.x / TileGridManager.Instance.cubeSize),
@@ -33,7 +38,7 @@ public class EnemyPathfinder : MonoBehaviour
     public void RecalculatePath()
     {
         Tile goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
-        var newPath = Pathfinding.FindPath(currentTile, goalTile);
+        var newPath = Pathfinding.APointFindPath(currentTile, goalTile);
 
         // 경로가 있으면 path 큐에 저장하고, 없으면 비움
         if (newPath != null)
@@ -83,7 +88,7 @@ public class EnemyPathfinder : MonoBehaviour
             tile.IsOccupied = true;
 
         Tile goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
-        var result = Pathfinding.FindPath(currentTile, goalTile);
+        var result = Pathfinding.APointFindPath(currentTile, goalTile);
 
         foreach (var tile in occupiedTiles)
             tile.IsOccupied = false;

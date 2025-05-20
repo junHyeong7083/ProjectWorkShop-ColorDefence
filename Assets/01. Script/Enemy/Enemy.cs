@@ -102,7 +102,7 @@ public class Enemy : MonoBehaviour
                 int z = centerZ + dz;
 
                 var tile = TileGridManager.Instance.GetTile(x, z);
-                if (tile != null && tile.ColorState != Data.InfectColor)
+                if (tile != null && tile.ColorState != Data.InfectColor && !tile.IsOccupied) // 점유가 된 블럭은 감염x
                     tile.SetColor(Data.InfectColor);
             }
         }

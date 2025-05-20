@@ -5,7 +5,7 @@ using UnityEngine;
 public static class Pathfinding
 {
     // A* 알고리즘 사용 -> 최적 경로 탐색
-    public static List<Tile> FindPath(Tile startTile, Tile goalTile)
+    public static List<Tile> APointFindPath(Tile startTile, Tile goalTile)
     {
         if (startTile == null || goalTile == null)
             return null;

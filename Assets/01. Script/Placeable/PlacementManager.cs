@@ -73,6 +73,7 @@ public class PlacementManager : MonoBehaviour
         previewInstance.transform.position = previewPos;
 
         bool canPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
+        Dictionary<Tile, int> cachedDistanceMap = null;
 
         if (canPlace && placementType == PlacementType.Fence)
         {
@@ -90,11 +91,11 @@ public class PlacementManager : MonoBehaviour
             TileUtility.MarkTilesOccupied(simulatedTiles, true);
 
             Tile goalTile = TileGridManager.Instance.GetTile(0, 0);
-            var distanceMap = Pathfinding.GenerateDistanceMap(goalTile);
+            cachedDistanceMap = Pathfinding.GenerateDistanceMap(goalTile);
 
             foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
             {
-                if (!distanceMap.ContainsKey(enemy.CurrentTile))
+                if (!cachedDistanceMap.ContainsKey(enemy.CurrentTile))
                 {
                     canPlace = false;
                     break;
@@ -112,7 +113,7 @@ public class PlacementManager : MonoBehaviour
             if (placementType == PlacementType.Turret)
                 PlaceTurret(startX, startZ, previewPos);
             else if (placementType == PlacementType.Fence)
-                PlaceFence(startX, startZ, previewPos);
+                PlaceFence(startX, startZ, previewPos, cachedDistanceMap);
         }
     }
 
@@ -133,7 +134,7 @@ public class PlacementManager : MonoBehaviour
             for (int z = 0; z < data.height; z++)
             {
                 var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
-                if (tile != null)
+                if (tile != null && tile.ColorState != TileColorState.Enemy)
                     tiles.Add(tile);
             }
         }
@@ -144,7 +145,8 @@ public class PlacementManager : MonoBehaviour
         CancelPreview();
     }
 
-    private void PlaceFence(int startX, int startZ, Vector3 pos)
+
+    private void PlaceFence(int startX, int startZ, Vector3 pos, Dictionary<Tile, int> distanceMap)
     {
         var data = currentData as FenceData;
         if (data == null) return;
@@ -166,12 +168,9 @@ public class PlacementManager : MonoBehaviour
             }
         }
 
+
         TileUtility.MarkTilesOccupied(tiles, true);
         fence.occupiedTiles = tiles;
-
-        //  설치 후 경로 재계산 (distanceMap 기반)
-        Tile goalTile = TileGridManager.Instance.GetTile(0, 0);
-        var distanceMap = Pathfinding.GenerateDistanceMap(goalTile);
 
         foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
             enemy.RecalculatePathFromMap(distanceMap);

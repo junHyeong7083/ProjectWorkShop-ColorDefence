@@ -1,23 +1,25 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class TileGridManager : MonoBehaviour
 {
     public static TileGridManager Instance;
-    public int Width = 50;
-    public int Height = 50;
+    public int Width;
+    public int Height;
     public GameObject TilePrefab;
 
     private Tile[,] tiles;
     public float cubeSize;
 
+    public bool IsInitialized { get; private set; } = false;
     private Dictionary<Vector2Int, Tile> tileMap = new();
 
     void Awake()
     {
         Instance = this;
         tiles = new Tile[Width, Height];
-        GenerateGrid();
+        StartCoroutine( GenerateGrid());
 
        /* // test
         tiles[0, 0].SetColor(TileColorState.Player);
@@ -25,24 +27,30 @@ public class TileGridManager : MonoBehaviour
         tiles[20, 20].SetColor(TileColorState.Player);*/
     }
 
-    void GenerateGrid()
+    IEnumerator GenerateGrid()
     {
         GameObject mapParent = new GameObject("Map");
 
+        int createdCnt = 0;
         for (int x = 0; x < Width; x++)
         {
             for (int z = 0; z < Height; z++)
             {
                 Vector3 worldPos = new Vector3(x * cubeSize, 0, z * cubeSize);
-
                 GameObject go = Instantiate(TilePrefab, worldPos, Quaternion.identity, mapParent.transform);
                 Tile tile = go.GetComponent<Tile>();
                 tile.Init(x, z);
 
                 tiles[x, z] = tile;
                 tileMap[new Vector2Int(x, z)] = tile;
+
+                // 프레임 나눠서 처리
+                createdCnt++;
+                if (createdCnt % 50 == 0)
+                    yield return null;
             }
         }
+        IsInitialized = true;
     }
 
     public Tile GetTile(int x, int z)
@@ -65,7 +73,9 @@ public class TileGridManager : MonoBehaviour
             for(int z = 0; z < height; z++)
             {
                 Tile tile = GetTile(startX + x, startZ +z);
-                if (tile == null || tile.IsOccupied)
+
+                // tile 이 점유x ||  타일의 현재색이 enemy =>  return false;
+                if (tile == null || tile.IsOccupied || tile.ColorState == TileColorState.Enemy)
                     return false;
             }
         }
