@@ -137,6 +137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b22b7535386cac34ab6f09d12cc57af6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  occupiedTiles: []
+  firePoint: {fileID: 3687657172962165429}
+  headToRotate: {fileID: 6360161105186168528}
+  lineRenderer: {fileID: 1030208209755239342}
+  rotateSpeed: 10
 --- !u!120 &1030208209755239342
 LineRenderer:
   serializedVersion: 2
@@ -304,5 +309,10 @@ PrefabInstance:
 --- !u!4 &3191084854458891354 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 383065011476600112, guid: 638469ef4c1d9cd4b9d97e096ebf1956, type: 3}
+  m_PrefabInstance: {fileID: 2961654818580932970}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3687657172962165429 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1888373788303944671, guid: 638469ef4c1d9cd4b9d97e096ebf1956, type: 3}
   m_PrefabInstance: {fileID: 2961654818580932970}
   m_PrefabAsset: {fileID: 0}

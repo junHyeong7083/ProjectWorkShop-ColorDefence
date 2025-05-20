@@ -38,6 +38,8 @@ public class PlacementManager : MonoBehaviour
     void PlaceTurret(int _startX, int _startZ, Vector3 _pos)
     {
         var turretData = currentData as TurretData;
+        if (turretData == null) return;
+
         if (!GameManager.instance.SpendGold(turretData.placementCost)) return;
 
         GameObject turret = Instantiate(currentPrefab, _pos, Quaternion.identity);
@@ -64,6 +66,8 @@ public class PlacementManager : MonoBehaviour
     void PlaceFence(int _startX, int _startZ, Vector3 _pos)
     {
         var fenceData = currentData as FenceData;
+        if(fenceData == null) return;   
+
         if (!GameManager.instance.SpendGold(fenceData.placementCost)) return;
 
         GameObject fence = Instantiate(currentPrefab, _pos, Quaternion.identity);
