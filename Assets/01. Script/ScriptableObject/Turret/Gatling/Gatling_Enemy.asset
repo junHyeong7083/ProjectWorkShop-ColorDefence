@@ -23,3 +23,6 @@ MonoBehaviour:
   placementCost: 10
   width: 2
   height: 2
+  laserDuration: 0
+  laserTickInterval: 0
+  description: "\uC801\uACF5\uACA9\uB9CC \uAC00\uB2A5\uD55C \uAE30\uAD00\uCD1D\uD3EC\uD0D1"

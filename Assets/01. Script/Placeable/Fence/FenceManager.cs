@@ -5,8 +5,7 @@ public class FenceManager : MonoBehaviour
 {
     public static FenceManager Instance;
     // 나중에 fence를 판매하는 기능을 넣을때  public List<Tile> occupiedTiles = new(); turretbase참고해서 만들어야할듯
-
-    // 아니면 아에 설치가능한 오브젝트 부모클래스하나 만들어도될듯
+    Fence selectedFence;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -18,4 +17,14 @@ public class FenceManager : MonoBehaviour
     {
         PlacementManager.Instance.StartPlacement(data, prefab, PlacementType.Fence);
     }
+
+    public void SelectFence(Fence fence) => selectedFence = fence;
+    public void ClearSelection() => selectedFence = null;
+
+    public void OnClickSell()
+    {
+        if (selectedFence == null) return;
+        selectedFence.Sell();
+    }
+
 }

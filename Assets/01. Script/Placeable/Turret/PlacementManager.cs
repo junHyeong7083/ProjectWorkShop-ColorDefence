@@ -93,7 +93,7 @@ public class PlacementManager : MonoBehaviour
 
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
         TurretBase turretBase = turret.GetComponent<TurretBase>();
-        turretBase.SetTurretData(data);
+        turretBase.SetData(data);
 
         List<Tile> tiles = new();
         for (int x = 0; x < data.width; x++)
@@ -122,7 +122,7 @@ public class PlacementManager : MonoBehaviour
         GameObject fencePrefab = Instantiate(currentPrefab, pos, Quaternion.identity);
         Fence fence = fencePrefab.GetComponent<Fence>();
 
-        fence.SetFenceData(data);
+        fence.SetData(data);
 
         List<Tile> tiles = new();
         for (int x = 0; x < data.Width; x++)

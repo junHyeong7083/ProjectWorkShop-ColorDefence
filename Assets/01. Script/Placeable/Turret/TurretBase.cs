@@ -2,13 +2,12 @@ using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 
-public abstract class TurretBase : MonoBehaviour
+public abstract class TurretBase : PlaceableBase
 {
     // 터렛의 so 참조
     public TurretData turretData { get; private set; } 
     public int CurrentLevel { get; private set; } = 1;
 
-    public List<Tile> occupiedTiles = new();
     // 공격 루프를 돌리기 위한 핸들
     Coroutine attackRoutine;
 
@@ -27,9 +26,9 @@ public abstract class TurretBase : MonoBehaviour
 
 
     // 터렛 데이터를 설정 -> 공격 루프
-    public void SetTurretData(TurretData _turretData)
+    public override void SetData(ScriptableObject data)
     {
-        turretData = _turretData;
+        turretData = data as TurretData;
         CurrentLevel = 1;
 
         if (attackRoutine != null)
@@ -39,7 +38,7 @@ public abstract class TurretBase : MonoBehaviour
     }
 
     // 타워 업그레이드
-    public void Upgrade()
+    public override void Upgrade()
     {
         int cost = GetUpgradeCost();
         if (GameManager.instance.SpendGold(cost))
@@ -47,21 +46,17 @@ public abstract class TurretBase : MonoBehaviour
     }
 
     // 타워 판매 -> 파괴 
-    public void Sell()
+    public override void Sell()
     {
-        int refund = GetSellPrice();
-        GameManager.instance.AddGold(refund);
-
-        foreach (var tile in occupiedTiles)
-            tile.IsOccupied = false;
-
+        GameManager.instance.AddGold(GetSellPrice());
+        TileUtility.MarkTilesOccupied(occupiedTiles, false);
         Destroy(this.gameObject);
     }
 
     // 터렛 클릭시 ui출력 && 범위 시각화
-    private void OnMouseDown()
+    protected override void OnMouseDown()
     {
-        TurretManager.Instance.SelectTurret(this);
+        base.OnMouseDown();
         GetComponent<TurretRangeVisualizer>().Show(GetRange());
     }
     private void OnMouseUp()
@@ -174,5 +169,7 @@ public abstract class TurretBase : MonoBehaviour
 
     public int GetUpgradeCost() => 100 + (CurrentLevel * 50);
     public int GetSellPrice() => 50 + (CurrentLevel * 25);
+
+    public string GetDescription() => turretData.description;
     #endregion
 }

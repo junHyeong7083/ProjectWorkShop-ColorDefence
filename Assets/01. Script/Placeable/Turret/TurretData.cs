@@ -38,4 +38,6 @@ public class TurretData : ScriptableObject
     public float laserDuration;
     public float laserTickInterval;
 
+    public string description;
+
 }
