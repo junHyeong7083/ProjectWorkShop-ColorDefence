@@ -9,6 +9,7 @@ public class TurretManager : MonoBehaviour
 
     [Header("UI")]
     public GameObject selectionPanel;
+    // 해당내용도 나중에 따로 빼서 만들면될듯
     public Text levelText, damageText, rangeText, rateText, upgradeCostText, sellCostText;
 
     private void Awake()

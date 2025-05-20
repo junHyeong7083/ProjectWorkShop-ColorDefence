@@ -15,7 +15,6 @@ public class EnemyPathfinder : MonoBehaviour
             Mathf.FloorToInt(transform.position.x / TileGridManager.Instance.cubeSize),
             Mathf.FloorToInt(transform.position.z / TileGridManager.Instance.cubeSize)
         );
-        Debug.Log($"[Start] {gameObject.name} currentTile = {currentTile}");
         RecalculatePath();
     }
 

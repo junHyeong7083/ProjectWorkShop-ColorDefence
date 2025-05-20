@@ -1,6 +1,8 @@
 using UnityEngine;
+using System.Collections.Generic;
 
-public enum PlacementType { Turret, Fence } // 확장시 추가하는방식으로
+public enum PlacementType { Turret, Fence }
+
 public class PlacementManager : MonoBehaviour
 {
     public static PlacementManager Instance;
@@ -20,88 +22,19 @@ public class PlacementManager : MonoBehaviour
         else Destroy(this.gameObject);
     }
 
-
-    public void StartPlacement(ScriptableObject _data, GameObject _prefab, PlacementType _placementType)
+    public void StartPlacement(ScriptableObject data, GameObject prefab, PlacementType type)
     {
         CancelPreview();
 
-        currentData = _data;
-        currentPrefab = _prefab;
-        placementType = _placementType;
+        currentData = data;
+        currentPrefab = prefab;
+        placementType = type;
 
-        previewInstance = Instantiate(_prefab);
+        previewInstance = Instantiate(prefab);
         previewInstance.GetComponent<Collider>().enabled = false;
 
-        foreach (var render in previewInstance.GetComponentsInChildren<Renderer>()) render.material = previewGreen;
-    }
-
-    void PlaceTurret(int _startX, int _startZ, Vector3 _pos)
-    {
-        var turretData = currentData as TurretData;
-        if (turretData == null) return;
-
-        if (!GameManager.instance.SpendGold(turretData.placementCost)) return;
-
-        GameObject turret = Instantiate(currentPrefab, _pos, Quaternion.identity);
-        TurretBase turretBase = turret.GetComponent<TurretBase>();
-        turretBase.SetTurretData(turretData);
-
-        float tileSize = TileGridManager.Instance.cubeSize;
-        for (int x = 0; x < turretData.width; x++)
-        {
-            for (int z = 0; z < turretData.height; z++)
-            {
-                var tile = TileGridManager.Instance.GetTile(_startX + x, _startZ + z);
-                if (tile != null)
-                {
-                    tile.IsOccupied = true;
-                    turretBase.occupiedTiles.Add(tile);
-                }
-            }
-        }
-        // preview 지우는 코드
-        CancelPreview();
-    }
-
-    void PlaceFence(int _startX, int _startZ, Vector3 _pos)
-    {
-        var fenceData = currentData as FenceData;
-        if(fenceData == null) return;   
-
-        if (!GameManager.instance.SpendGold(fenceData.placementCost)) return;
-
-        GameObject fence = Instantiate(currentPrefab, _pos, Quaternion.identity);
-
-        float tileSize = TileGridManager.Instance.cubeSize;
-        for (int x = 0; x < fenceData.Width; x++)
-        {
-            for (int z = 0; z < fenceData.Height; z++)
-            {
-                var tile = TileGridManager.Instance.GetTile(_startX + x, _startZ + z);
-
-                if (tile != null) tile.IsOccupied = true;
-
-            }
-        }
-
-
-        // 울타리는 설치시 경로 재계산하는게 성능 덜먹을듯
-        foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
-            enemy.RecalculatePath();
-
-
-        // preview 지우는 코드
-        CancelPreview();
-    }
-
-
-    void CancelPreview()
-    {
-        if (previewInstance != null) Destroy(previewInstance);
-
-        previewInstance = null;
-        currentData = null;
-        currentPrefab = null;
+        foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
+            renderer.material = previewGreen;
     }
 
     private void Update()
@@ -111,21 +44,24 @@ public class PlacementManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit)) return;
 
-        int width = 0, height =0;
+        // 데이터 파싱
+        int width = 0, height = 0;
         if (placementType == PlacementType.Turret)
         {
-            var turretData = currentData as TurretData;
-            width = turretData.width;
-            height = turretData.height;
+            var data = currentData as TurretData;
+            if (data == null) return;
+            width = data.width;
+            height = data.height;
         }
         else if (placementType == PlacementType.Fence)
         {
-            var fenceData = currentData as FenceData;
-            width = fenceData.Width;
-            height = fenceData.Height;
+            var data = currentData as FenceData;
+            if (data == null) return;
+            width = data.Width;
+            height = data.Height;
         }
 
-            float tileSize = TileGridManager.Instance.cubeSize;
+        float tileSize = TileGridManager.Instance.cubeSize;
         int startX = Mathf.FloorToInt(hit.point.x / tileSize);
         int startZ = Mathf.FloorToInt(hit.point.z / tileSize);
 
@@ -146,5 +82,74 @@ public class PlacementManager : MonoBehaviour
             else if (placementType == PlacementType.Fence)
                 PlaceFence(startX, startZ, previewPos);
         }
+    }
+
+    private void PlaceTurret(int startX, int startZ, Vector3 pos)
+    {
+        var data = currentData as TurretData;
+        if (data == null) return;
+
+        if (!GameManager.instance.SpendGold(data.placementCost)) return;
+
+        GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
+        TurretBase turretBase = turret.GetComponent<TurretBase>();
+        turretBase.SetTurretData(data);
+
+        List<Tile> tiles = new();
+        for (int x = 0; x < data.width; x++)
+        {
+            for (int z = 0; z < data.height; z++)
+            {
+                var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
+                if (tile != null)
+                    tiles.Add(tile);
+            }
+        }
+
+        TileUtility.MarkTilesOccupied(tiles, true);
+        turretBase.occupiedTiles = tiles;
+
+        CancelPreview();
+    }
+
+    private void PlaceFence(int startX, int startZ, Vector3 pos)
+    {
+        var data = currentData as FenceData;
+        if (data == null) return;
+
+        if (!GameManager.instance.SpendGold(data.placementCost)) return;
+
+        GameObject fencePrefab = Instantiate(currentPrefab, pos, Quaternion.identity);
+        Fence fence = fencePrefab.GetComponent<Fence>();
+
+        fence.SetFenceData(data);
+
+        List<Tile> tiles = new();
+        for (int x = 0; x < data.Width; x++)
+        {
+            for (int z = 0; z < data.Height; z++)
+            {
+                var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
+                if (tile != null)
+                    tiles.Add(tile);
+            }
+        }
+
+        TileUtility.MarkTilesOccupied(tiles, true);
+        fence.occupiedTiles = tiles;
+
+
+        foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
+            enemy.RecalculatePath();
+
+        CancelPreview();
+    }
+
+    private void CancelPreview()
+    {
+        if (previewInstance != null) Destroy(previewInstance);
+        previewInstance = null;
+        currentData = null;
+        currentPrefab = null;
     }
 }
