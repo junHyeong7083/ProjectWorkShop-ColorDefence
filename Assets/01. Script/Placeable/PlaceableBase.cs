@@ -10,7 +10,7 @@ public abstract class PlaceableBase : MonoBehaviour
 
     public abstract void Sell();
 
-    public abstract void Upgrade();
+    public virtual void Upgrade() => PlaceableUIManager.Instance.Select(this);
 
     protected virtual void OnMouseDown()
     {

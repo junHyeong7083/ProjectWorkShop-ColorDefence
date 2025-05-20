@@ -22,15 +22,8 @@ public class PlaceableUIManager : MonoBehaviour
     public void Select(PlaceableBase placeableBase)
     {
         selectPlaceable = placeableBase;
-        if (selectPanel == null)
-        {
-            Debug.LogError("[UIManager] selectPanel¿Ã null¿”!");
-        }
-        else
-        {
-            Debug.Log("[UIManager] selectPanel SetActive »£√‚µ ");
+        if (selectPanel != null)
             selectPanel.SetActive(true);
-        }
 
         selectPlaceable.gameObject.SetActive(true);
 

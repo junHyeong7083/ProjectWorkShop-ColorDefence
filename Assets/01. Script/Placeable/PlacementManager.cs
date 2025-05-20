@@ -1,3 +1,4 @@
+// PlacementManager.cs - 울타리 설치 시 거리맵 기반 경로 재계산 최적화
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -12,9 +13,10 @@ public class PlacementManager : MonoBehaviour
 
     private GameObject currentPrefab;
     private ScriptableObject currentData;
-
     private GameObject previewInstance;
     private PlacementType placementType;
+
+    private List<Tile> simulatedTiles = new();
 
     private void Awake()
     {
@@ -44,7 +46,6 @@ public class PlacementManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit)) return;
 
-        // 데이터 파싱
         int width = 0, height = 0;
         if (placementType == PlacementType.Turret)
         {
@@ -72,6 +73,37 @@ public class PlacementManager : MonoBehaviour
         previewInstance.transform.position = previewPos;
 
         bool canPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
+
+        if (canPlace && placementType == PlacementType.Fence)
+        {
+            simulatedTiles.Clear();
+            for (int x = 0; x < width; x++)
+            {
+                for (int z = 0; z < height; z++)
+                {
+                    var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
+                    if (tile != null)
+                        simulatedTiles.Add(tile);
+                }
+            }
+
+            TileUtility.MarkTilesOccupied(simulatedTiles, true);
+
+            Tile goalTile = TileGridManager.Instance.GetTile(0, 0);
+            var distanceMap = Pathfinding.GenerateDistanceMap(goalTile);
+
+            foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
+            {
+                if (!distanceMap.ContainsKey(enemy.CurrentTile))
+                {
+                    canPlace = false;
+                    break;
+                }
+            }
+
+            TileUtility.MarkTilesOccupied(simulatedTiles, false);
+        }
+
         foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
             r.material = canPlace ? previewGreen : previewRed;
 
@@ -121,7 +153,6 @@ public class PlacementManager : MonoBehaviour
 
         GameObject fencePrefab = Instantiate(currentPrefab, pos, Quaternion.identity);
         Fence fence = fencePrefab.GetComponent<Fence>();
-
         fence.SetData(data);
 
         List<Tile> tiles = new();
@@ -138,9 +169,12 @@ public class PlacementManager : MonoBehaviour
         TileUtility.MarkTilesOccupied(tiles, true);
         fence.occupiedTiles = tiles;
 
+        //  설치 후 경로 재계산 (distanceMap 기반)
+        Tile goalTile = TileGridManager.Instance.GetTile(0, 0);
+        var distanceMap = Pathfinding.GenerateDistanceMap(goalTile);
 
         foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
-            enemy.RecalculatePath();
+            enemy.RecalculatePathFromMap(distanceMap);
 
         CancelPreview();
     }

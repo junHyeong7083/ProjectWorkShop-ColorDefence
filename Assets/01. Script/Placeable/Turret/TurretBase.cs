@@ -4,28 +4,22 @@ using System.Collections.Generic;
 
 public abstract class TurretBase : PlaceableBase
 {
-    // 터렛의 so 참조
-    public TurretData turretData { get; private set; } 
+    public TurretData turretData { get; private set; }
     public int CurrentLevel { get; private set; } = 1;
 
-    // 공격 루프를 돌리기 위한 핸들
     Coroutine attackRoutine;
 
-    // 공격 루프
     IEnumerator StartAttack()
     {
         while (true)
         {
-            // 1. 타겟 찾고 공격
-            yield return PerformActionRoutine(); 
-
-            // 쿨타임 대기
-            yield return new WaitForSeconds(GetAttackRate()); 
+            yield return PerformActionRoutine();
+            yield return new WaitForSeconds(GetAttackRate());
         }
     }
 
 
-    // 터렛 데이터를 설정 -> 공격 루프
+    // 터렛 설치 시 호출. ScriptableObject 설정 및 공격 루프 시작
     public override void SetData(ScriptableObject data)
     {
         turretData = data as TurretData;
@@ -37,7 +31,7 @@ public abstract class TurretBase : PlaceableBase
         attackRoutine = StartCoroutine(StartAttack());
     }
 
-    // 타워 업그레이드
+    // 업그레이드 시도 (골드가 충분할 경우만)
     public override void Upgrade()
     {
         int cost = GetUpgradeCost();
@@ -45,7 +39,7 @@ public abstract class TurretBase : PlaceableBase
             CurrentLevel++;
     }
 
-    // 타워 판매 -> 파괴 
+    // 판매 시 골드 환급 및 타일 점유 해제 후 오브젝트 삭제
     public override void Sell()
     {
         GameManager.instance.AddGold(GetSellPrice());
@@ -53,123 +47,119 @@ public abstract class TurretBase : PlaceableBase
         Destroy(this.gameObject);
     }
 
-    // 터렛 클릭시 ui출력 && 범위 시각화
+    // 클릭 시 UI 선택 처리 및 범위 시각화 표시
     protected override void OnMouseDown()
     {
         base.OnMouseDown();
         GetComponent<TurretRangeVisualizer>().Show(GetRange());
     }
+
     private void OnMouseUp()
     {
         GetComponent<TurretRangeVisualizer>().Hide();
     }
-   
-    // 공격 행동 정의를 위한 추상 코루틴
-    protected virtual IEnumerator PerformActionRoutine()
-    {
-        yield break;
-    }
 
-   // protected abstract void PerformAction();
+    // 공격 루틴은 자식에서 오버라이드해야 함
+    protected virtual IEnumerator PerformActionRoutine() => null;
 
-
-    // 공격 메서드
     protected abstract void AttackEnemy();
     protected abstract void AttackTile();
-
-
 
     // 가장 가까운 적 유닛 탐색
     protected virtual GameObject FindClosestEnemy()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject closest = null;
-        float minDist = Mathf.Infinity;
+        GameObject bestTarget = null;
+        float bestScore = float.MaxValue;
+        float rangeSqr = GetRange() * GetRange();
+        Vector3 origin = transform.position;
 
         foreach (var enemy in enemies)
         {
-            float dist = DistanceXZ(transform.position, enemy.transform.position);
-            if (dist < minDist && dist <= GetRange())
+            if (!IsValidEnemy(enemy)) continue;
+
+            float distSqr = (enemy.transform.position - origin).sqrMagnitude;
+            if (distSqr > rangeSqr) continue;
+
+            if (distSqr < bestScore)
             {
-                closest = enemy;
-                minDist = dist;
+                bestScore = distSqr;
+                bestTarget = enemy;
             }
         }
 
-        return closest;
+        return bestTarget;
     }
 
-    // 가장 오래된 적 타일 탐색( 다른 터렛이 조준 => 제외 )
+    // 유효한 적인지 검사 
+    protected virtual bool IsValidEnemy(GameObject enemy)
+    {
+        return enemy != null;
+    }
+
+    // 가장 오래된 Enemy 타일 탐색 ( 가중치 기준 : EvaluateTileScore함수 )
     protected virtual Tile FindOldestEnemyTile()
     {
         float range = GetRange();
-        float rangeSqr = range * range;
         Vector3 center = transform.position;
 
-        Tile result = null;
+        Tile bestTile = null;
         float bestScore = float.MaxValue;
 
-        var nearbyTiles = TileGridManager.Instance.GetTilesInRange(center, range);
-        foreach (var tile in nearbyTiles)
+        var tilesInRange = TileGridManager.Instance.GetTilesInRange(center, range);
+        foreach (var tile in tilesInRange)
         {
-            if (tile.ColorState != TileColorState.Enemy || tile.IsBumping || tile.IsReserved) continue;
-            if (tile.TargetingTurret != null && tile.TargetingTurret != this) continue;
+            if (!IsValidTargetTile(tile)) continue;
 
-
-            float dx = tile.CenterWorldPos.x - center.x;
-            float dz = tile.CenterWorldPos.z - center.z;
-            float distSqr = dx * dx + dz * dz;
-
-            if (distSqr > rangeSqr) continue;
-
-            float score = tile.LastChangedTime * 1000f + distSqr;
-
+            float score = EvaluateTileScore(tile, center);
             if (score < bestScore)
             {
                 bestScore = score;
-                result = tile;
+                bestTile = tile;
             }
         }
 
-        if (result != null)
+        if (bestTile != null)
         {
-            result.TargetingTurret = this;
-            result.Reserve();
+            bestTile.TargetingTurret = this;
+            bestTile.Reserve();
         }
-            
 
-        return result;
+        return bestTile;
     }
 
 
-    // XZ 평면 기준 거리 계산 커스텀함수
-    protected static float DistanceXZ(Vector3 a, Vector3 b)
+    // 유효한 Enemy 타일인지 검사 (중복 타겟팅 방지 포함)
+    protected virtual bool IsValidTargetTile(Tile tile)
     {
-        Vector2 aXZ = new Vector2(a.x, a.z);
-        Vector2 bXZ = new Vector2(b.x, b.z);
-        return Vector2.Distance(aXZ, bXZ);
+        if (tile.ColorState != TileColorState.Enemy) return false;
+        if (tile.IsBumping || tile.IsReserved) return false;
+        if (tile.TargetingTurret != null && tile.TargetingTurret != this) return false;
+
+        return true;
     }
 
+    // Enemy 타일 우선순위 평가 함수 (가중치 기반)
+    protected virtual float EvaluateTileScore(Tile tile, Vector3 origin)
+    {
+        float timeFactor = Time.time - tile.LastChangedTime;
+        float distSqr = (tile.CenterWorldPos - origin).sqrMagnitude;
 
-    #region ####----- 반환 메서드 -----####
+        return timeFactor * 1.0f + distSqr * 0.5f;
+    }
+
+    #region 반환 메서드
     public int GetDamage() => turretData.baseDamage + (turretData.damageGrowth * (CurrentLevel - 1));
     public float GetRange() => turretData.baseAttackRange + (turretData.attackRangeGrowth * (CurrentLevel - 1));
+
     public float GetAttackRate()
     {
-        // 우선 테스트용으로 0.2f 만큼만 줄어들게
-        float value = turretData.baseAttackRate - (turretData.attackRateGrowth * (CurrentLevel - 1)*0.2f);
-
-        if (turretData.turretType != TurretType.Laser)
-        {
-            value = Mathf.Max(0.3f, value); // 최소공격속도 0.3초 주기
-
-        }
-        return value;
+        float value = turretData.baseAttackRate - (turretData.attackRateGrowth * (CurrentLevel - 1) * 0.2f);
+        return turretData.turretType != TurretType.Laser ? Mathf.Max(0.3f, value) : value;
     }
 
     public int GetUpgradeCost() => 100 + (CurrentLevel * 50);
     public int GetSellPrice() => 50 + (CurrentLevel * 25);
-
     public string GetDescription() => turretData.description;
     #endregion
 }
