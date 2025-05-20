@@ -65,7 +65,6 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         /// test
-        Move();
         InfectTile();
     }
 
@@ -83,11 +82,6 @@ public class Enemy : MonoBehaviour
                 overlay.transform.localPosition = new Vector3(x, -0.5f, z);
             }
         }
-    }
-
-    void Move()
-    {
-        transform.Translate(direction * Data.Speed * Time.deltaTime);
     }
 
 

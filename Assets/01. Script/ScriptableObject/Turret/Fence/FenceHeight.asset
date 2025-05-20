@@ -10,7 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48dade561a0b64e4c90a39c97b7ab046, type: 3}
-  m_Name: Fence
+  m_Name: FenceHeight
   m_EditorClassIdentifier: 
-  Width: 0
-  Height: 0
+  Width: 1
+  Height: 4
+  placementCost: 0

@@ -13,20 +13,32 @@ public class TurretUIButtonBinder : MonoBehaviour
         public GameObject prefab;
     }
 
-    [SerializeField] private List<TurretEntry> turretList;
+    [System.Serializable]
+    public class FenceEntry
+    {
+        public FenceData data;
+        public GameObject prefab;
+    }
 
+
+    [SerializeField] private List<TurretEntry> turretList;
+    [SerializeField] private List<FenceEntry> fenceList;
     void Start()
     {
+        int totalTurretButtons = turretList.Count;
 
-        int e = 0;
-        foreach (var entry in turretList)
+        for (int i = 0; i < turretList.Count; i++)
         {
-            var button = buttons[e].GetComponent<Button>();
-            var handler = buttons[e].GetComponent<UIButtonTurret>();
+            var handler = buttons[i].GetComponent<UIButtonTurret>();
+            handler.InitTurret(turretList[i].data, turretList[i].prefab);
+            buttons[i].onClick.AddListener(handler.OnClickTurret);
+        }
 
-            handler.Init(entry.data, entry.prefab);
-            button.onClick.AddListener(handler.OnClick);
-            e++;
+        for (int i = 0; i < fenceList.Count; i++)
+        {
+            var handler = buttons[totalTurretButtons + i].GetComponent<UIButtonTurret>();
+            handler.InitFence(fenceList[i].data, fenceList[i].prefab);
+            buttons[totalTurretButtons + i].onClick.AddListener(handler.OnClickFence);
         }
     }
 }
