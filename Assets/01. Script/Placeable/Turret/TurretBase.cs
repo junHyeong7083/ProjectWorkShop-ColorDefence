@@ -111,7 +111,7 @@ public abstract class TurretBase : PlaceableBase
         {
             if (!IsValidTargetTile(tile)) continue;
 
-            float score = EvaluateTileScore(tile, center);
+            float score = EvaluateTileScore(tile);
             if (score < bestScore)
             {
                 bestScore = score;
@@ -140,9 +140,9 @@ public abstract class TurretBase : PlaceableBase
     }
 
     // Enemy 타일 우선순위 평가 함수 (가중치 기반)
-    protected float EvaluateTileScore(Tile tile, Vector3 origin)
+    protected float EvaluateTileScore(Tile tile)
     {
-        return Time.time - tile.LastChangedTime;
+        return -(Time.time - tile.LastChangedTime);
     }
 
     #region 반환 메서드

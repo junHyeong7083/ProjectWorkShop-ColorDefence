@@ -8,6 +8,10 @@ public class Tile : MonoBehaviour
     public Vector2Int GridPos { get; private set; }
     
     public TileColorState ColorState { get; private set; }
+
+  //  [SerializeField] private float lastChangedTime = -999f;
+
+   // public float LastChangedTime => lastChangedTime;
     public float LastChangedTime { get; private set; } = -999f;
     public Vector3 CenterWorldPos => transform.position;
     
@@ -52,7 +56,9 @@ public class Tile : MonoBehaviour
         ColorState = newColor;
 
         TileCounter.Instance.Increment(newColor);
-        LastChangedTime = Time.time;
+       
+        //lastChangedTime = Time.time;
+         LastChangedTime = Time.time;
         AnimateBump();
 
 

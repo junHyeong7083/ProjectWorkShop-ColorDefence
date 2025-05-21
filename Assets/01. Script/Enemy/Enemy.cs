@@ -15,6 +15,8 @@ public class Enemy : MonoBehaviour
     public MonsterData Data;
 
     int currentHp;
+
+    [HideInInspector] // 어차피 길찾기 알고리즘으로 들어가니 인스펙터에서 표시x
     public Direction moveDirection = Direction.Front;
     Vector3 direction;
 

@@ -45,11 +45,14 @@ public class TileGridManager : MonoBehaviour
                 tileMap[new Vector2Int(x, z)] = tile;
 
                 // 프레임 나눠서 처리
-              /*  createdCnt++;
-                if (createdCnt % 50 == 0)
-                    yield return null;*/
+                /*  createdCnt++;
+                  if (createdCnt % 50 == 0)
+                      yield return null;*/
             }
         }
+        int totalsize = Width * Height;
+        TileCounter.Instance.Init(totalsize);
+
         IsInitialized = true;
     }
 
