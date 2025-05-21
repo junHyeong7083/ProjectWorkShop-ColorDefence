@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 4965810247477198265}
   - component: {fileID: 3203561044837515882}
   - component: {fileID: 1837190704738637589}
-  - component: {fileID: 5351807426335353295}
   - component: {fileID: 2883400430424682304}
+  - component: {fileID: 5351807426335353295}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Enemy
@@ -129,6 +129,20 @@ MonoBehaviour:
   moveDirection: 3
   hpBarPrefab: {fileID: 0}
   OverlayPrefab: {fileID: 6980049326155690055, guid: bfe1acac09a5a6449be0758c8cbdd605, type: 3}
+--- !u!114 &2883400430424682304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 676134454599713880}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e564e0351960c45a0885ade00cb53a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: 0eb8a8a8d3e044744b50931c2d2befbd, type: 2}
+  goalGridPosition: {x: 0, y: 0}
 --- !u!54 &5351807426335353295
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -156,17 +170,3 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &2883400430424682304
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 676134454599713880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7e564e0351960c45a0885ade00cb53a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: 0eb8a8a8d3e044744b50931c2d2befbd, type: 2}
-  goalGridPosition: {x: 0, y: 0}

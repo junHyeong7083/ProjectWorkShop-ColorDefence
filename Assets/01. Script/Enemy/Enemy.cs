@@ -9,7 +9,7 @@ public enum Direction
 }
 
 
-
+[RequireComponent(typeof(EnemyPathfinder))]
 public class Enemy : MonoBehaviour
 {
     public MonsterData Data;

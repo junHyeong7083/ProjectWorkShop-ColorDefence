@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
+[DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
 {
     [SerializeField] private MonsterData data;
