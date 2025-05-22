@@ -40,7 +40,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    public GameObject Get(string prefabName)
+    public GameObject Get(string prefabName, Vector3 spawnPos, Dictionary<Tile, int> distanceMap = null)
     {
         if (!poolDict.ContainsKey(prefabName))
             return null;
@@ -62,8 +62,16 @@ public class EnemyPoolManager : MonoBehaviour
         }
 
         obj.SetActive(true);
+        var health = obj.GetComponent<EnemyHealth>();
+        var pathfinder = obj.GetComponent<EnemyPathfinder>();
+
+
+        health?.ResetHp();
+        pathfinder?.InitializePathfinder(spawnPos, distanceMap);
+
         return obj;
     }
+
 
     public void Return(string prefabName, GameObject obj)
     {

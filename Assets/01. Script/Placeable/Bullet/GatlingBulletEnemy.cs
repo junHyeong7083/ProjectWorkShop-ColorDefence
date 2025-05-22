@@ -6,12 +6,17 @@ public class GatlingBulletEnemy : MonoBehaviour
     Vector3 direction;
     float lifeTime = 5f;
 
+    int damage;
+
     bool hasHit = false;
     // 도착시 실행될 콜백 함수
     private Action onArrive;
-    public void Init(Vector3 dir, Action onArriveCallback = null)
+
+    public void Init(Vector3 dir,int _damage ,Action onArriveCallback = null)
     {
         direction = dir.normalized;
+        damage = _damage;
+
         gameObject.SetActive(true);
         CancelInvoke();
         onArrive = onArriveCallback;
@@ -40,11 +45,12 @@ public class GatlingBulletEnemy : MonoBehaviour
             onArrive = null;
             // 데미지 처리 (원하면 확장)
 
+            other.GetComponent<EnemyHealth>()?.TakeDamage(damage);
+
+
             EffectManager.Instance.PlayEffect(TurretType.Gatling, TurretActionType.AttackEnemy, this.transform.position);
 
             ReturnToPool();
         }
-      
-
     }
 }

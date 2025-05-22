@@ -1,99 +1,54 @@
 using UnityEngine;
-using UnityEngine.UI;
+
 public class PlaceableUIManager : MonoBehaviour
 {
     public static PlaceableUIManager Instance;
 
-    PlaceableBase selectedPlaceable;
-
     [Header("UI")]
-    public GameObject selectPanel;
-    public Text levelText, damageText, rangeText, rateText, upgradeText, sellCostText, description;
+    public UIReferences ui;
 
-    PlaceableBase selectPlaceable;
+    private PlaceableBase selectedPlaceable;
+    private IPlaceableUIBinder binder;
 
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(this.gameObject);
+        else Destroy(gameObject);
     }
 
-    // 어떤 오브젝트를 선택했는지
     public void Select(PlaceableBase placeableBase)
     {
-        selectPlaceable = placeableBase;
-        if (selectPanel != null)
-            selectPanel.SetActive(true);
+        selectedPlaceable = placeableBase;
 
-        selectPlaceable.gameObject.SetActive(true);
+        ui.selectPanel.SetActive(true);
 
-        if(placeableBase is TurretBase turret)
-        {
-            TurretManager.Instance.SelectTurret(turret);
-
-            levelText.text = $"Lv.{turret.CurrentLevel}";
-            damageText.text = $"Damage.{turret.GetDamage()}";
-            rangeText.text = $"Range.{turret.GetRange()}";
-            rateText.text = $"Rate.{turret.GetAttackRate()}";
-            upgradeText.text = $"Upgrade Price.{turret.GetUpgradeCost()}";
-            sellCostText.text = $"Sell Price.{turret.GetSellPrice()}";
-            description.text = $"Description.{turret.GetDescription()}";
-        }
-        else if(placeableBase is Fence fence)
-        {
-            FenceManager.Instance.SelectFence(fence);
-
-            levelText.text = "";
-            damageText.text ="";
-            rangeText.text = "";
-            rateText.text = "";
-            upgradeText.text = "";
-            sellCostText.text =$"Sell Price.{fence.GetSellPrice()}";
-            description.text = $"Description.{fence.GetDescription()}";
-        }
-
-        
+        binder = GetBinder(placeableBase);
+        binder?.BindUI(placeableBase);
     }
 
-    public void OnClickUpgrade()
+    public void RequestUpgrade()
     {
-        switch (selectPlaceable)
-        {
-            case TurretBase turret:
-                TurretManager.Instance.OnClickUpgrade();
-                break;
-
-                case Fence fence:
-                break;
-        }
-
-        // upgrade후 ui 갱신
-        Select(selectPlaceable);
+        selectedPlaceable?.Upgrade();
+        Select(selectedPlaceable); // UI 재갱신
     }
 
-    public void OnClickSell()
+    public void RequestSell()
     {
-        switch (selectedPlaceable)
-        {
-            case TurretBase:
-                TurretManager.Instance.OnClickSell();
-                break;
-            case Fence:
-                FenceManager.Instance.OnClickSell();
-                break;
-        }
-
+        selectedPlaceable?.Sell();
         Hide();
     }
 
     public void Hide()
     {
-        selectPanel.SetActive(false);
+        ui.selectPanel.SetActive(false);
         selectedPlaceable = null;
-
-        TurretManager.Instance.ClearSelection();
-        FenceManager.Instance.ClearSelection(); 
+        binder = null;
     }
 
-
+    private IPlaceableUIBinder GetBinder(PlaceableBase placeable)
+    {
+        if (placeable is TurretBase) return new TurretUIBinder(ui);
+        if (placeable is Fence) return new FenceUIBinder(ui);
+        return null;
+    }
 }

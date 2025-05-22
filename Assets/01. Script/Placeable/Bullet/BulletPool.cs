@@ -40,12 +40,12 @@ public class BulletPool : MonoBehaviour
         gatlingBulletTiles.Enqueue(bullet);
     }
 
-    public void GetEnemyBullet(Vector3 pos, Vector3 dir)
+    public void GetEnemyBullet(Vector3 pos, Vector3 dir, int damage)
     {
         var bullet = gatlingBulletEnemies.Count > 0 ? gatlingBulletEnemies.Dequeue() : Instantiate(enemyBulletPrefab, transform);
         bullet.transform.position = pos;
         bullet.transform.rotation = Quaternion.LookRotation(dir);
-        bullet.Init(dir);
+        bullet.Init(dir, damage);
     }
 
     public void GetTileBullet(Vector3 pos, Vector3 dir, Action onArrive)

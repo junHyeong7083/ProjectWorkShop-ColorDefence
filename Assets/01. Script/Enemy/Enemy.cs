@@ -1,94 +1,37 @@
 using UnityEngine;
-using UnityEngine.UI;
-public enum Direction
-{
-    Front, 
-    Back,
-    Right,
-    Left
-}
 
-
+// 프리팹 만들때 헷갈려서 안넣을까봐 보험용 어트리뷰트
 [RequireComponent(typeof(EnemyPathfinder))]
+[RequireComponent (typeof(EnemyHealth))]
 public class Enemy : MonoBehaviour
 {
     public MonsterData Data;
 
-    int currentHp;
-
-    [HideInInspector] // 어차피 길찾기 알고리즘으로 들어가니 인스펙터에서 표시x
-    public Direction moveDirection = Direction.Front;
-    Vector3 direction;
-
-
-    [SerializeField] GameObject hpBarPrefab;
-    GameObject hpBarInstance;
-    Image hpBarFillImage;
 
     public GameObject OverlayPrefab;
-
-    void Awake()
-    {
-        currentHp = Data.MaxHp;
-        direction = GetDirectionVector(moveDirection);
-    }
 
     private void Start()
     {
         Vector3 pos = transform.position;
-        pos.y = TileGridManager.Instance.cubeSize; // 3d환경이다보니 기본값으로하면 캐릭터가 큐브에 가려짐
+
+        // 3d환경이다보니 기본값으로하면 캐릭터가 큐브에 가려짐
+        pos.y = TileGridManager.Instance.cubeSize; 
+
+        // 위치 갱신
         transform.position = pos;
-
-        //ShowOverlayAtSpawm();
-        CreateHpBar();
     }
-    public void TakeDamage(int dmg)
-    {
-        currentHp -= dmg;
-        if (currentHp <= 0)
-        {
-            Destroy(gameObject);
-        }
-    }
-
-    void CreateHpBar()
-    {
-        if (hpBarPrefab == null) return;
-        hpBarInstance = Instantiate(hpBarPrefab, this.transform);
-        hpBarInstance.transform.localPosition = new Vector3(0, 2.5f, 0);
-
-        hpBarFillImage = hpBarInstance.GetComponentInChildren<Image>();
-        hpBarFillImage.fillAmount = 1f;
-
-        Debug.Log(hpBarFillImage.fillAmount);
-    }
-
 
     private void Update()
     {
-        /// test
+        // 수정필요!!!
         InfectTile();
     }
 
-    void ShowOverlayAtSpawm()
+    // TileState : Neutral -> Enemy || Player -> Enemy
+    public void InfectTile()
     {
-        int halfW = Data.Width / 2;
-        int halfH = Data.Height / 2;
+        // Debug.Log("InfectTile!!!!!!!!!!!!");
 
-
-        for (int x = -halfW; x <= halfW; x++)
-        {
-            for (int z = -halfH; z <= halfH; z++)
-            {
-                GameObject overlay = Instantiate(OverlayPrefab, transform); // 부모 먼저 지정
-                overlay.transform.localPosition = new Vector3(x, -0.5f, z);
-            }
-        }
-    }
-
-
-    void InfectTile()
-    {
         Vector3 pos = this.transform.position;
         int centerX = Mathf.FloorToInt(pos.x / TileGridManager.Instance.cubeSize);
         int centerZ = Mathf.FloorToInt(pos.z / TileGridManager.Instance.cubeSize);
@@ -107,18 +50,6 @@ public class Enemy : MonoBehaviour
                 if (tile != null && tile.ColorState != Data.InfectColor && !tile.IsOccupied) // 점유가 된 블럭은 감염x
                     tile.SetColor(Data.InfectColor);
             }
-        }
-    }
-
-    Vector3 GetDirectionVector(Direction dir)
-    {
-        switch (dir)
-        {
-            case Direction.Front: return Vector3.forward;
-            case Direction.Back: return Vector3.back;
-            case Direction.Left: return Vector3.left;
-            case Direction.Right: return Vector3.right;
-            default: return Vector3.forward;
         }
     }
 }

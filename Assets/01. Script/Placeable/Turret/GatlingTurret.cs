@@ -18,6 +18,7 @@ public class GatlingTurret : TurretBase
             if (currentTarget == null) yield break;
 
             yield return RotateToTarget(currentTarget.transform.position);
+
             AttackEnemy();
         }
         else if (turretData.actionType == TurretActionType.AttackTile)
@@ -40,8 +41,14 @@ public class GatlingTurret : TurretBase
     {
         if (currentTarget == null) return;
 
+        var health = currentTarget.GetComponent<EnemyHealth>();
+        if (health == null || health.currentHp <= 0) return;
+
         Vector3 dir = (currentTarget.transform.position - firePoint.position).normalized;
-        BulletPool.Instance.GetEnemyBullet(firePoint.position, dir);
+
+        // damage에 현재레벨 공격력을 적용시킴
+        int damage = GetDamage();
+        BulletPool.Instance.GetEnemyBullet(firePoint.position, dir, damage);
 
     }
 
@@ -75,36 +82,6 @@ public class GatlingTurret : TurretBase
             }
         });
     }
-
-    /*  protected override void PaintTiles() 
-      {
-          float range = GetRange();
-          float tileSize = TileGridManager.Instance.cubeSize;
-          Vector3 center = transform.position;
-
-          int minX = Mathf.FloorToInt((center.x - range) / tileSize);
-          int maxX = Mathf.FloorToInt((center.x + range) / tileSize);
-
-          int minZ = Mathf.FloorToInt((center.z - range) / tileSize);
-          int maxZ = Mathf.FloorToInt((center.z + range) / tileSize);
-
-          for (int x = minX; x <= maxX; x++)
-          {
-              for (int z = minZ; z <= maxZ; z++)
-              {
-                  Tile tile = TileGridManager.Instance.GetTile(x, z);
-                  if (tile == null) continue;
-
-                  Vector3 tilePos = new Vector3(x * tileSize, 0, z * tileSize);
-                  float dist = Vector3.Distance(new Vector3(center.x, 0, center.z), tilePos);
-                  if (dist > range) continue;
-
-                  if (tile.ColorState == TileColorState.Enemy)
-                      tile.SetColor(TileColorState.Player);
-              }
-          }
-      }
-  */
 
     private IEnumerator RotateToTarget(Vector3 targetPos)
     {

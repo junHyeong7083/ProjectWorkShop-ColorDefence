@@ -1805,7 +1805,7 @@ Transform:
   m_GameObject: {fileID: 378655517}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 144.20782, y: -3.787487, z: 12.978586}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3139,7 +3139,7 @@ Transform:
   m_GameObject: {fileID: 690479576}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 138.36662, y: -2.7043219, z: 18.361765}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3228,8 +3228,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1736086881}
-        m_TargetAssemblyTypeName: PlaceableUIManager, Assembly-CSharp
+      - m_Target: {fileID: 1736086882}
+        m_TargetAssemblyTypeName: PlaceableUIEvents, Assembly-CSharp
         m_MethodName: OnClickSell
         m_Mode: 1
         m_Arguments:
@@ -3471,8 +3471,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1736086881}
-        m_TargetAssemblyTypeName: PlaceableUIManager, Assembly-CSharp
+      - m_Target: {fileID: 1736086882}
+        m_TargetAssemblyTypeName: PlaceableUIEvents, Assembly-CSharp
         m_MethodName: OnClickUpgrade
         m_Mode: 1
         m_Arguments:
@@ -3836,7 +3836,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &883335840
 RectTransform:
   m_ObjectHideFlags: 0
@@ -5119,7 +5119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefabs:
-  - {fileID: 676134454599713880, guid: 36ad74986ac7e2e4ba49548ca28bb0a6, type: 3}
+  - {fileID: 729411713807044554, guid: 36ad74986ac7e2e4ba49548ca28bb0a6, type: 3}
   poolSizePerType: 15
 --- !u!1 &1266371076
 GameObject:
@@ -6243,7 +6243,7 @@ Transform:
   m_GameObject: {fileID: 1636429892}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 32.661167, y: -149.88574, z: 5.556489}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6569,6 +6569,7 @@ GameObject:
   - component: {fileID: 1736086878}
   - component: {fileID: 1736086880}
   - component: {fileID: 1736086881}
+  - component: {fileID: 1736086882}
   m_Layer: 0
   m_Name: PlacementableManager
   m_TagString: Untagged
@@ -6689,14 +6690,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc78cf1a75b5ad14a9f8922bf7a74ed7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  selectPanel: {fileID: 883335839}
-  levelText: {fileID: 1366608449}
-  damageText: {fileID: 963447830}
-  rangeText: {fileID: 683114542}
-  rateText: {fileID: 1959343224}
-  upgradeText: {fileID: 1752174632}
-  sellCostText: {fileID: 1415099006}
-  description: {fileID: 1770408238}
+  ui:
+    selectPanel: {fileID: 883335839}
+    levelText: {fileID: 1366608449}
+    damageText: {fileID: 963447830}
+    rangeText: {fileID: 683114542}
+    rateText: {fileID: 1959343224}
+    upgradeText: {fileID: 1752174632}
+    sellCostText: {fileID: 1752174632}
+    description: {fileID: 1770408238}
+--- !u!114 &1736086882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1736086874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b28573be6e3524944af41644d5295032, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1752174630
 GameObject:
   m_ObjectHideFlags: 0

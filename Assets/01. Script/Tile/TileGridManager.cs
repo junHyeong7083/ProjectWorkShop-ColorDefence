@@ -59,6 +59,7 @@ public class TileGridManager : MonoBehaviour
     public Tile GetTile(int x, int z)
     {
         if (x < 0 || x >= Width || z < 0 || z >= Height) return null;
+        
         return tiles[x, z];
     }
 

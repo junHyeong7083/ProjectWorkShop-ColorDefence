@@ -25,7 +25,7 @@ public class SpawnManager : MonoBehaviour
             Transform point = spawnPoints[Random.Range(0, spawnPoints.Length)];
 
             // 3. 풀에서 꺼내서 배치
-            GameObject enemy = EnemyPoolManager.Instance.Get(monsterName);
+            GameObject enemy = EnemyPoolManager.Instance.Get(monsterName, point.position);
             enemy.transform.position = point.position;
         }
     }

@@ -13,8 +13,11 @@ public class Tile : MonoBehaviour
 
    // public float LastChangedTime => lastChangedTime;
     public float LastChangedTime { get; private set; } = -999f;
-    public Vector3 CenterWorldPos => transform.position;
-    
+    public Vector3 CenterWorldPos => new Vector3(
+     GridPos.x * TileGridManager.Instance.cubeSize,
+     0,
+     GridPos.y * TileGridManager.Instance.cubeSize
+ );
     // 해당 타일이 점유되어있는지 확인하는 프로퍼티
     public bool IsOccupied { get; set; }
 

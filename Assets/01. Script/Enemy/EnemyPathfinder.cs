@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
+using Unity.Collections;
 
 [DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
@@ -16,6 +17,12 @@ public class EnemyPathfinder : MonoBehaviour
     private float speed;
 
     public Tile CurrentTile => currentTile;
+    Enemy enemy;
+
+    // 성능 최적화를 위한 캐싱
+    private void Awake() => enemy = GetComponent<Enemy>();
+
+
 
     IEnumerator Start()
     {
@@ -29,7 +36,6 @@ public class EnemyPathfinder : MonoBehaviour
             Mathf.FloorToInt(transform.position.x / TileGridManager.Instance.cubeSize),
             Mathf.FloorToInt(transform.position.z / TileGridManager.Instance.cubeSize)
         );
-
         // 최초 경로계산(A*방식)
         RecalculatePath();
     }
@@ -46,6 +52,9 @@ public class EnemyPathfinder : MonoBehaviour
 
         Tile goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
         var newPath = Pathfinding.APointFindPath(currentTile, goalTile);
+
+        if (goalTile == null) Debug.LogError("잘못된 경로 탐색!!!!!!!!!!!시발 개좆같네");
+
 
         if (newPath != null)
             path = new Queue<Tile>(newPath);
@@ -102,6 +111,24 @@ public class EnemyPathfinder : MonoBehaviour
         return result != null;
     }
 
+    public void InitializePathfinder(Vector3 spawnPos, Dictionary<Tile, int> distanceMap = null)
+    {
+        transform.position = spawnPos;
+
+        currentTile = TileGridManager.Instance.GetTile(
+            Mathf.FloorToInt(spawnPos.x / TileGridManager.Instance.cubeSize),
+            Mathf.FloorToInt(spawnPos.z / TileGridManager.Instance.cubeSize)
+        );
+        transform.position = currentTile.CenterWorldPos;
+
+        path.Clear();
+
+        if (distanceMap != null)
+            RecalculatePathFromMap(distanceMap);
+        else
+            RecalculatePath();
+    }
+
     void Update()
     {
         if (path == null || path.Count == 0) return;
@@ -114,8 +141,15 @@ public class EnemyPathfinder : MonoBehaviour
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
+            var preivousTile = currentTile;
             currentTile = next;
+            
             path.Dequeue();
+
+     /*       //  서로 다른 타일일때만 감염 
+            if (preivousTile != currentTile )
+                enemy?.InfectTile();
+*/
         }
     }
 }
