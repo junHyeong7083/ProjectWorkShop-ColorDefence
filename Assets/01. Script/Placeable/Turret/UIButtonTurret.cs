@@ -23,11 +23,11 @@ public class UIButtonTurret : MonoBehaviour
 
     public void OnClickTurret()
     {
-        TurretManager.Instance.StartPlacement(turretData, turretPrefab);
+        PlacementManager.Instance.StartPlacement(turretData, turretPrefab, PlacementType.Turret);
     }
 
     public void OnClickFence()
     {
-        FenceManager.Instance.StartPlacement(fenceData, fencePrefab);
+        PlacementManager.Instance.StartPlacement(fenceData, fencePrefab, PlacementType.Fence);
     }
 }

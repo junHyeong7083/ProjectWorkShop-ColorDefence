@@ -15,7 +15,7 @@ MonoBehaviour:
   actionType: 0
   turretType: 2
   baseAttackRange: 10
-  baseAttackRate: 1
+  baseAttackRate: 0
   baseDamage: 1
   attackRangeGrowth: 2
   attackRateGrowth: 0

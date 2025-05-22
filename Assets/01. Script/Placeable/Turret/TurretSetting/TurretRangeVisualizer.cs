@@ -10,6 +10,10 @@ public class TurretRangeVisualizer : MonoBehaviour
         rangePrefab.SetActive(false);
     }
 
+
+    // 사거리 시각화 표시
+    // - range 크기에 따라 스케일 조정
+    // - 원이 없으면 Instantiate해서 생성
     public void Show(float range)
     {
         if (rangeInstance == null)
@@ -23,7 +27,7 @@ public class TurretRangeVisualizer : MonoBehaviour
         rangeInstance.SetActive(true);
     }
 
-
+    // 사거리 시각화 숨김
     public void Hide()
     {
         if (rangeInstance != null)
