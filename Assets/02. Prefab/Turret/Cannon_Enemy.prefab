@@ -191,8 +191,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1b4bc184a9a872a46a742c92c1afe391, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arcHeight: 40
-  flightTime: 1.5
+  arcHeight: 25
+  flightTime: 0.65
 --- !u!114 &1699076614829370199
 MonoBehaviour:
   m_ObjectHideFlags: 0
