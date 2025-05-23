@@ -24,8 +24,7 @@ public class CannonBulletEnemy : MonoBehaviour
         startPoint = start;
         endPoint = end;
 
-        //  꼭짓점을 enemy 쪽으로 치우치게 설정 (85:15 비율)
-        controlPoint = Vector3.Lerp(start, end, 0.95f) + Vector3.up * height;
+        controlPoint = Vector3.Lerp(start, end, 0.7f) + Vector3.up * height;
 
         duration = flightTime;
         elapsed = 0f;
@@ -40,7 +39,6 @@ public class CannonBulletEnemy : MonoBehaviour
         elapsed += Time.deltaTime;
         float t = Mathf.Clamp01(elapsed / duration);
 
-        //  속도 가속 적용: 초기 느림, 후반 빠름
         float curvedT = t * t;
 
         transform.position = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, curvedT);
@@ -70,7 +68,7 @@ public class CannonBulletEnemy : MonoBehaviour
         Debug.Log("ApplyAoEDamage 호출됨");
 
         float cubeSize = TileGridManager.Instance.cubeSize;
-        float radius = cubeSize * 1.5f;
+        float radius = cubeSize * 2;
 
         Collider[] hits = Physics.OverlapSphere(center, radius, LayerMask.GetMask("Enemy"));
 
@@ -98,7 +96,6 @@ public class CannonBulletEnemy : MonoBehaviour
     }
 
 #if UNITY_EDITOR
-    //  SceneView에서 궤적 시각화용 디버그 라인
     private void OnDrawGizmos()
     {
         if (!Application.isPlaying) return;
@@ -119,6 +116,9 @@ public class CannonBulletEnemy : MonoBehaviour
         // 꼭짓점 표시
         Gizmos.color = Color.yellow;
         Gizmos.DrawSphere(controlPoint, 0.1f);
+
+        float radius = TileGridManager.Instance.cubeSize * 2;
+        Gizmos.DrawWireSphere(endPoint, radius); // 대포 폭발 범위 확인용
     }
 #endif
 }
