@@ -14,6 +14,7 @@ public class TurretTargetSelector : MonoBehaviour
     // 가장 가까운 적 찾기
     public GameObject FindClosestEnemy()
     {
+        Debug.Log("target finding..");
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;

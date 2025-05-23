@@ -54,6 +54,8 @@ public class TurretCombatLoop : MonoBehaviour
     // 2. 일정 주기로 PerformAction 실행
     private IEnumerator CombatRoutine()
     {
+        //Debug.Log("TurretCombatLoop PerformActionRoutine 호출됨");
+
         while (turret.turretData == null)
             yield return null;
         while (true)

@@ -1,6 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 using UnityEditor.Rendering;
+using System.Runtime.CompilerServices;
 public class LaserShooter : MonoBehaviour, ITurretShooter
 {
     private Transform firePoint;
@@ -35,8 +36,11 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
 
         var health = enemy.GetComponent<EnemyHealth>();
-
-
+        if (health == null || health.currentHp <= 0)
+        {
+            DisableLaser();
+            return;
+        }
 
         currentEnemy = enemy;
         elapsed += Time.deltaTime;
@@ -46,10 +50,8 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
         if (tickElapsed >= turret.turretData.laserTickInterval)
         {
-            int checking = health.currentHp -= turret.GetDamage();
             health.TakeDamage(turret.GetDamage());
-            if (checking <= 0)
-                DisableLaser();
+
             EffectManager.Instance.PlayEffect(
                 turret.turretData.turretType,
                 TurretActionType.AttackEnemy,
@@ -58,6 +60,11 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
             tickElapsed = 0f;
         }
+        if (health.currentHp <= 0)
+        {
+            DisableLaser();
+            return;
+        }
 
         if (elapsed >= turret.turretData.laserDuration)
         {
@@ -65,6 +72,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             StartCoroutine(CooldownRoutine());
         }
     }
+
 
 
     public void ShootAtTile(Tile tile)

@@ -14,9 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   actionType: 0
   turretType: 1
-  baseAttackRange: 8
+  baseAttackRange: 40
   baseAttackRate: 7
-  baseDamage: 3
+  baseDamage: 2
   attackRangeGrowth: 1
   attackRateGrowth: 1
   damageGrowth: 2

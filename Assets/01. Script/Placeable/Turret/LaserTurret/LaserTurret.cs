@@ -14,7 +14,7 @@ public class LaserTurret : TurretBase
     [SerializeField] private float rotateSpeed = 10f;
 
     private void Awake()
-    {
+    { 
         var rotator = GetComponent<TurretRotationController>();
         rotator.SetRotationTarget(headToRotate, rotateSpeed);
 
