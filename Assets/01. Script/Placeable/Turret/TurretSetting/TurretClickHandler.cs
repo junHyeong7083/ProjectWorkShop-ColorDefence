@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 [RequireComponent(typeof(TurretBase))]
 [RequireComponent(typeof(TurretRangeVisualizer))]
@@ -8,6 +9,8 @@ public class TurretClickHandler : MonoBehaviour
     private TurretBase turret;
     // 사거리 시각화 참조
     private TurretRangeVisualizer visualizer;
+
+    bool isSelected = false;
 
     private void Awake()
     {
@@ -19,13 +22,18 @@ public class TurretClickHandler : MonoBehaviour
     private void OnMouseDown()
     {
         PlaceableUIManager.Instance.Select(turret);
+
+            //if (turret != null) turret.ShowSelectBox();
+        
+
         visualizer.Show(turret.GetRange());
     }
-
 
     // 클릭해제시 호출
     private void OnMouseUp()
     {
+       // if (turret != null)
+          //  turret.HideSelectBox();
         visualizer.Hide();
     }
 }

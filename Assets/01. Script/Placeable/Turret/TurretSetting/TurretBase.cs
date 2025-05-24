@@ -5,6 +5,8 @@ public abstract class TurretBase : PlaceableBase
     public TurretData turretData { get; private set; }
     public int CurrentLevel { get; private set; } = 1;
 
+    [SerializeField] GameObject selectBox;
+    
     // 터렛 설치 시 호출
     public override void SetData(ScriptableObject data)
     {
@@ -28,6 +30,11 @@ public abstract class TurretBase : PlaceableBase
         Destroy(this.gameObject);
     }
 
+
+    public void ShowSelectBox() => selectBox.gameObject.SetActive(true);
+    public void HideSelectBox() => selectBox.gameObject.SetActive(false);
+
+
     #region 스탯 계산 메서드
 
     public int GetDamage()
@@ -39,7 +46,16 @@ public abstract class TurretBase : PlaceableBase
     public float GetAttackRate()
     {
         float value = turretData.baseAttackRate - (turretData.attackRateGrowth * (CurrentLevel - 1) * 0.2f);
-        return turretData.turretType != TurretType.Laser ? Mathf.Max(0.3f, value) : value;
+        switch(turretData.turretType)
+        {
+            case TurretType.Gatling:
+                return Mathf.Max(0.5f, value);
+            case TurretType.Laser:
+                return 0;
+            case TurretType.Cannon:
+                return value;
+        }
+        return value;
     }
 
     public int GetUpgradeCost() => 100 + (CurrentLevel * 50);

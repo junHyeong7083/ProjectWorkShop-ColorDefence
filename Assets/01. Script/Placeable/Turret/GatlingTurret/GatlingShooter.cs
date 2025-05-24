@@ -15,7 +15,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
     public void ShootAtEnemy(GameObject enemy)
     {
         Vector3 dir = (enemy.transform.position - gatling.GetFirePoint().position).normalized;
-        BulletPool.Instance.GetGatlingEnemyBullet(gatling.GetFirePoint().position, dir, turret.GetDamage());
+        BulletPool.Instance.GetGatlingEnemyBullet(gatling.GetFirePoint().position, enemy.transform, turret.GetDamage());
     }
 
     public void ShootAtTile(Tile tile)

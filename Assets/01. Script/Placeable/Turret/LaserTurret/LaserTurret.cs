@@ -10,7 +10,7 @@ public class LaserTurret : TurretBase
     [Header("Laser Settings")]
     [SerializeField] private Transform firePoint;
     [SerializeField] private Transform headToRotate;
-    [SerializeField] private LineRenderer lineRenderer;
+    [SerializeField] private Transform laserTransform;
     [SerializeField] private float rotateSpeed = 10f;
 
     private void Awake()
@@ -19,7 +19,7 @@ public class LaserTurret : TurretBase
         rotator.SetRotationTarget(headToRotate, rotateSpeed);
 
         var shooter = GetComponent<LaserShooter>();
-        shooter.SetLaserReferences(firePoint, lineRenderer);
+        shooter.SetLaserReferences(firePoint, laserTransform);
     }
 
     //public Transform GetFirePoint() => firePoint;

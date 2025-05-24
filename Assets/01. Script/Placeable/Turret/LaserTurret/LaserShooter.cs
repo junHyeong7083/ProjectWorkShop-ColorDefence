@@ -1,11 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEditor.Rendering;
-using System.Runtime.CompilerServices;
+
 public class LaserShooter : MonoBehaviour, ITurretShooter
 {
     private Transform firePoint;
-    private LineRenderer lineRenderer;
+    private Transform laserBeamObject; // Cylinder 오브젝트
     private TurretBase turret;
 
     private GameObject currentEnemy;
@@ -14,22 +13,21 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     private float elapsed;
     private float tickElapsed;
     private bool isCoolingDown;
+    private Coroutine checkRoutine;
 
     private void Awake() => turret = GetComponent<TurretBase>();
 
-    public void SetLaserReferences(Transform firePoint, LineRenderer lineRenderer)
+    public void SetLaserReferences(Transform firePoint, Transform laserBeamObject)
     {
         this.firePoint = firePoint;
-        this.lineRenderer = lineRenderer;
+        this.laserBeamObject = laserBeamObject;
 
-        lineRenderer.widthMultiplier = 0.1f;
-        lineRenderer.widthCurve = AnimationCurve.Linear(0, 1, 1, 1);
-        lineRenderer.enabled = false;
+        laserBeamObject.gameObject.SetActive(false);
     }
 
     public void ShootAtEnemy(GameObject enemy)
     {
-        if (isCoolingDown || enemy == null)
+        if (isCoolingDown || enemy == null || !enemy.activeInHierarchy)
         {
             DisableLaser();
             return;
@@ -46,7 +44,10 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         elapsed += Time.deltaTime;
         tickElapsed += Time.deltaTime;
 
-        ShowLaserToEnemy(enemy);
+        if (currentEnemy != null)
+            ShowLaserToEnemy(enemy);
+        else
+            DisableLaser();
 
         if (tickElapsed >= turret.turretData.laserTickInterval)
         {
@@ -60,6 +61,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
             tickElapsed = 0f;
         }
+
         if (health.currentHp <= 0)
         {
             DisableLaser();
@@ -71,13 +73,28 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             DisableLaser();
             StartCoroutine(CooldownRoutine());
         }
+
+        if (checkRoutine == null)
+            checkRoutine = StartCoroutine(CheckLaserTarget());
     }
 
+    private IEnumerator CheckLaserTarget()
+    {
+        while (currentEnemy != null)
+        {
+            var health = currentEnemy.GetComponent<EnemyHealth>();
+            if (health == null || health.currentHp <= 0 || !currentEnemy.activeInHierarchy)
+            {
+                DisableLaser();
+                yield break;
+            }
 
+            yield return null;
+        }
+    }
 
     public void ShootAtTile(Tile tile)
     {
-
         if (isCoolingDown || tile == null || tile.ColorState != TileColorState.Enemy)
         {
             DisableLaser();
@@ -91,7 +108,12 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
         if (tickElapsed >= turret.turretData.laserTickInterval)
         {
-            EffectManager.Instance.PlayEffect(turret.turretData.turretType, TurretActionType.AttackTile, tile.CenterWorldPos);
+            EffectManager.Instance.PlayEffect(
+                turret.turretData.turretType,
+                TurretActionType.AttackTile,
+                tile.CenterWorldPos
+            );
+
             tile.SetColor(TileColorState.Player);
             tile.AnimateBump();
             tile.TargetingTurret = null;
@@ -106,36 +128,65 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             StartCoroutine(CooldownRoutine());
         }
     }
+
     private void ShowLaserToEnemy(GameObject enemy)
     {
-        Vector3 startPos = firePoint.position + Vector3.up * 2f;
-        Vector3 endPos = enemy.transform.position + Vector3.up * 1.5f;
+        Vector3 start = firePoint.position;
+        Vector3 end = enemy.transform.position + Vector3.up * 1.0f;
 
-        lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, startPos);
-        lineRenderer.SetPosition(1, endPos);
+        Vector3 dir = end - start;
+        Vector3 magoffset = new Vector3(dir.x,0, dir.z);
+        float length = magoffset.magnitude;
+
+        laserBeamObject.gameObject.SetActive(true);
+        laserBeamObject.position = start;
+        laserBeamObject.rotation = Quaternion.LookRotation(dir);
+        laserBeamObject.localScale = new Vector3(1.5f, 1.5f, length * 0.3f);
     }
+
     private void ShowLaserToTile(Tile tile)
     {
-        Vector3 startPos = firePoint.position + Vector3.up * 2f;
-        Vector3 endPos = tile.CenterWorldPos + Vector3.up * 2f;
+        // 1. 계산
+        Vector3 start = firePoint.position;
+        Vector3 end = tile.CenterWorldPos + Vector3.up * 1.0f;
 
-        lineRenderer.enabled = true;
-        lineRenderer.SetPosition(0, startPos);
-        lineRenderer.SetPosition(1, endPos);
+        Vector3 dir = end - start;
+        float length = dir.magnitude;
+
+        // 2. 적용
+        laserBeamObject.gameObject.SetActive(true);
+        laserBeamObject.position = (start + end) * 0.5f; //  시작+끝 사이 중심점
+        laserBeamObject.rotation = Quaternion.LookRotation(dir);
+        laserBeamObject.localScale = new Vector3(0.2f, 0.2f, length / 2); //  길이 그대로
     }
 
     private void DisableLaser()
     {
-        lineRenderer.enabled = false;
+        if (laserBeamObject != null)
+            laserBeamObject.gameObject.SetActive(false);
+
         elapsed = 0f;
         tickElapsed = 0f;
         currentTile = null;
+
+        if (checkRoutine != null)
+        {
+            StopCoroutine(checkRoutine);
+            checkRoutine = null;
+        }
     }
+
 
     private IEnumerator CooldownRoutine()
     {
         isCoolingDown = true;
+
+        EffectManager.Instance.PlayEffect(
+            turret.turretData.turretType,
+            TurretActionType.Both,
+            firePoint.position
+        );
+
         yield return new WaitForSeconds(3f);
         isCoolingDown = false;
     }

@@ -62,6 +62,9 @@ public class EnemyPoolManager : MonoBehaviour
         }
 
         obj.SetActive(true);
+        var col = obj.GetComponent<Collider>();
+        col.enabled = false;
+        col.enabled = true;
         var health = obj.GetComponent<EnemyHealth>();
         var pathfinder = obj.GetComponent<EnemyPathfinder>();
 

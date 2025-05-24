@@ -14,7 +14,6 @@ public class TurretTargetSelector : MonoBehaviour
     // 가장 가까운 적 찾기
     public GameObject FindClosestEnemy()
     {
-        Debug.Log("target finding..");
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;
@@ -24,6 +23,10 @@ public class TurretTargetSelector : MonoBehaviour
         foreach (var enemy in enemies)
         {
             if (enemy == null) continue;
+
+            var health = enemy.GetComponent<EnemyHealth>();
+            if (health == null || health.currentHp <= 0 || !enemy.activeInHierarchy)
+                continue;
 
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
@@ -37,6 +40,37 @@ public class TurretTargetSelector : MonoBehaviour
 
         return bestTarget;
     }
+
+    public GameObject FindClosestEnemy(GameObject exclude)
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+        GameObject bestTarget = null;
+        float bestScore = float.MaxValue;
+        float rangeSqr = turret.GetRange() * turret.GetRange();
+        Vector3 origin = transform.position;
+
+        foreach (var enemy in enemies)
+        {
+            if (enemy == null || enemy == exclude) continue;
+
+
+            var health = enemy.GetComponent<EnemyHealth>();
+            if (health == null || health.currentHp <= 0 || !enemy.activeInHierarchy)
+                continue;
+
+            float distSqr = (enemy.transform.position - origin).sqrMagnitude;
+            if (distSqr > rangeSqr) continue;
+
+            if (distSqr < bestScore)
+            {
+                bestScore = distSqr;
+                bestTarget = enemy;
+            }
+        }
+
+        return bestTarget;
+    }
+
 
     // 가장 오래된 적 점령 타일 탐색
     public Tile FindBestEnemyTile()

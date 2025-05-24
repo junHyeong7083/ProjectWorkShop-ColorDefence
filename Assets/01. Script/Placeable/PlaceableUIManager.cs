@@ -1,3 +1,4 @@
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class PlaceableUIManager : MonoBehaviour
@@ -8,6 +9,7 @@ public class PlaceableUIManager : MonoBehaviour
     public UIReferences ui;
 
     private PlaceableBase selectedPlaceable;
+    private TurretBase turretBase;
     private IPlaceableUIBinder binder;
 
     private void Awake()
@@ -19,7 +21,6 @@ public class PlaceableUIManager : MonoBehaviour
     public void Select(PlaceableBase placeableBase)
     {
         selectedPlaceable = placeableBase;
-
         ui.selectPanel.SetActive(true);
 
         binder = GetBinder(placeableBase);
@@ -28,6 +29,7 @@ public class PlaceableUIManager : MonoBehaviour
 
     public void RequestUpgrade()
     {
+        Debug.Log("업그레이드");
         selectedPlaceable?.Upgrade();
         Select(selectedPlaceable); // UI 재갱신
     }
@@ -51,4 +53,5 @@ public class PlaceableUIManager : MonoBehaviour
         if (placeable is Fence) return new FenceUIBinder(ui);
         return null;
     }
+
 }

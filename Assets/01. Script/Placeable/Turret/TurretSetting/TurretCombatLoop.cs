@@ -70,15 +70,24 @@ public class TurretCombatLoop : MonoBehaviour
     {
         if (turret.turretData.actionType == TurretActionType.AttackEnemy)
         {
-            currentEnemy = selector.FindClosestEnemy();
-            if (currentEnemy == null) yield break;
+            if (!IsValidEnemy(currentEnemy))
+                currentEnemy = selector.FindClosestEnemy();
+
+            if (!IsValidEnemy(currentEnemy))
+            {
+                currentEnemy = null;
+                yield break;
+            }
+         
 
             yield return rotator.RotateTo(currentEnemy.transform.position);
 
-            if (currentEnemy == null) yield break;
-
-            var health = currentEnemy.GetComponent<EnemyHealth>();
-            if (health == null || health.currentHp <= 0) yield break;
+            // 회전 중 죽었을 수도 있음
+            if (!IsValidEnemy(currentEnemy))
+            {
+                currentEnemy = null;
+                yield break;
+            }
 
             shooter.ShootAtEnemy(currentEnemy);
         }
@@ -99,6 +108,15 @@ public class TurretCombatLoop : MonoBehaviour
                 currentTile = null;
         }
     }
+
+    private bool IsValidEnemy(GameObject enemy )
+    {
+        if(enemy == null) return false;
+
+        var health = enemy.GetComponent<EnemyHealth>();
+        return health != null && health.currentHp > 0 && enemy.activeInHierarchy;
+    }
+
 
     private bool IsValidTile(Tile tile)
     {

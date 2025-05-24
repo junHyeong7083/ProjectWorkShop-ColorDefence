@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.Rendering;
+using static UnityEngine.GraphicsBuffer;
 public class BulletPool : MonoBehaviour
 {
     public static BulletPool Instance { get; private set; }
@@ -65,12 +66,16 @@ public class BulletPool : MonoBehaviour
 
 
 
-    public void GetGatlingEnemyBullet(Vector3 pos, Vector3 dir, int damage)
+    public void GetGatlingEnemyBullet(Vector3 pos, Transform target, int damage)
     {
-        var bullet = gatlingBulletEnemies.Count > 0 ? gatlingBulletEnemies.Dequeue() : Instantiate(gatlingEnemyBulletPrefab, transform);
+        var bullet = gatlingBulletEnemies.Count > 0
+       ? gatlingBulletEnemies.Dequeue()
+       : Instantiate(gatlingEnemyBulletPrefab, transform);
+
+        bullet.gameObject.SetActive(true);
+
         bullet.transform.position = pos;
-        bullet.transform.rotation = Quaternion.LookRotation(dir);
-        bullet.Init(dir, damage);
+        bullet.Init(target, damage);
     }
 
     public void GetGatlingTileBullet(Vector3 pos, Vector3 dir, Action onArrive)
