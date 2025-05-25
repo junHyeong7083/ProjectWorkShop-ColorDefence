@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 1665320140435055601}
   - component: {fileID: 1802699128822055196}
   - component: {fileID: -946974742372493106}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: MapCube
   m_TagString: Tile
   m_Icon: {fileID: 0}
@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6, y: 1.6, z: 1.6}
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 5232716861197299651}
@@ -162,7 +162,7 @@ GameObject:
   - component: {fileID: 1801769822074276012}
   - component: {fileID: 6460291475341676190}
   - component: {fileID: 8451030909098095931}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -179,7 +179,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.5, z: -0}
-  m_LocalScale: {x: 1.2, y: 1.2, z: 10}
+  m_LocalScale: {x: 1.4, y: 1.4, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 3766322857645438215}

@@ -17,6 +17,15 @@ public class CannonShooter : MonoBehaviour, ITurretShooter
 
     public void ShootAtEnemy(GameObject enemy)
     {
+        float range = turret.GetRange();
+        float sqrDistance = (enemy.transform.position - turret.transform.position).sqrMagnitude;
+
+        Debug.Log("range : " + range*range);
+        Debug.Log("distance : " + sqrDistance);
+
+        if (sqrDistance > range * range)
+            return; // 사거리 벗어나면 발사하지 않음
+
 
         Vector3 start = cannon.GetFirePoint().position;     // 총알 시작 위치
         Vector3 end = enemy.transform.position;             // 적의 현재 위치

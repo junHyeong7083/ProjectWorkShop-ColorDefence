@@ -70,14 +70,19 @@ public static class Pathfinding
     }
 
     // 목표 타일을 기준으로 BFS 거리 맵을 생성
+
     public static Dictionary<Tile, int> GenerateDistanceMap(Tile goalTile)
-    {
+    { 
         // 각 타일까지의 거리 저장 맵
         Dictionary<Tile, int> distanceMap = new();
         // BFS 탐색용 큐
         Queue<Tile> queue = new();
 
-        if (goalTile == null) return distanceMap;
+        if (goalTile == null || goalTile.IsOccupied)
+        {
+            Debug.LogWarning("DistanceMap 생성 실패: goalTile이 null이거나 막혀있음.");
+            return distanceMap;
+        }
 
         // 목표 타일을 시작점으로 큐에 넣고 거리 0으로 설정
         queue.Enqueue(goalTile);

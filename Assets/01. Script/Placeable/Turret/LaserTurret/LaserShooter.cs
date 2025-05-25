@@ -41,9 +41,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
 
         currentEnemy = enemy;
-        elapsed += Time.deltaTime;
         tickElapsed += Time.deltaTime;
-
         if (currentEnemy != null)
             ShowLaserToEnemy(enemy);
         else
@@ -51,6 +49,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
         if (tickElapsed >= turret.turretData.laserTickInterval)
         {
+            elapsed += tickElapsed; // 1틱데미지 들어갈때마다 elapsed에 값더하기
             health.TakeDamage(turret.GetDamage());
 
             EffectManager.Instance.PlayEffect(
@@ -67,9 +66,10 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             DisableLaser();
             return;
         }
-
+       
         if (elapsed >= turret.turretData.laserDuration)
         {
+            Debug.Log("??");
             DisableLaser();
             StartCoroutine(CooldownRoutine());
         }
@@ -141,7 +141,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         laserBeamObject.gameObject.SetActive(true);
         laserBeamObject.position = start;
         laserBeamObject.rotation = Quaternion.LookRotation(dir);
-        laserBeamObject.localScale = new Vector3(1.5f, 1.5f, length * 0.3f);
+        laserBeamObject.localScale = new Vector3(0.3f, 0.3f, length * 0.15f);
     }
 
     private void ShowLaserToTile(Tile tile)
@@ -165,8 +165,6 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         if (laserBeamObject != null)
             laserBeamObject.gameObject.SetActive(false);
 
-        elapsed = 0f;
-        tickElapsed = 0f;
         currentTile = null;
 
         if (checkRoutine != null)
@@ -176,18 +174,40 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
     }
 
-
+    GameObject chargingEffectInstance;
     private IEnumerator CooldownRoutine()
     {
         isCoolingDown = true;
 
-        EffectManager.Instance.PlayEffect(
+        // 1. 이펙트 활성화
+        chargingEffectInstance = EffectManager.Instance.GetDynamicEffect(
             turret.turretData.turretType,
-            TurretActionType.Both,
-            firePoint.position
+            TurretActionType.Both
         );
 
-        yield return new WaitForSeconds(3f);
+        float duration = 3f;
+        float chargingTime = 0f;
+
+        while (chargingTime < duration)
+        {
+            // 2. 실시간 위치 업데이트
+            if (chargingEffectInstance != null)
+                chargingEffectInstance.transform.position = new Vector3( firePoint.position.x, firePoint.position.y, firePoint.position.z + 1f);
+
+            chargingTime += Time.deltaTime;
+            yield return null;
+        }
+
+        // 3. 이펙트 반환 및 초기화
+        EffectManager.Instance.ReturnDynamicEffect(
+            turret.turretData.turretType,
+            TurretActionType.Both,
+            chargingEffectInstance
+        );
+        chargingEffectInstance = null;
+
+        elapsed = 0f;
+        tickElapsed = 0f;
         isCoolingDown = false;
     }
 }

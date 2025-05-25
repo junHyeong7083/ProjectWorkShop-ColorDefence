@@ -90,7 +90,9 @@ public class PlacementManager : MonoBehaviour
 
             TileUtility.MarkTilesOccupied(simulatedTiles, true);
 
-            Tile goalTile = TileGridManager.Instance.GetTile(0, 0);
+            Vector2Int center = TileGridManager.GetCenterGrid();
+            Tile goalTile = TileGridManager.Instance.GetTile(center.x, center.y);
+
             cachedDistanceMap = Pathfinding.GenerateDistanceMap(goalTile);
 
             foreach (var enemy in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))

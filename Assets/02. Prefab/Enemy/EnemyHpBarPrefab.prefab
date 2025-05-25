@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2775737249665239306}
   - component: {fileID: 7823704051762536358}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: EnemyHpBarPrefab
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -57,7 +57,7 @@ GameObject:
   - component: {fileID: 6894504406600464625}
   - component: {fileID: 4735213651584938052}
   - component: {fileID: 8706916393309409039}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: HpBarBG
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 8563145264858154740}
   - component: {fileID: 2134201154139115641}
   - component: {fileID: 2493494664106645870}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: HpBarFill
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -208,7 +208,7 @@ GameObject:
   - component: {fileID: 4073101528080792027}
   - component: {fileID: 7464776995485718614}
   - component: {fileID: 2010732411970189631}
-  m_Layer: 5
+  m_Layer: 8
   m_Name: Canvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}

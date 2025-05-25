@@ -47,17 +47,13 @@ public class TurretTargetSelector : MonoBehaviour
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;
         float rangeSqr = turret.GetRange() * turret.GetRange();
+        Debug.Log($"Current Turret Range : {rangeSqr} ");
         Vector3 origin = transform.position;
 
         foreach (var enemy in enemies)
         {
-            if (enemy == null || enemy == exclude) continue;
-
-
-            var health = enemy.GetComponent<EnemyHealth>();
-            if (health == null || health.currentHp <= 0 || !enemy.activeInHierarchy)
-                continue;
-
+            if (!IsValidTargetEnemy(enemy, origin, rangeSqr)) continue;
+            
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 
@@ -102,6 +98,19 @@ public class TurretTargetSelector : MonoBehaviour
 
         return bestTile;
     }
+
+    private bool IsValidTargetEnemy(GameObject enemy, Vector3 origin, float rangeSq)
+    {
+        if (enemy == null || !enemy.activeInHierarchy)
+            return false;
+    
+        var health = enemy.GetComponent<EnemyHealth>();
+        if (health == null || health.currentHp <= 0) return false;
+
+        float distSq = (enemy.transform.position - origin).sqrMagnitude;
+        return distSq <= rangeSq;
+    }
+
 
 
     // 타겟 가능한 Enemy 타일인지 검사

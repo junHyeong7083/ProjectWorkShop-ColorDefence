@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41c6ef2432c01644ba30dfbe6546cf52, type: 3}
+  m_Name: Laser_Tile
+  m_EditorClassIdentifier: 
+  actionType: 1
+  turretType: 2
+  baseAttackRange: 10
+  baseAttackRate: 0
+  baseDamage: 1
+  attackRangeGrowth: 2
+  attackRateGrowth: 0
+  damageGrowth: 1
+  placementCost: 30
+  width: 3
+  height: 3
+  laserDuration: 4
+  laserTickInterval: 0.2
+  description: "\uD0C0\uC77C \uACF5\uACA9\uB9CC \uAC00\uB2A5\uD55C \uB808\uC774\uC800\uD3EC\uD0D1"

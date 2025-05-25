@@ -9,6 +9,11 @@ public class CannonBulletEnemy : MonoBehaviour
 {
     Vector3 startPoint, controlPoint, endPoint;
     [SerializeField] float duration;
+
+    [SerializeField] float startEngler = -45f;
+    [SerializeField] float endEngler = -135f;
+
+
     float elapsed;
     int damage;
     Action onHit;
@@ -43,6 +48,8 @@ public class CannonBulletEnemy : MonoBehaviour
 
         transform.position = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, curvedT);
 
+        float angle = Mathf.Lerp(startEngler, endEngler,curvedT);
+        transform.rotation = Quaternion.Euler(angle,0,0);   
         if (t >= 1f)
         {
             ApplyAoEDamage(endPoint);
@@ -65,7 +72,6 @@ public class CannonBulletEnemy : MonoBehaviour
     /// </summary>
     void ApplyAoEDamage(Vector3 center)
     {
-        Debug.Log("ApplyAoEDamage 호출됨");
 
         float cubeSize = TileGridManager.Instance.cubeSize;
         float radius = cubeSize * 2;
@@ -82,10 +88,10 @@ public class CannonBulletEnemy : MonoBehaviour
 
             float damageMultiplier = isCenter ? 1f : 0.5f;
             int finalDamage = Mathf.RoundToInt(damage * damageMultiplier);
-
+           // Debug.Log("finalDamage : " + finalDamage);
             hp.TakeDamage(finalDamage);
 
-            Debug.Log($"[AOE] {col.name} → {finalDamage} damage (center: {isCenter})");
+           // Debug.Log($"[AOE] {col.name} → {finalDamage} damage (center: {isCenter})");
         }
     }
 

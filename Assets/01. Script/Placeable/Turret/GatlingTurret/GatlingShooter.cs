@@ -16,6 +16,8 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
     {
         Vector3 dir = (enemy.transform.position - gatling.GetFirePoint().position).normalized;
         BulletPool.Instance.GetGatlingEnemyBullet(gatling.GetFirePoint().position, enemy.transform, turret.GetDamage());
+
+        //gatling.animator.SetBool("Attack", true);
     }
 
     public void ShootAtTile(Tile tile)

@@ -10,12 +10,15 @@ public class GatlingTurret : TurretBase
     [SerializeField] private Transform firePoint;
     [SerializeField] private Transform headToRotate;
     [SerializeField] private float rotateSpeed = 10f;
+    //public Animator animator;
 
     private void Awake()
     {
         // 설정값을 회전 컴포넌트에 연결
         var rotator = GetComponent<TurretRotationController>();
         rotator.SetRotationTarget(headToRotate, rotateSpeed);
+
+       // animator = GetComponent<Animator>();
     }
 
     public Transform GetFirePoint() => firePoint;

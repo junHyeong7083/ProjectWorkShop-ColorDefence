@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Rendering.RenderGraphModule;
 
 
 
@@ -78,7 +79,13 @@ public class TurretCombatLoop : MonoBehaviour
                 currentEnemy = null;
                 yield break;
             }
-         
+
+           /* float distanceSq = (currentEnemy.transform.position - this.transform.position).sqrMagnitude;
+            float range = turret.turretData.baseAttackRange;
+            if (distanceSq > range * range)
+                yield break;
+*/
+
 
             yield return rotator.RotateTo(currentEnemy.transform.position);
 

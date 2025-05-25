@@ -89,5 +89,45 @@ public class EffectManager : MonoBehaviour
         fx.SetActive(false);
         effectPools[key].Enqueue(fx);
     }
+
+    public GameObject GetDynamicEffect(TurretType turret, TurretActionType action)
+    {
+        var key = (turret, action);
+        if (!prefabDict.ContainsKey(key))
+        {
+            Debug.LogWarning($"이펙트 미등록: {turret}_{action}");
+            return null;
+        }
+
+        GameObject fx = null;
+
+        if (effectPools[key].Count > 0)
+        {
+            fx = effectPools[key].Dequeue();
+        }
+        else
+        {
+            fx = Instantiate(prefabDict[key], ParticleParnet);
+        }
+
+        var ps = fx.GetComponent<ParticleSystem>();
+        if (ps != null) ps.Play(); // 바로 재생은 하되 위치는 사용자가 지정
+
+        fx.SetActive(true);
+        return fx;
+    }
+    public void ReturnDynamicEffect(TurretType turret, TurretActionType action, GameObject fx)
+    {
+        var key = (turret, action);
+
+        if (!effectPools.ContainsKey(key))
+        {
+            Debug.LogWarning($"풀 없음: {turret}_{action}");
+            return;
+        }
+
+        fx.SetActive(false);
+        effectPools[key].Enqueue(fx);
+    }
 }
 

@@ -1,34 +1,29 @@
-// EnemyPathfinder.cs - distanceMap ±‚π› ∞Ê∑Œ √ﬂ¿˚ √÷¿˚»≠
-using UnityEngine;
-using System.Collections.Generic;
+Ôªøusing UnityEngine;
 using System.Collections;
-using Unity.Collections;
+using System.Collections.Generic;
 
 [DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
 {
     [SerializeField] private MonsterData data;
-    [SerializeField] private Vector2Int goalGridPosition = new Vector2Int(0, 0);
+    public Vector2Int goalGridPosition = new Vector2Int(0, 0); // Ïô∏Î∂ÄÏóêÏÑú Ï§ëÏïô Îì±ÏúºÎ°ú ÏÑ§Ï†ï
 
     private Tile currentTile;
-
-    // ∞Ê∑Œ∏¶ ¿˙¿Â«œ¥¬ ≈•
     private Queue<Tile> path = new();
     private float speed;
 
     public Tile CurrentTile => currentTile;
-    Enemy enemy;
+    private Enemy enemy;
 
-    // º∫¥… √÷¿˚»≠∏¶ ¿ß«— ƒ≥ΩÃ
-    private void Awake() => enemy = GetComponent<Enemy>();
+    private void Awake()
+    {
+        enemy = GetComponent<Enemy>();
+    }
 
-
-
-    IEnumerator Start()
+    private IEnumerator Start()
     {
         speed = data.Speed;
 
-        // ≈∏¿œ √ ±‚»≠ ≥°≥Ø ∂ß±Ó¡ˆ ¥Î±‚
         while (!TileGridManager.Instance || !TileGridManager.Instance.IsInitialized)
             yield return null;
 
@@ -36,12 +31,33 @@ public class EnemyPathfinder : MonoBehaviour
             Mathf.FloorToInt(transform.position.x / TileGridManager.Instance.cubeSize),
             Mathf.FloorToInt(transform.position.z / TileGridManager.Instance.cubeSize)
         );
-        // √÷√  ∞Ê∑Œ∞ËªÍ(A*πÊΩƒ)
-        RecalculatePath();
     }
 
+    public void InitializePathfinder(Vector3 spawnPos, Dictionary<Tile, int> distanceMap = null)
+    {
+        transform.position = spawnPos;
 
-    // A* æÀ∞Ì∏Æ¡Ú¿ª ¿ÃøÎ«ÿ ∞Ê∑Œ ∞ËªÍ
+        currentTile = TileGridManager.Instance.GetTile(
+            Mathf.FloorToInt(spawnPos.x / TileGridManager.Instance.cubeSize),
+            Mathf.FloorToInt(spawnPos.z / TileGridManager.Instance.cubeSize)
+        );
+
+        if (currentTile == null)
+        {
+            Debug.LogError(" Invalid currentTile at spawn position: " + spawnPos);
+            return;
+        }
+
+        transform.position = currentTile.CenterWorldPos + Vector3.up*TileGridManager.Instance.cubeSize;
+
+        path.Clear();
+
+        if (distanceMap != null)
+            RecalculatePathFromMap(distanceMap);
+        else
+            RecalculatePath();
+    }
+
     public void RecalculatePath(Dictionary<Tile, int> distanceMap = null)
     {
         if (distanceMap != null && distanceMap.ContainsKey(currentTile))
@@ -51,24 +67,32 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         Tile goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
+        if (goalTile == null || goalTile.IsOccupied)
+        {
+            Debug.LogError("Invalid or blocked goal tile: " + goalGridPosition);
+            return;
+        }
+
         var newPath = Pathfinding.APointFindPath(currentTile, goalTile);
 
-        if (goalTile == null) Debug.LogError("¿ﬂ∏¯µ» ∞Ê∑Œ ≈Ωªˆ!!!!!!!!!!!Ω√πﬂ ∞≥¡ø∞∞≥◊");
-
-
-        if (newPath != null)
-            path = new Queue<Tile>(newPath);
-        else
+        if (newPath == null || newPath.Count == 0)
+        {
+            Debug.LogWarning($"A* Í≤ΩÎ°ú ÏóÜÏùå");
             path.Clear();
+            return;
+        }
+
+        path = new Queue<Tile>(newPath);
     }
 
-    // ªÁ¿¸ø° ∏∏µÈæÓ¡¯ distanceMap¿ª ±‚π›¿∏∑Œ ∞Ê∑Œ ø™√ﬂ¿˚
     public void RecalculatePathFromMap(Dictionary<Tile, int> distanceMap)
     {
         path.Clear();
 
         if (!distanceMap.ContainsKey(currentTile))
-            return; // !distanceMap.ContainsKey(currentTile) => BFS∞° µµ¥ﬁ«œ¡ˆ∏¯«‘ => ∞Ê∑Œæ¯¿Ω => return
+        {
+            return;
+        }
 
         Tile current = currentTile;
         List<Tile> result = new();
@@ -76,7 +100,7 @@ public class EnemyPathfinder : MonoBehaviour
         while (distanceMap.TryGetValue(current, out int currDist) && currDist > 0)
         {
             Tile next = null;
-            // ¿ÃøÙ ¡ﬂø°º≠ ∞≈∏Æ ∞™¿Ã ¥ı ¿€¿∫ ≈∏¿œ¿ª º±≈√
+
             foreach (var neighbor in Pathfinding.GetNeighbors(current))
             {
                 if (!distanceMap.TryGetValue(neighbor, out int neighborDist)) continue;
@@ -93,10 +117,15 @@ public class EnemyPathfinder : MonoBehaviour
             current = next;
         }
 
+        if (result.Count == 0)
+        {
+         
+            return;
+        }
+
         path = new Queue<Tile>(result);
     }
 
-    // ∆Ø¡§ ≈∏¿œµÈ¿ª ¡°¿Ø ªÛ≈¬∑Œ πŸ≤Ÿæ˙¿ª ∂ß ∞Ê∑Œ∞° ¡∏¿Á«œ¥¬¡ˆ Ω√πƒ∑π¿Ãº«
     public bool WouldHavePathIf(List<Tile> occupiedTiles)
     {
         foreach (var tile in occupiedTiles)
@@ -111,25 +140,7 @@ public class EnemyPathfinder : MonoBehaviour
         return result != null;
     }
 
-    public void InitializePathfinder(Vector3 spawnPos, Dictionary<Tile, int> distanceMap = null)
-    {
-        transform.position = spawnPos;
-
-        currentTile = TileGridManager.Instance.GetTile(
-            Mathf.FloorToInt(spawnPos.x / TileGridManager.Instance.cubeSize),
-            Mathf.FloorToInt(spawnPos.z / TileGridManager.Instance.cubeSize)
-        );
-        transform.position = currentTile.CenterWorldPos;
-
-        path.Clear();
-
-        if (distanceMap != null)
-            RecalculatePathFromMap(distanceMap);
-        else
-            RecalculatePath();
-    }
-
-    void Update()
+    private void Update()
     {
         if (path == null || path.Count == 0) return;
 
@@ -141,15 +152,13 @@ public class EnemyPathfinder : MonoBehaviour
 
         if (Vector3.Distance(transform.position, target) < 0.05f)
         {
-            var preivousTile = currentTile;
+            var previousTile = currentTile;
             currentTile = next;
-            
             path.Dequeue();
 
-     /*       //  º≠∑Œ ¥Ÿ∏• ≈∏¿œ¿œ∂ß∏∏ ∞®ø∞ 
-            if (preivousTile != currentTile )
-                enemy?.InfectTile();
-*/
+            // ÌïÑÏöîÏãú Í∞êÏóº Îì± Ï∂îÍ∞Ä
+            // if (previousTile != currentTile)
+            //     enemy?.InfectTile();
         }
     }
 }

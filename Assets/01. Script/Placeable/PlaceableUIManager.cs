@@ -29,7 +29,7 @@ public class PlaceableUIManager : MonoBehaviour
 
     public void RequestUpgrade()
     {
-        Debug.Log("업그레이드");
+        //Debug.Log("업그레이드");
         selectedPlaceable?.Upgrade();
         Select(selectedPlaceable); // UI 재갱신
     }

@@ -9,7 +9,6 @@ public class GameManager : MonoBehaviour
     public int gold;
     public Text goldText;
 
-    [SerializeField] Camera[] cameras;
     public GameSpeedMode CurrentSpeed { get; private set; } = GameSpeedMode.Normal;
     float currentTimeScaleMode = 1f;
     private void Awake()
@@ -72,25 +71,4 @@ public class GameManager : MonoBehaviour
         goldText.text = gold.ToString();
     }
     #endregion
-
-    void Start()
-    {
-        #region CameraSetting 인게임 / UI 분리용
-        var grid = TileGridManager.Instance;
-        float w = grid.Width * grid.cubeSize;
-        float h = grid.Height * grid.cubeSize;
-
-
-        foreach (var cam in cameras)
-        {
-            cam.orthographic = true;
-            cam.orthographicSize = h * 0.5f;
-            cam.transform.position = new Vector3(w * 0.5f, 30f, h * 0.5f - 20f);
-            cam.transform.rotation = Quaternion.Euler(45, 0f, 0f);
-
-            cam.rect = new Rect(0, 0.3f, 1, 0.7f);
-        }
-
-        #endregion
-    }
 }
