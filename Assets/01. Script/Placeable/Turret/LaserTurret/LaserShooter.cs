@@ -10,7 +10,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     private GameObject currentEnemy;
     private Tile currentTile;
 
-    private float elapsed;
+   // private float elapsed;
     private float tickElapsed;
     private bool isCoolingDown;
     private Coroutine checkRoutine;
@@ -40,16 +40,30 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             return;
         }
 
+        Vector3 turretPos = turret.transform.position;
+        Vector3 enemyPos = enemy.transform.position;
+        float distSqr = (enemyPos - turretPos).sqrMagnitude;
+        
+        float range = turret.GetRange();
+        float rangeSqr = range * range;
+
+        Debug.Log($"Range : {rangeSqr} -- dist : {distSqr}");
+
+        if (distSqr >= rangeSqr)
+        {
+            Debug.Log("sibal");
+            DisableLaser();
+            return;
+        }
+
         currentEnemy = enemy;
         tickElapsed += Time.deltaTime;
-        if (currentEnemy != null)
-            ShowLaserToEnemy(enemy);
-        else
-            DisableLaser();
+
+        ShowLaserToEnemy(enemy); //
 
         if (tickElapsed >= turret.turretData.laserTickInterval)
         {
-            elapsed += tickElapsed; // 1틱데미지 들어갈때마다 elapsed에 값더하기
+           // elapsed += tickElapsed;
             health.TakeDamage(turret.GetDamage());
 
             EffectManager.Instance.PlayEffect(
@@ -63,20 +77,21 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
         if (health.currentHp <= 0)
         {
-            DisableLaser();
+            DisableLaser();   // 
+            currentEnemy = null;
             return;
         }
-       
-        if (elapsed >= turret.turretData.laserDuration)
+
+       /* if (elapsed >= turret.turretData.laserDuration)
         {
-            Debug.Log("??");
             DisableLaser();
             StartCoroutine(CooldownRoutine());
-        }
+        }*/
 
         if (checkRoutine == null)
             checkRoutine = StartCoroutine(CheckLaserTarget());
     }
+
 
     private IEnumerator CheckLaserTarget()
     {
@@ -102,7 +117,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
 
         currentTile = tile;
-        elapsed += Time.deltaTime;
+       // elapsed += Time.deltaTime;
         tickElapsed += Time.deltaTime;
         ShowLaserToTile(tile);
 
@@ -120,13 +135,13 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             tickElapsed = 0f;
         }
 
-        if (elapsed >= turret.turretData.laserDuration)
+       /* if (elapsed >= turret.turretData.laserDuration)
         {
             tile.Release();
             tile.TargetingTurret = null;
             DisableLaser();
             StartCoroutine(CooldownRoutine());
-        }
+        }*/
     }
 
     private void ShowLaserToEnemy(GameObject enemy)
@@ -160,7 +175,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         laserBeamObject.localScale = new Vector3(0.2f, 0.2f, length / 2); //  길이 그대로
     }
 
-    private void DisableLaser()
+    public void DisableLaser()
     {
         if (laserBeamObject != null)
             laserBeamObject.gameObject.SetActive(false);
@@ -175,7 +190,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     }
 
     GameObject chargingEffectInstance;
-    private IEnumerator CooldownRoutine()
+  /*  private IEnumerator CooldownRoutine()
     {
         isCoolingDown = true;
 
@@ -206,8 +221,8 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         );
         chargingEffectInstance = null;
 
-        elapsed = 0f;
+       // elapsed = 0f;
         tickElapsed = 0f;
         isCoolingDown = false;
-    }
+    }*/
 }

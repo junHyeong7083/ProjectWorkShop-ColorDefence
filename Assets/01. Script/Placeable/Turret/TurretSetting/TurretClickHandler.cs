@@ -25,7 +25,7 @@ public class TurretClickHandler : MonoBehaviour
 
             //if (turret != null) turret.ShowSelectBox();
         
-
+        // 사거리 들어가고
         visualizer.Show(turret.GetRange());
     }
 

@@ -41,7 +41,10 @@ public abstract class TurretBase : PlaceableBase
         => turretData.baseDamage + (turretData.damageGrowth * (CurrentLevel - 1));
 
     public float GetRange()
-        => turretData.baseAttackRange + (turretData.attackRangeGrowth * (CurrentLevel - 1));
+    {
+        float tileRange = turretData.baseAttackRange + (turretData.attackRangeGrowth * (CurrentLevel - 1));
+        return tileRange * TileGridManager.Instance.cubeSize; // <- 타일 수 → 월드 거리
+    }
 
     public float GetAttackRate()
     {

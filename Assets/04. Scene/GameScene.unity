@@ -5498,7 +5498,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterNames:
   - Enemy
-  spawnInterval: 1.5
+  spawnInterval: 2
 --- !u!114 &1250951420
 MonoBehaviour:
   m_ObjectHideFlags: 0

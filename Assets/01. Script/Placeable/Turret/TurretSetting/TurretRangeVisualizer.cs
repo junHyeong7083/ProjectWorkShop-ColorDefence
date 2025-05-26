@@ -23,7 +23,11 @@ public class TurretRangeVisualizer : MonoBehaviour
             rangeInstance.transform.localPosition = Vector3.zero;
             rangeInstance.transform.localRotation = Quaternion.Euler(90, 0, 0);
         }
-        rangeInstance.transform.localScale = Vector3.one * range/2;
+        Debug.Log("Range : " + range);
+
+        // 현재 사거리 계산이 사거리 *큐브를 통해 큐브좌표로 계산되므로 다시 /cubesize를 통해 시각적크기 표현
+        float tileBaseRange = range / TileGridManager.Instance.cubeSize - TileGridManager.Instance.cubeSize*0.5f;
+        rangeInstance.transform.localScale = new Vector3(tileBaseRange , tileBaseRange, tileBaseRange);
         rangeInstance.SetActive(true);
     }
 

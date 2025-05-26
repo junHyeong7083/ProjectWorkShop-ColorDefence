@@ -14,10 +14,13 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
 
     public void ShootAtEnemy(GameObject enemy)
     {
-        Vector3 dir = (enemy.transform.position - gatling.GetFirePoint().position).normalized;
-        BulletPool.Instance.GetGatlingEnemyBullet(gatling.GetFirePoint().position, enemy.transform, turret.GetDamage());
+        if (enemy == null) return;
 
-        //gatling.animator.SetBool("Attack", true);
+        Vector3 firePos = gatling.GetFirePoint().position;
+        Transform target = enemy.transform;
+        int damage = turret.GetDamage();
+
+        BulletPool.Instance.GetGatlingEnemyBullet(firePos, target, damage);
     }
 
     public void ShootAtTile(Tile tile)

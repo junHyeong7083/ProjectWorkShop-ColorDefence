@@ -17,34 +17,23 @@ public class CannonShooter : MonoBehaviour, ITurretShooter
 
     public void ShootAtEnemy(GameObject enemy)
     {
-        float range = turret.GetRange();
-        float sqrDistance = (enemy.transform.position - turret.transform.position).sqrMagnitude;
+        if (enemy == null) return;
 
-        Debug.Log("range : " + range*range);
-        Debug.Log("distance : " + sqrDistance);
-
-        if (sqrDistance > range * range)
-            return; // 사거리 벗어나면 발사하지 않음
-
-
-        Vector3 start = cannon.GetFirePoint().position;     // 총알 시작 위치
-        Vector3 end = enemy.transform.position;             // 적의 현재 위치
-        int damage = turret.GetDamage();                    // 터렛이 줄 데미지
+        Vector3 start = cannon.GetFirePoint().position;
+        Vector3 end = enemy.transform.position;
+        int damage = turret.GetDamage();
 
         BulletPool.Instance.GetCannonEnemyBullet(start, end, arcHeight, flightTime, damage, () =>
         {
-
-            // 카메라 흔들림 효과
             CameraShakeManager.Instance.RequestShake(0.6f);
-
             EffectManager.Instance.PlayEffect(
                 turret.turretData.turretType,
                 turret.turretData.actionType,
                 end
             );
-
         });
     }
+
 
     /// <summary>
     /// 타일에 포탄 발사하는 로직 (미사용 상태, Gatling용 참조 코드가 주석처리되어 있음)

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using static UnityEngine.UI.Image;
 
 [RequireComponent(typeof(TurretBase))]
 public class TurretTargetSelector : MonoBehaviour
@@ -17,7 +18,9 @@ public class TurretTargetSelector : MonoBehaviour
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;
-        float rangeSqr = turret.GetRange() * turret.GetRange();
+
+        float range = turret.GetRange();            // 월드 거리
+        float rangeSqr = range * range;             // 제곱 거리
         Vector3 origin = transform.position;
 
         foreach (var enemy in enemies)
@@ -29,6 +32,10 @@ public class TurretTargetSelector : MonoBehaviour
                 continue;
 
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
+
+            float tileDist = Mathf.Sqrt(distSqr) / TileGridManager.Instance.cubeSize;
+           // Debug.Log($"[타워→적 거리] 실제: {Mathf.Sqrt(distSqr):F2} / 타일: {tileDist:F2} / 사거리: {range / TileGridManager.Instance.cubeSize:F2}칸");
+
             if (distSqr > rangeSqr) continue;
 
             if (distSqr < bestScore)
@@ -41,19 +48,20 @@ public class TurretTargetSelector : MonoBehaviour
         return bestTarget;
     }
 
+
     public GameObject FindClosestEnemy(GameObject exclude)
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;
-        float rangeSqr = turret.GetRange() * turret.GetRange();
+        float rangeSqr = turret.GetRange()* turret.GetRange();
         Debug.Log($"Current Turret Range : {rangeSqr} ");
         Vector3 origin = transform.position;
 
         foreach (var enemy in enemies)
         {
             if (!IsValidTargetEnemy(enemy, origin, rangeSqr)) continue;
-            
+
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 
