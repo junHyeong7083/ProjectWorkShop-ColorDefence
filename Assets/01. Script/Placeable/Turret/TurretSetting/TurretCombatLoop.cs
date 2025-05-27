@@ -5,6 +5,8 @@ public interface ITurretShooter
 {
     void ShootAtEnemy(GameObject enemy);
     void ShootAtTile(Tile tile);
+
+    bool IsReloading { get; }
 }
 
 [RequireComponent(typeof(TurretBase))]
@@ -68,8 +70,13 @@ public class TurretCombatLoop : MonoBehaviour
 
             if (!IsValidEnemy(currentEnemy))
             {
-                ForceDisableLaser(); // ? 추가: 적 유효하지 않을 경우 Laser 꺼주기
+                ForceDisableLaser(); // 
                 currentEnemy = null;
+                callback(false);
+                yield break;
+            }
+            if (shooter.IsReloading)
+            {
                 callback(false);
                 yield break;
             }
@@ -78,7 +85,7 @@ public class TurretCombatLoop : MonoBehaviour
 
             if (!IsValidEnemy(currentEnemy))
             {
-                ForceDisableLaser(); // ? 추가: 회전 도중 적이 죽은 경우에도 꺼주기
+                ForceDisableLaser(); //
                 currentEnemy = null;
                 callback(false);
                 yield break;

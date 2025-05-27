@@ -1,4 +1,3 @@
-// PlacementManager.cs - 울타리 설치 시 거리맵 기반 경로 재계산 최적화
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -10,6 +9,7 @@ public class PlacementManager : MonoBehaviour
 
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
+    [SerializeField] private Color previewRangeColor = new Color(0f, 1f, 1f, 1f); // 청록색
 
     private GameObject currentPrefab;
     private ScriptableObject currentData;
@@ -17,6 +17,7 @@ public class PlacementManager : MonoBehaviour
     private PlacementType placementType;
 
     private List<Tile> simulatedTiles = new();
+    private List<Tile> rangePreviewTiles = new(); // 사거리 프리뷰용 타일들
 
     private void Awake()
     {
@@ -107,6 +108,30 @@ public class PlacementManager : MonoBehaviour
             TileUtility.MarkTilesOccupied(simulatedTiles, false);
         }
 
+        if (placementType == PlacementType.Turret)
+        {
+            foreach (var tile in rangePreviewTiles)
+                tile.RevertPreviewColor();
+
+            rangePreviewTiles.Clear();
+
+            var turretData = currentData as TurretData;
+            if (turretData != null)
+            {
+                float range = turretData.baseAttackRange*2f;
+                var tilesInRange = TileGridManager.Instance.GetTilesInRange(previewPos, range);
+
+                foreach (var tile in tilesInRange)
+                {
+                    if(tile.ColorState == TileColorState.Neutral)
+                    {
+                        tile.SetPreviewColor(previewRangeColor);
+                        rangePreviewTiles.Add(tile);
+                    }
+                }
+            }
+        }
+
         foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
             r.material = canPlace ? previewGreen : previewRed;
 
@@ -147,7 +172,6 @@ public class PlacementManager : MonoBehaviour
         CancelPreview();
     }
 
-
     private void PlaceFence(int startX, int startZ, Vector3 pos, Dictionary<Tile, int> distanceMap)
     {
         var data = currentData as FenceData;
@@ -170,7 +194,6 @@ public class PlacementManager : MonoBehaviour
             }
         }
 
-
         TileUtility.MarkTilesOccupied(tiles, true);
         fence.occupiedTiles = tiles;
 
@@ -184,6 +207,12 @@ public class PlacementManager : MonoBehaviour
     {
         if (previewInstance != null) Destroy(previewInstance);
         previewInstance = null;
+
+        foreach (var tile in rangePreviewTiles)
+            tile.RevertPreviewColor();
+
+        rangePreviewTiles.Clear();
+
         currentData = null;
         currentPrefab = null;
     }

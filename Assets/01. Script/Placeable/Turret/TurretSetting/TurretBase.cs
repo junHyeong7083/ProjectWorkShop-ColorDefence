@@ -52,7 +52,7 @@ public abstract class TurretBase : PlaceableBase
         switch(turretData.turretType)
         {
             case TurretType.Gatling:
-                return Mathf.Max(0.5f, value);
+                return Mathf.Max(0.01f, value);
             case TurretType.Laser:
                 return 0;
             case TurretType.Cannon:

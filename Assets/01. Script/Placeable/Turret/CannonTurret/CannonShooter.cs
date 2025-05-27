@@ -9,6 +9,8 @@ public class CannonShooter : MonoBehaviour, ITurretShooter
     [SerializeField] float arcHeight;   // 베지어 궤적 높이 (y축으로 얼마나 튀어오를지)
     [SerializeField] float flightTime;  // 포탄이 날아가는 시간 (길수록 느림)
 
+    public bool IsReloading => false;
+
     private void Awake()
     {
         cannon = GetComponent<CannonTurret>();

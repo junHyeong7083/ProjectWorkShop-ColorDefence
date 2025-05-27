@@ -1,39 +1,32 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
 public enum TileColorState { Neutral, Player, Enemy }
 
 public class Tile : MonoBehaviour
 {
     public Vector2Int GridPos { get; private set; }
-    
     public TileColorState ColorState { get; private set; }
 
-  //  [SerializeField] private float lastChangedTime = -999f;
-
-   // public float LastChangedTime => lastChangedTime;
     public float LastChangedTime { get; private set; } = -999f;
     public Vector3 CenterWorldPos => new Vector3(
-     GridPos.x * TileGridManager.Instance.cubeSize,
-     0,
-     GridPos.y * TileGridManager.Instance.cubeSize
- );
-    // 해당 타일이 점유되어있는지 확인하는 프로퍼티
-    public bool IsOccupied { get; set; }
+        GridPos.x * TileGridManager.Instance.cubeSize,
+        0,
+        GridPos.y * TileGridManager.Instance.cubeSize
+    );
 
-    // 공격시스템시 타게팅 되었는지 확인가능한 프로퍼티
+    public bool IsOccupied { get; set; }
     public bool IsReserved { get; private set; } = false;
-    
-    // 애니메이션 중복재생 막기위해
     public bool IsBumping => isBumping;
+    public TurretBase TargetingTurret { get; set; } = null;
 
     private Renderer rend;
     private MaterialPropertyBlock block;
     private bool isBumping = false;
 
-
-    public TurretBase TargetingTurret { get; set; } = null;
-
+    private bool isPreviewing = false;
+    private Color? originalColor = null;
 
     private void Awake()
     {
@@ -51,19 +44,18 @@ public class Tile : MonoBehaviour
     public void SetColor(TileColorState newColor)
     {
         if (ColorState == newColor || isBumping) return;
+
+        if (isPreviewing)
+            RevertPreviewColor(); // 프리뷰 중이면 해제하고 색상 반영
+
         Release();
-        // Debug.Log($"[Tile {transform.position}] 색 변경: {ColorState} → {newColor}");
+
         TileCounter.Instance.Decrement(ColorState);
-
-
         ColorState = newColor;
-
         TileCounter.Instance.Increment(newColor);
-       
-        //lastChangedTime = Time.time;
-         LastChangedTime = Time.time;
-        AnimateBump();
 
+        LastChangedTime = Time.time;
+        AnimateBump();
 
         Color c = GetColorFromState(newColor);
         rend.GetPropertyBlock(block);
@@ -109,6 +101,7 @@ public class Tile : MonoBehaviour
     {
         IsReserved = false;
     }
+
     private Color GetColorFromState(TileColorState state)
     {
         return state switch
@@ -119,5 +112,30 @@ public class Tile : MonoBehaviour
             _ => Color.black
         };
     }
-}
 
+    public void SetPreviewColor(Color previewColor)
+    {
+        if (!isPreviewing)
+        {
+            originalColor = rend.sharedMaterial.GetColor("_BaseColor");
+            isPreviewing = true;
+        }
+
+        block.Clear();
+        block.SetColor("_BaseColor", previewColor);
+        rend.SetPropertyBlock(block);
+    }
+
+    public void RevertPreviewColor()
+    {
+        if (!isPreviewing || originalColor == null) return;
+
+        rend.GetPropertyBlock(block);
+        block.Clear();
+        block.SetColor("_BaseColor", originalColor.Value);
+        rend.SetPropertyBlock(block);
+
+        isPreviewing = false;
+        originalColor = null;
+    }
+}

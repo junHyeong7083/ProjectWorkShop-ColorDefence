@@ -15,6 +15,8 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     private bool isCoolingDown;
     private Coroutine checkRoutine;
 
+
+    public bool IsReloading => false;
     private void Awake() => turret = GetComponent<TurretBase>();
 
     public void SetLaserReferences(Transform firePoint, Transform laserBeamObject)
@@ -47,7 +49,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         float range = turret.GetRange();
         float rangeSqr = range * range;
 
-        Debug.Log($"Range : {rangeSqr} -- dist : {distSqr}");
+      //  Debug.Log($"Range : {rangeSqr} -- dist : {distSqr}");
 
         if (distSqr >= rangeSqr)
         {
@@ -190,39 +192,40 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     }
 
     GameObject chargingEffectInstance;
-  /*  private IEnumerator CooldownRoutine()
-    {
-        isCoolingDown = true;
 
-        // 1. 이펙트 활성화
-        chargingEffectInstance = EffectManager.Instance.GetDynamicEffect(
-            turret.turretData.turretType,
-            TurretActionType.Both
-        );
+    /*  private IEnumerator CooldownRoutine()
+{
+isCoolingDown = true;
 
-        float duration = 3f;
-        float chargingTime = 0f;
+// 1. 이펙트 활성화
+chargingEffectInstance = EffectManager.Instance.GetDynamicEffect(
+turret.turretData.turretType,
+TurretActionType.Both
+);
 
-        while (chargingTime < duration)
-        {
-            // 2. 실시간 위치 업데이트
-            if (chargingEffectInstance != null)
-                chargingEffectInstance.transform.position = new Vector3( firePoint.position.x, firePoint.position.y, firePoint.position.z + 1f);
+float duration = 3f;
+float chargingTime = 0f;
 
-            chargingTime += Time.deltaTime;
-            yield return null;
-        }
+while (chargingTime < duration)
+{
+// 2. 실시간 위치 업데이트
+if (chargingEffectInstance != null)
+chargingEffectInstance.transform.position = new Vector3( firePoint.position.x, firePoint.position.y, firePoint.position.z + 1f);
 
-        // 3. 이펙트 반환 및 초기화
-        EffectManager.Instance.ReturnDynamicEffect(
-            turret.turretData.turretType,
-            TurretActionType.Both,
-            chargingEffectInstance
-        );
-        chargingEffectInstance = null;
+chargingTime += Time.deltaTime;
+yield return null;
+}
 
-       // elapsed = 0f;
-        tickElapsed = 0f;
-        isCoolingDown = false;
-    }*/
+// 3. 이펙트 반환 및 초기화
+EffectManager.Instance.ReturnDynamicEffect(
+turret.turretData.turretType,
+TurretActionType.Both,
+chargingEffectInstance
+);
+chargingEffectInstance = null;
+
+// elapsed = 0f;
+tickElapsed = 0f;
+isCoolingDown = false;
+}*/
 }

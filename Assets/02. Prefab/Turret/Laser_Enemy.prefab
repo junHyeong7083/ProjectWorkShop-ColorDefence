@@ -313,7 +313,7 @@ MonoBehaviour:
   firePoint: {fileID: 2599776662562305114}
   headToRotate: {fileID: 8599052801577920471}
   laserTransform: {fileID: 575880067955084454}
-  rotateSpeed: 30
+  rotateSpeed: 100
 --- !u!114 &6356361305199648488
 MonoBehaviour:
   m_ObjectHideFlags: 0

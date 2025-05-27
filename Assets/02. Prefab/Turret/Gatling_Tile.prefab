@@ -142,6 +142,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33d31ab819e0fa244a211fa887627567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fireDuration: 3
+  reloadDuration: 2
 --- !u!114 &-3708163479565726807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -158,7 +160,7 @@ MonoBehaviour:
   selectBox: {fileID: 8862283906408168136}
   firePoint: {fileID: 284469106439546351}
   headToRotate: {fileID: 8890478538682028612}
-  rotateSpeed: 30
+  rotateSpeed: 100
 --- !u!114 &8895024477608730969
 MonoBehaviour:
   m_ObjectHideFlags: 0

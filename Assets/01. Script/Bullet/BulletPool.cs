@@ -75,12 +75,18 @@ public class BulletPool : MonoBehaviour
         bullet.gameObject.SetActive(true);
 
         bullet.transform.position = pos;
+
+        Vector3 dir = (target.position - pos).normalized;
+        bullet.transform.rotation = Quaternion.LookRotation(dir);
+
         bullet.Init(target, damage);
     }
 
     public void GetGatlingTileBullet(Vector3 pos, Vector3 dir, Action onArrive)
     {
-        var bullet = gatlingBulletTiles.Count > 0 ? gatlingBulletTiles.Dequeue() : Instantiate(gatlingTileBulletPrefab, transform);
+        var bullet = gatlingBulletTiles.Count > 0 
+            ? gatlingBulletTiles.Dequeue() 
+            : Instantiate(gatlingTileBulletPrefab, transform);
         bullet.transform.position = pos;
         bullet.transform.rotation = Quaternion.LookRotation(dir);
         bullet.Init(dir, onArrive);

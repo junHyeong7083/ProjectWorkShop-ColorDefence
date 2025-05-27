@@ -20,14 +20,14 @@ public class TurretRotationController : MonoBehaviour
 
         Quaternion targetRotation = Quaternion.LookRotation(direction);
         Vector3 targetEuler = targetRotation.eulerAngles;
-        targetEuler.x = -25F;
-        targetEuler.z = 0f;
+       /* targetEuler.x = -25F;
+        targetEuler.z = 0f;*/
 
         Quaternion targetRot = Quaternion.Euler(targetEuler);
 
         while (Quaternion.Angle(headToRotate.rotation, targetRot) > 1f)
         {
-            headToRotate.rotation = Quaternion.Slerp(
+            headToRotate.rotation = Quaternion.Lerp(
                 headToRotate.rotation,
                 targetRot,
                 Time.deltaTime * rotateSpeed
@@ -35,6 +35,7 @@ public class TurretRotationController : MonoBehaviour
 
             yield return null;
         }
+        headToRotate.rotation = targetRot;
     }
 
     // 회전 대상 및 회전 속도 설정

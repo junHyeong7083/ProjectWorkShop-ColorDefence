@@ -3462,11 +3462,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89d938b20df71bd46a842aa0e5032218, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  volume: {fileID: 1953949374}
-  cam: {fileID: 330585546}
-  startMultiplier: 20
-  endMultiplier: 100
-  dof: {fileID: 0}
 --- !u!1 &703497871
 GameObject:
   m_ObjectHideFlags: 0
@@ -7090,6 +7085,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   previewGreen: {fileID: 2100000, guid: d74f08ddb062a1f4984075e4133bbcb5, type: 2}
   previewRed: {fileID: 2100000, guid: cbf0da21bfe8abc409001ad7ed4390ae, type: 2}
+  previewRangeColor: {r: 1, g: 0.32455227, b: 0, a: 1}
 --- !u!114 &1736086881
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -108,7 +108,7 @@ MonoBehaviour:
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
-  rotateSpeed: 30
+  rotateSpeed: 100
 --- !u!114 &4456250509387376413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,6 +121,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33d31ab819e0fa244a211fa887627567, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fireDuration: 3
+  reloadDuration: 2
 --- !u!114 &8895024477608730969
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -249,6 +251,26 @@ PrefabInstance:
     - target: {fileID: 5076717872328464351, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3336406643087354461, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
