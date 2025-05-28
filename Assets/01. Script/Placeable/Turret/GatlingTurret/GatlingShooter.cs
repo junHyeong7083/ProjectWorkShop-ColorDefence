@@ -1,33 +1,79 @@
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class GatlingShooter : MonoBehaviour, ITurretShooter
 {
     private GatlingTurret gatling;
     private TurretBase turret;
+    private TurretTargetSelector targetSelector;
+    private GatlingAttackBar attackBarUI;
 
-    [SerializeField] private float fireDuration = 3f;   // 공격 유지 시간
-    [SerializeField] private float reloadDuration = 2f; // 장전 시간
+    [Header("타이밍")]
+    [SerializeField] private float fireDuration = 3f;
+    [SerializeField] private float reloadDuration = 2f;
 
-    private float elapsed;
+    private float fillAmount = 1f;
+    private float reloadElapsed = 0f;
+    private float lastFillAmount = -1f;
+
     private bool isReloading = false;
     public bool IsReloading => isReloading;
+
     private void Awake()
     {
         gatling = GetComponent<GatlingTurret>();
         turret = GetComponent<TurretBase>();
+        targetSelector = GetComponent<TurretTargetSelector>();
+        attackBarUI = GetComponent<GatlingAttackBar>();
+
+        if (attackBarUI != null)
+        {
+            attackBarUI.SpawnBar(transform);
+            attackBarUI.SetFillAmount(fillAmount);
+            lastFillAmount = fillAmount;
+        }
     }
 
-    private void Update()
+    /// <summary>
+    /// CombatLoop에서 매 프레임 호출할 Tick 함수
+    /// </summary>
+    public void Tick(float deltaTime)
     {
-        elapsed += Time.deltaTime;
-
         if (isReloading)
         {
-            if (elapsed >= reloadDuration)
+            reloadElapsed += deltaTime;
+            fillAmount = reloadElapsed / reloadDuration;
+
+            if (fillAmount >= 1f)
             {
+                fillAmount = 1f;
                 isReloading = false;
-                elapsed = 0f;
+                reloadElapsed = 0f;
             }
+        }
+        else
+        {
+            if (!targetSelector.IsEnemyInRange)
+            {
+                fillAmount += deltaTime / reloadDuration;
+                fillAmount = Mathf.Min(fillAmount, 1f);
+            }
+        }
+
+        UpdateBarUI();
+    }
+
+    /// <summary>
+    /// 변화가 있을 때만 FillAmount UI 갱신
+    /// </summary>
+    private void UpdateBarUI()
+    {
+        if (attackBarUI == null) return;
+
+        if (Mathf.Abs(fillAmount - lastFillAmount) > 0.01f)
+        {
+            attackBarUI.SetFillAmount(fillAmount);
+            lastFillAmount = fillAmount;
         }
     }
 
@@ -41,11 +87,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
 
         BulletPool.Instance.GetGatlingEnemyBullet(firePos, target, damage);
 
-        if (elapsed >= fireDuration)
-        {
-            isReloading = true;
-            elapsed = 0f;
-        }
+        ConsumeAmmo();
     }
 
     public void ShootAtTile(Tile tile)
@@ -72,10 +114,21 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
             );
         });
 
-        if (elapsed >= fireDuration)
+        ConsumeAmmo();
+    }
+
+    private void ConsumeAmmo()
+    {
+        float attackRate = gatling.GetAttackRate(); // 캐싱
+        fillAmount -= attackRate / fireDuration;
+
+        if (fillAmount <= 0f)
         {
+            fillAmount = 0f;
             isReloading = true;
-            elapsed = 0f;
+            reloadElapsed = 0f;
         }
+
+        UpdateBarUI();
     }
 }

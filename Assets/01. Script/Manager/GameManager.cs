@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour
     public Text goldText;
 
     public GameSpeedMode CurrentSpeed { get; private set; } = GameSpeedMode.Normal;
-    float currentTimeScaleMode = 1f;
     private void Awake()
     {
         instance = this;

@@ -10,7 +10,6 @@ public class TurretClickHandler : MonoBehaviour
     // 사거리 시각화 참조
     private TurretRangeVisualizer visualizer;
 
-    bool isSelected = false;
 
     private void Awake()
     {

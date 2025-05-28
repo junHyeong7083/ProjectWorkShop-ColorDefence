@@ -55,9 +55,9 @@ public class TurretCombatLoop : MonoBehaviour
             yield return StartCoroutine(PerformAction(result => didAttack = result));
 
             if (didAttack)
-                yield return new WaitForSeconds(turret.GetAttackRate());
+                yield return YieldCache.WaitForSeconds(turret.GetAttackRate());
             else
-                yield return new WaitForSeconds(0.05f);
+                yield return YieldCache.WaitForSeconds(0.05f);
         }
     }
 
@@ -148,12 +148,19 @@ public class TurretCombatLoop : MonoBehaviour
                tile.TargetingTurret == turret;
     }
 
-    /// <summary>
     /// 현재 shooter가 LaserShooter일 경우 강제로 레이저 끄기
-    /// </summary>
     private void ForceDisableLaser()
     {
         if (shooter is LaserShooter laserShooter)
             laserShooter.DisableLaser();
+    }
+
+
+    private void Update()
+    {
+        if(shooter is GatlingShooter gatlingShooter)
+        {
+            gatlingShooter.Tick(Time.deltaTime);
+        }
     }
 }

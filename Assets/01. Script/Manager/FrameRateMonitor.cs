@@ -11,6 +11,7 @@ public class FrameRateMonitor : MonoBehaviour
     private int frameCount = 0;
 
     [SerializeField] Text fpsText; 
+
     void Update()
     {
         frameCount++;
@@ -25,6 +26,9 @@ public class FrameRateMonitor : MonoBehaviour
                 Debug.LogWarning($"FPS Drop 감지됨! 현재 FPS: {fps:F1}");
                 
             }
+
+
+            // sibval?? 
 
             // 초기화
             frameCount = 0;

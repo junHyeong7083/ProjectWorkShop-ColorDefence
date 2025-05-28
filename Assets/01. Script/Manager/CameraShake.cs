@@ -8,7 +8,6 @@ public class CameraShake : MonoBehaviour
     [SerializeField] private Transform camTransform;
     [SerializeField] private float shakeDuration = 0.3f;
     [SerializeField] private float shakeAmount = 0.2f;
-    [SerializeField] private float decreaseFactor = 1.0f;
 
     Vector3 originalPos;
     Coroutine currentShake;

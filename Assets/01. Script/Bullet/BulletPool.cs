@@ -11,7 +11,7 @@ public class BulletPool : MonoBehaviour
     [SerializeField] private GatlingBulletTile gatlingTileBulletPrefab;
     [SerializeField] private CannonBulletEnemy cannonEnemyBulletPrefab;
 
-
+    [SerializeField] private int BulletCount;
 
     private Queue<GatlingBulletEnemy> gatlingBulletEnemies = new();
     private Queue<GatlingBulletTile> gatlingBulletTiles = new();
@@ -20,9 +20,9 @@ public class BulletPool : MonoBehaviour
     void Awake()
     {
         Instance = this;
-        InitPool(gatlingEnemyBulletPrefab, gatlingBulletEnemies, 20);
-        InitPool(gatlingTileBulletPrefab, gatlingBulletTiles, 20);
-        InitPool(cannonEnemyBulletPrefab, cannonBulletEnemies, 20); // 추가
+        InitPool(gatlingEnemyBulletPrefab, gatlingBulletEnemies, BulletCount);
+        InitPool(gatlingTileBulletPrefab, gatlingBulletTiles, BulletCount);
+        InitPool(cannonEnemyBulletPrefab, cannonBulletEnemies, BulletCount); // 추가
     }
 
     void InitPool<T>(T prefab, Queue<T> pool, int count) where T : MonoBehaviour
@@ -72,13 +72,13 @@ public class BulletPool : MonoBehaviour
        ? gatlingBulletEnemies.Dequeue()
        : Instantiate(gatlingEnemyBulletPrefab, transform);
 
-        bullet.gameObject.SetActive(true);
+     //   bullet.gameObject.SetActive(true);
 
         bullet.transform.position = pos;
 
         Vector3 dir = (target.position - pos).normalized;
         bullet.transform.rotation = Quaternion.LookRotation(dir);
-
+        bullet.gameObject.SetActive(true);
         bullet.Init(target, damage);
     }
 

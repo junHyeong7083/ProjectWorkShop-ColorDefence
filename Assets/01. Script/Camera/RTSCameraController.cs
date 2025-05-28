@@ -4,7 +4,7 @@ public class RTSCameraController : MonoBehaviour
 {
     [SerializeField] private Camera[] cameras;
 
-    [SerializeField] private float moveSpeed = 10f;
+   // [SerializeField] private float moveSpeed = 10f;
 
     [Header("Z Movement & X Rotation")]
     [SerializeField] private float minZ = -6.5f;
@@ -23,6 +23,7 @@ public class RTSCameraController : MonoBehaviour
         foreach (var cam in cameras)
         {
             cam.orthographic = true;
+            
             cam.orthographicSize = 40;
 
             cam.transform.position = new Vector3(60f, 40f, 45f);

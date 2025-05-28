@@ -6,21 +6,22 @@ using static UnityEngine.UI.Image;
 public class TurretTargetSelector : MonoBehaviour
 {
     private TurretBase turret;
-
+    public bool IsEnemyInRange { get; private set; }
     private void Awake()
     {
         turret = GetComponent<TurretBase>();
     }
 
     // 가장 가까운 적 찾기
+
     public GameObject FindClosestEnemy()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
         float bestScore = float.MaxValue;
 
-        float range = turret.GetRange();            // 월드 거리
-        float rangeSqr = range * range;             // 제곱 거리
+        float range = turret.GetRange();
+        float rangeSqr = range * range;
         Vector3 origin = transform.position;
 
         foreach (var enemy in enemies)
@@ -32,10 +33,6 @@ public class TurretTargetSelector : MonoBehaviour
                 continue;
 
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
-
-            float tileDist = Mathf.Sqrt(distSqr) / TileGridManager.Instance.cubeSize;
-           // Debug.Log($"[타워→적 거리] 실제: {Mathf.Sqrt(distSqr):F2} / 타일: {tileDist:F2} / 사거리: {range / TileGridManager.Instance.cubeSize:F2}칸");
-
             if (distSqr > rangeSqr) continue;
 
             if (distSqr < bestScore)
@@ -45,11 +42,10 @@ public class TurretTargetSelector : MonoBehaviour
             }
         }
 
+        IsEnemyInRange = bestTarget != null;
         return bestTarget;
     }
-
-
-    public GameObject FindClosestEnemy(GameObject exclude)
+  /*  public GameObject FindClosestEnemy(GameObject exclude)
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject bestTarget = null;
@@ -73,7 +69,7 @@ public class TurretTargetSelector : MonoBehaviour
         }
 
         return bestTarget;
-    }
+    }*/
 
 
     // 가장 오래된 적 점령 타일 탐색

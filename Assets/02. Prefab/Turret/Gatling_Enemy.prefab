@@ -48,6 +48,7 @@ GameObject:
   - component: {fileID: 2389008098130125188}
   - component: {fileID: 821237011160589228}
   - component: {fileID: 7868941031402116334}
+  - component: {fileID: 6126560610746092628}
   m_Layer: 0
   m_Name: Gatling_Enemy
   m_TagString: Untagged
@@ -108,7 +109,7 @@ MonoBehaviour:
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
-  rotateSpeed: 100
+  rotateSpeed: 20
 --- !u!114 &4456250509387376413
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -184,6 +185,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f4e5c9159e05944182502a040ee782d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &6126560610746092628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8570189920556401514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3bccf22cc36b12a4a8ed1ee9d7776688, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackBarPrefab: {fileID: 497956164141976805, guid: 0d2b34241e36d0e4ab7ff0cbb3c44a1b, type: 3}
+  offsetY: 1
+  offsetZ: -1
 --- !u!1001 &8423034224741092812
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -85,9 +85,9 @@ public class EffectManager : MonoBehaviour
 
     IEnumerator ReturnToPoolAfterSeconds((TurretType, TurretActionType) key, GameObject fx, float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return YieldCache.WaitForSeconds(delay);
         fx.SetActive(false);
-        effectPools[key].Enqueue(fx);
+        if (!effectPools[key].Contains(fx)) effectPools[key].Enqueue(fx);
     }
 
     public GameObject GetDynamicEffect(TurretType turret, TurretActionType action)

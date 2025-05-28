@@ -66,3 +66,4 @@ public class GatlingBulletEnemy : MonoBehaviour
         onArrive = null;
     }
 }
+

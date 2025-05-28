@@ -1,90 +1,71 @@
-// Pathfinding.cs - BFS 거리맵 추가 포함
 using System.Collections.Generic;
 using UnityEngine;
 
+// A* 경로 탐색 + BFS 기반 거리맵 생성 기능 제공.
 public static class Pathfinding
 {
-    // A* 알고리즘 사용 -> 최적 경로 탐색
+    // A* 알고리즘을 사용하여 시작 타일에서 목표 타일까지의 최적 경로를 계산함.
     public static List<Tile> APointFindPath(Tile startTile, Tile goalTile)
     {
         if (startTile == null || goalTile == null)
             return null;
 
-        // 탐색할 노드 집합 - 우선순위 큐 역할, fScore 오름차순으로 정렬
+        // fScore 기반 정렬을 위한 우선순위 큐 역할의 Set
         var openSet = new SortedSet<TileNode>(new TileNodeComparer());
-        // 각 타일이 어디서 왔는지 추적하는 맵
-        var cameFrom = new Dictionary<Tile, Tile>();
-        // 시작 타일로부터 현재 타일까지의 실제 이동 거리
-        var gScore = new Dictionary<Tile, float>();
-        // fScore = gScore + 휴리스틱 (예상 최종 비용)
-        var fScore = new Dictionary<Tile, float>();
 
+        var cameFrom = new Dictionary<Tile, Tile>(); // 경로 추적용
+        var gScore = new Dictionary<Tile, float>();  // 시작지점부터 현재 노드까지의 실제 비용
+        var fScore = new Dictionary<Tile, float>();  // gScore + Heuristic = 예상 총 비용
 
-        // 시작 타일의 gScore는 0
         gScore[startTile] = 0;
-        // 시작 타일의 fScore는 휴리스틱 계산값
         fScore[startTile] = Heuristic(startTile, goalTile);
-
-        // openSet에 시작 노드 추가
         openSet.Add(new TileNode(startTile, fScore[startTile]));
 
         while (openSet.Count > 0)
         {
-            // fScore가 가장 낮은 노드 꺼내기
+            // 현재 가장 fScore가 낮은 노드 추출
             TileNode currentNode = openSet.Min;
             Tile current = currentNode.Tile;
 
-            // 목표에 도달했으면 경로 재구성 후 반환
             if (current == goalTile)
-                return ReconstructPath(cameFrom, current);
+                return ReconstructPath(cameFrom, current); // 경로 도달 시 재구성
 
-            // 현재 노드를 openSet에서 제거
-            openSet.Remove(currentNode);
+            openSet.Remove(currentNode); // 처리 완료
 
-            // 현재 타일의 이웃 타일을 검사
             foreach (var neighbor in GetNeighbors(current))
             {
-                // 현재타일이 점유되어있으면 무시
-                if (neighbor.IsOccupied) continue;
+                if (neighbor.IsOccupied) continue; // 점유 타일은 통과 불가
 
-                // 현재까지 거리 + 1
                 float tentativeG = gScore[current] + 1f;
 
-                // neighbor의 gScore가 없거나 더 짧은 경로 발견 시 갱신
                 if (!gScore.ContainsKey(neighbor) || tentativeG < gScore[neighbor])
                 {
-                    // 어디서 왔는지 기록 + gScore, fScore 갱신
+                    // 더 짧은 경로 발견 시 경로 갱신
                     cameFrom[neighbor] = current;
                     gScore[neighbor] = tentativeG;
                     fScore[neighbor] = tentativeG + Heuristic(neighbor, goalTile);
 
-                    // openSet 갱신(이미 존재하면 제거후 다시 추가)
+                    // openSet 중복 방지: 제거 후 재추가
                     TileNode neighborNode = new TileNode(neighbor, fScore[neighbor]);
-                    openSet.Remove(neighborNode);
+                    openSet.Remove(neighborNode); // 없으면 무시됨
                     openSet.Add(neighborNode);
                 }
             }
         }
-        // 경로를 찾을 수 없는 경우 null 
+
+        // 경로를 찾지 못한 경우
         return null;
     }
 
-    // 목표 타일을 기준으로 BFS 거리 맵을 생성
-
+   // 목표 타일로부터 각 타일까지의 최단 거리(BFS 기반)를 저장하는 거리 맵 생성
     public static Dictionary<Tile, int> GenerateDistanceMap(Tile goalTile)
-    { 
-        // 각 타일까지의 거리 저장 맵
+    {
         Dictionary<Tile, int> distanceMap = new();
-        // BFS 탐색용 큐
         Queue<Tile> queue = new();
 
         if (goalTile == null || goalTile.IsOccupied)
-        {
-            Debug.LogWarning("DistanceMap 생성 실패: goalTile이 null이거나 막혀있음.");
             return distanceMap;
-        }
 
-        // 목표 타일을 시작점으로 큐에 넣고 거리 0으로 설정
         queue.Enqueue(goalTile);
         distanceMap[goalTile] = 0;
 
@@ -93,27 +74,26 @@ public static class Pathfinding
             Tile current = queue.Dequeue();
             int currentDistance = distanceMap[current];
 
-            // 현재 타일의 이웃들을 순회
             foreach (var neighbor in GetNeighbors(current))
             {
                 if (neighbor.IsOccupied || distanceMap.ContainsKey(neighbor)) continue;
 
+                // 이웃의 거리 = 현재 거리 + 1
                 distanceMap[neighbor] = currentDistance + 1;
                 queue.Enqueue(neighbor);
             }
         }
 
-        // 완성된 거리 맵 반환
         return distanceMap;
     }
 
-    // 두 타일 간의 휴리스틱 거리 계산
+    // 두 타일 사이의 맨해튼 거리 (휴리스틱) 계산
     static float Heuristic(Tile a, Tile b)
     {
         return Mathf.Abs(a.GridPos.x - b.GridPos.x) + Mathf.Abs(a.GridPos.y - b.GridPos.y);
     }
 
-    // 현재 타일의 상하좌우 이웃 타일 반환
+    // 상하좌우 4방향의 인접 타일을 반환
     public static List<Tile> GetNeighbors(Tile tile)
     {
         List<Tile> result = new();
@@ -129,15 +109,15 @@ public static class Pathfinding
                 result.Add(t);
         }
 
-        Add(0, 1);
-        Add(0, -1);
-        Add(-1, 0);
-        Add(1, 0);
+        Add(0, 1);   // 위
+        Add(0, -1);  // 아래
+        Add(-1, 0);  // 왼쪽
+        Add(1, 0);   // 오른쪽
 
         return result;
     }
 
-    // cameFrom 딕셔너리를 이용하여 경로를 역추적
+    // cameFrom 맵을 따라 목표에서 시작지까지 경로를 역추적함
     static List<Tile> ReconstructPath(Dictionary<Tile, Tile> cameFrom, Tile current)
     {
         List<Tile> path = new();
@@ -148,11 +128,11 @@ public static class Pathfinding
             current = cameFrom[current];
         }
 
-        path.Reverse();
+        path.Reverse(); // 거꾸로 추적했으므로 역순 정렬
         return path;
     }
 
-    // A*에서 사용되는 노드 클래스
+    // A* 내부에서 사용되는 노드 클래스 (타일 + fScore)
     private class TileNode
     {
         public Tile Tile { get; }
@@ -175,7 +155,7 @@ public static class Pathfinding
         }
     }
 
-    // TileNode 정렬 기준 클래스
+    // fScore 기준으로 TileNode를 정렬하기 위한 Comparer
     private class TileNodeComparer : IComparer<TileNode>
     {
         public int Compare(TileNode a, TileNode b)
@@ -184,6 +164,7 @@ public static class Pathfinding
             if (fCompare != 0)
                 return fCompare;
 
+            // fScore가 같으면 고유값으로 비교 (중복 방지)
             return a.Tile.GetHashCode().CompareTo(b.Tile.GetHashCode());
         }
     }

@@ -53,7 +53,6 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
 
         if (distSqr >= rangeSqr)
         {
-            Debug.Log("sibal");
             DisableLaser();
             return;
         }
