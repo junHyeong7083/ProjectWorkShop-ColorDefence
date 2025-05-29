@@ -22,16 +22,18 @@ public class RTSCameraController : MonoBehaviour
     {
         foreach (var cam in cameras)
         {
-            cam.orthographic = true;
-            
-            cam.orthographicSize = 40;
+            //cam.orthographic = true;
+            //
+            //cam.orthographicSize = 40;
 
             cam.transform.position = new Vector3(60f, 40f, 45f);
-            float initXRotZ = Mathf.Lerp(minXRotZ, maxXRotZ, Mathf.InverseLerp(minZ, maxZ, 45f));
-            float initXRotX = Mathf.Lerp(minXRotX, maxXRotX, Mathf.InverseLerp(minX, maxX, 60f));
-            float initXRot = (initXRotZ + initXRotX) * 0.5f;
-            cam.transform.rotation = Quaternion.Euler(initXRot, 0f, 0f);
+            cam.transform.rotation = Quaternion.Euler(45f, 45f, 0f);
             cam.rect = new Rect(0f, 0.3f, 1f, 0.7f);
+            /*  float initXRotZ = Mathf.Lerp(minXRotZ, maxXRotZ, Mathf.InverseLerp(minZ, maxZ, 45f));
+              float initXRotX = Mathf.Lerp(minXRotX, maxXRotX, Mathf.InverseLerp(minX, maxX, 60f));
+              float initXRot = (initXRotZ + initXRotX) * 0.5f;
+              cam.transform.rotation = Quaternion.Euler(initXRot, 0f, 0f);
+              cam.rect = new Rect(0f, 0.3f, 1f, 0.7f);*/
         }
     }
 

@@ -190,6 +190,7 @@ GameObject:
   - component: {fileID: 8392060215064060134}
   - component: {fileID: 8092104317926192488}
   - component: {fileID: 6356361305199648488}
+  - component: {fileID: 1891558471928874248}
   m_Layer: 0
   m_Name: Laser_Enemy
   m_TagString: AttackAnt
@@ -325,6 +326,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d96cb01f302d8749a31b2f813903476, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1891558471928874248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5483216115147444546}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74f28895f50d69d45a7e17eb82dcd644, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  type: 1
+  color: {r: 0, g: 0, b: 1, a: 1}
 --- !u!1001 &216098222120343886
 PrefabInstance:
   m_ObjectHideFlags: 0

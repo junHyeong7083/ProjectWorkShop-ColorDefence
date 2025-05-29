@@ -3,8 +3,8 @@ using UnityEngine;
 public class GatlingAttackBar : MonoBehaviour
 {
     [SerializeField] private GameObject attackBarPrefab;
-    [SerializeField] private float offsetY = 0.5f;
-    [SerializeField] private float offsetZ = -0.6f;
+    [SerializeField] private float offsetY = 1f;
+    [SerializeField] private float offsetZ = 10f;
 
     private GameObject instance;
     private HpBarUI hpBarUI;
@@ -21,9 +21,9 @@ public class GatlingAttackBar : MonoBehaviour
         if (attackBarPrefab == null) return;
 
         instance = Instantiate(attackBarPrefab, transform);
-        instance.transform.localPosition = new Vector3(0, offsetY, offsetZ); 
+        instance.transform.localPosition = new Vector3(-0.5f, 0.2f, -0.5f);
 
-        hpBarUI = instance.GetComponentInChildren<HpBarUI>(); // 여기서 가져와야 함
+        hpBarUI = instance.GetComponentInChildren<HpBarUI>(); // 공격 바 UI 컴포넌트 가져오기
         target = followTarget;
     }
 
@@ -33,12 +33,10 @@ public class GatlingAttackBar : MonoBehaviour
             hpBarUI.SetFill(Mathf.Clamp01(value));
     }
 
-   /* private void LateUpdate()
+    private void LateUpdate()
     {
         if (instance == null || target == null || mainCam == null) return;
 
-        Vector3 offset = new Vector3(0, offsetY, offsetZ);
-        instance.transform.position = target.position + offset;
-        instance.transform.forward = mainCam.transform.forward;
-    }*/
+        attackBarPrefab.transform.LookAt(attackBarPrefab.transform.position + mainCam.transform.rotation * Vector3.back, mainCam.transform.rotation * Vector3.up);
+    }
 }

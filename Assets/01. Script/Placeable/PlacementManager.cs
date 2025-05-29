@@ -140,6 +140,7 @@ public class PlacementManager : MonoBehaviour
         var data = currentData as TurretData;
         if (data == null) return;
 
+       
         if (!GameManager.instance.SpendGold(data.placementCost))
         {
             Debug.LogWarning("Not enough gold to place turret.");
@@ -162,6 +163,9 @@ public class PlacementManager : MonoBehaviour
                 }
             }
         }
+        MiniMapMarker marker;
+        marker = turret.GetComponent<MiniMapMarker>();
+        marker.enabled = true;
 
         CancelPreview();
     }
