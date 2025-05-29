@@ -19,7 +19,7 @@ GameObject:
   - component: {fileID: 394070592474835506}
   m_Layer: 0
   m_Name: Cannon_Enemy
-  m_TagString: Untagged
+  m_TagString: AttackAnt
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -128,7 +128,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5b91cd4be6bdd48815b9290235f8f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  occupiedTiles: []
   selectBox: {fileID: 3286373476463588236}
   firePoint: {fileID: 8492255283205079813}
   headToRotate: {fileID: 7381993580478446839}

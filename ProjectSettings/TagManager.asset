@@ -6,6 +6,8 @@ TagManager:
   tags:
   - Enemy
   - Tile
+  - AttackAnt
+  - FastAnt
   layers:
   - Default
   - TransparentFX

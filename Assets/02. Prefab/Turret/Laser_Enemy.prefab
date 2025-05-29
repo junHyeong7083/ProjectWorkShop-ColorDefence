@@ -192,7 +192,7 @@ GameObject:
   - component: {fileID: 6356361305199648488}
   m_Layer: 0
   m_Name: Laser_Enemy
-  m_TagString: Untagged
+  m_TagString: AttackAnt
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -308,7 +308,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a4076c057f327e4291dff402e0a4c5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  occupiedTiles: []
   selectBox: {fileID: 852532437144097985}
   firePoint: {fileID: 2599776662562305114}
   headToRotate: {fileID: 8599052801577920471}

@@ -51,7 +51,7 @@ GameObject:
   - component: {fileID: 6126560610746092628}
   m_Layer: 0
   m_Name: Gatling_Enemy
-  m_TagString: Untagged
+  m_TagString: AttackAnt
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -105,7 +105,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af24a24dcf76ee242896cf26a5736c72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  occupiedTiles: []
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
