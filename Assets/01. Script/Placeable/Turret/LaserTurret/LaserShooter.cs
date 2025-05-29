@@ -8,7 +8,6 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     private TurretBase turret;
 
     private GameObject currentEnemy;
-    private Tile currentTile;
 
    // private float elapsed;
     private float tickElapsed;
@@ -109,42 +108,6 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
     }
 
-    public void ShootAtTile(Tile tile)
-    {
-        if (isCoolingDown || tile == null || tile.ColorState != TileColorState.Enemy)
-        {
-            DisableLaser();
-            return;
-        }
-
-        currentTile = tile;
-       // elapsed += Time.deltaTime;
-        tickElapsed += Time.deltaTime;
-        ShowLaserToTile(tile);
-
-        if (tickElapsed >= turret.turretData.laserTickInterval)
-        {
-            EffectManager.Instance.PlayEffect(
-                turret.turretData.turretType,
-                TurretActionType.AttackTile,
-                tile.CenterWorldPos
-            );
-
-            tile.SetColor(TileColorState.Player);
-            tile.AnimateBump();
-            tile.TargetingTurret = null;
-            tickElapsed = 0f;
-        }
-
-       /* if (elapsed >= turret.turretData.laserDuration)
-        {
-            tile.Release();
-            tile.TargetingTurret = null;
-            DisableLaser();
-            StartCoroutine(CooldownRoutine());
-        }*/
-    }
-
     private void ShowLaserToEnemy(GameObject enemy)
     {
         Vector3 start = firePoint.position;
@@ -160,28 +123,11 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         laserBeamObject.localScale = new Vector3(0.3f, 0.3f, length * 0.15f);
     }
 
-    private void ShowLaserToTile(Tile tile)
-    {
-        // 1. 계산
-        Vector3 start = firePoint.position;
-        Vector3 end = tile.CenterWorldPos + Vector3.up * 1.0f;
-
-        Vector3 dir = end - start;
-        float length = dir.magnitude;
-
-        // 2. 적용
-        laserBeamObject.gameObject.SetActive(true);
-        laserBeamObject.position = (start + end) * 0.5f; //  시작+끝 사이 중심점
-        laserBeamObject.rotation = Quaternion.LookRotation(dir);
-        laserBeamObject.localScale = new Vector3(0.2f, 0.2f, length / 2); //  길이 그대로
-    }
 
     public void DisableLaser()
     {
         if (laserBeamObject != null)
             laserBeamObject.gameObject.SetActive(false);
-
-        currentTile = null;
 
         if (checkRoutine != null)
         {

@@ -24,11 +24,11 @@ public class Enemy : MonoBehaviour
     private void Update()
     {
         // 수정필요!!!
-        InfectTile();
+      //  InfectTile();
     }
 
     // TileState : Neutral -> Enemy || Player -> Enemy
-    public void InfectTile()
+  /*  public void InfectTile()
     {
         // Debug.Log("InfectTile!!!!!!!!!!!!");
 
@@ -51,5 +51,5 @@ public class Enemy : MonoBehaviour
                     tile.SetColor(Data.InfectColor);
             }
         }
-    }
+    }*/
 }

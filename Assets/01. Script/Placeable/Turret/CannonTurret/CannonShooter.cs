@@ -37,32 +37,5 @@ public class CannonShooter : MonoBehaviour, ITurretShooter
     }
 
 
-    /// <summary>
-    /// 타일에 포탄 발사하는 로직 (미사용 상태, Gatling용 참조 코드가 주석처리되어 있음)
-    /// 이후 필요 시 캐논 전용 타일 공격도 구현 가능
-    /// </summary>
-    public void ShootAtTile(Tile tile)
-    {
-        /*
-        Vector3 dir = (tile.CenterWorldPos - cannon.GetFirePoint().position).normalized;
-
-        BulletPool.Instance.GetGatlingTileBullet(cannon.GetFirePoint().position, dir, () =>
-        {
-            if (tile.ColorState == TileColorState.Enemy)
-            {
-                tile.SetColor(TileColorState.Player);
-                tile.AnimateBump();
-            }
-
-            tile.Release();
-            tile.TargetingTurret = null;
-
-            EffectManager.Instance.PlayEffect(
-                turret.turretData.turretType,
-                turret.turretData.actionType,
-                tile.CenterWorldPos
-            );
-        });
-        */
-    }
+    
 }

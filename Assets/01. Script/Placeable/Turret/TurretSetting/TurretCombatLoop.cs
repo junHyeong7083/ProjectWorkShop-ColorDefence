@@ -4,8 +4,6 @@ using System.Collections;
 public interface ITurretShooter
 {
     void ShootAtEnemy(GameObject enemy);
-    void ShootAtTile(Tile tile);
-
     bool IsReloading { get; }
 }
 
@@ -21,7 +19,6 @@ public class TurretCombatLoop : MonoBehaviour
 
     private Coroutine attackRoutine;
     private GameObject currentEnemy;
-    private Tile currentTile;
 
     private void Awake()
     {
@@ -94,31 +91,6 @@ public class TurretCombatLoop : MonoBehaviour
             shooter.ShootAtEnemy(currentEnemy);
             callback(true);
         }
-        else if (turret.turretData.actionType == TurretActionType.AttackTile)
-        {
-            if (currentTile == null || !IsValidTile(currentTile))
-            {
-                currentTile = selector.FindBestEnemyTile();
-                if (currentTile == null)
-                {
-                    callback(false);
-                    yield break;
-                }
-
-                yield return rotator.RotateTo(currentTile.CenterWorldPos);
-            }
-
-            shooter.ShootAtTile(currentTile);
-
-            if (currentTile.TargetingTurret == null)
-                currentTile = null;
-
-            callback(true);
-        }
-        else
-        {
-            callback(false);
-        }
     }
 
     private bool IsValidEnemy(GameObject enemy)
@@ -140,13 +112,6 @@ public class TurretCombatLoop : MonoBehaviour
         return distSqr <= rangeSqr;
     }
 
-    private bool IsValidTile(Tile tile)
-    {
-        return tile != null &&
-               tile.ColorState == TileColorState.Enemy &&
-               !tile.IsBumping &&
-               tile.TargetingTurret == turret;
-    }
 
     /// 현재 shooter가 LaserShooter일 경우 강제로 레이저 끄기
     private void ForceDisableLaser()

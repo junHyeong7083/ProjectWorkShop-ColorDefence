@@ -4,7 +4,7 @@ using UnityEngine;
 public abstract class PlaceableBase : MonoBehaviour
 {
     [HideInInspector]
-    public List<Tile> occupiedTiles = new();
+    public List<TileData> occupiedTiles = new(); 
 
     public abstract void SetData(ScriptableObject data);
 

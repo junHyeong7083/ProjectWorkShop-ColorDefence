@@ -25,12 +25,10 @@ public class EnemyPoolManager : MonoBehaviour
             string key = prefab.name;
             poolDict[key] = new Queue<GameObject>();
 
-            // 하이라키 정리용 컨테이너 생성
             GameObject containerGO = new GameObject(key);
             containerGO.transform.SetParent(rootContainer);
             containerDict[key] = containerGO.transform;
 
-            // 초기 풀 채우기
             for (int i = 0; i < poolSizePerType; i++)
             {
                 GameObject obj = Instantiate(prefab, containerGO.transform);
@@ -40,7 +38,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    public GameObject Get(string prefabName, Vector3 spawnPos, Dictionary<Tile, int> distanceMap = null)
+    public GameObject Get(string prefabName, Vector3 spawnPos, Vector2Int goalGridPos, Dictionary<TileData, int> distanceMap = null)
     {
         if (!poolDict.ContainsKey(prefabName))
             return null;
@@ -56,7 +54,6 @@ public class EnemyPoolManager : MonoBehaviour
         }
         else
         {
-            // 오버플로우 대응
             GameObject prefab = GetPrefabByName(prefabName);
             obj = Instantiate(prefab, container);
         }
@@ -65,16 +62,19 @@ public class EnemyPoolManager : MonoBehaviour
         var col = obj.GetComponent<Collider>();
         col.enabled = false;
         col.enabled = true;
+
         var health = obj.GetComponent<EnemyHealth>();
         var pathfinder = obj.GetComponent<EnemyPathfinder>();
 
-
         health?.ResetHp();
-        pathfinder?.InitializePathfinder(spawnPos, distanceMap);
+        if (pathfinder != null)
+        {
+            pathfinder.goalGridPosition = goalGridPos;
+            pathfinder.InitializePathfinder(spawnPos, distanceMap);
+        }
 
         return obj;
     }
-
 
     public void Return(string prefabName, GameObject obj)
     {

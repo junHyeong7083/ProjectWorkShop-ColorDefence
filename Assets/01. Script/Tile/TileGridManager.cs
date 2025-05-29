@@ -1,6 +1,26 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+
+public enum TileColorState { None, Player, Enemy }
+
+public class TileData
+{
+    public Vector2Int GridPos; // A*를 위해 좌표 정보가 꼭 필요함
+
+    public TileColorState ColorState = TileColorState.None;
+    public TurretBase TargetingTurret;
+    public Fence OccupyingFence; // 울타리 점유용 필드 추가
+
+    // 터렛 또는 울타리가 점유 중일 때 true 반환
+    public bool IsOccupied => TargetingTurret != null || OccupyingFence != null;
+
+    public bool IsReserved = false;
+
+    public float LastChangedTime = -999f;
+
+    public void Reserve() => IsReserved = true;
+    public void Release() => IsReserved = false;
+}
 
 public class TileGridManager : MonoBehaviour
 {
@@ -8,36 +28,25 @@ public class TileGridManager : MonoBehaviour
 
     public int Width;
     public int Height;
-    public GameObject TilePrefab;
-
-    private Tile[,] tiles;
     public float cubeSize;
 
+    public TileData[,] tiles;
+
     public bool IsInitialized { get; private set; } = false;
-    private Dictionary<Vector2Int, Tile> tileMap = new();
 
     private void Awake()
     {
         Instance = this;
-        tiles = new Tile[Width, Height];
-        GenerateGrid();
-    }
-
-    void GenerateGrid()
-    {
-        GameObject mapParent = new GameObject("Map");
+        tiles = new TileData[Width, Height];
 
         for (int x = 0; x < Width; x++)
         {
             for (int z = 0; z < Height; z++)
             {
-                Vector3 worldPos = new Vector3(x * cubeSize, 0, z * cubeSize);
-                GameObject go = Instantiate(TilePrefab, worldPos, Quaternion.identity, mapParent.transform);
-                Tile tile = go.GetComponent<Tile>();
-                tile.Init(x, z);
-
-                tiles[x, z] = tile;
-                tileMap[new Vector2Int(x, z)] = tile;
+                tiles[x, z] = new TileData
+                {
+                    GridPos = new Vector2Int(x, z)
+                };
             }
         }
 
@@ -45,18 +54,12 @@ public class TileGridManager : MonoBehaviour
         IsInitialized = true;
     }
 
-    public Tile GetTile(int x, int z)
+    public TileData GetTile(int x, int z)
     {
         if (x < 0 || x >= Width || z < 0 || z >= Height)
             return null;
 
         return tiles[x, z];
-    }
-
-    public Tile GetTileFast(int x, int z)
-    {
-        tileMap.TryGetValue(new Vector2Int(x, z), out var tile);
-        return tile;
     }
 
     public bool CanPlaceTurret(int startX, int startZ, int width, int height)
@@ -65,17 +68,18 @@ public class TileGridManager : MonoBehaviour
         {
             for (int z = 0; z < height; z++)
             {
-                Tile tile = GetTile(startX + x, startZ + z);
+                var tile = GetTile(startX + x, startZ + z);
                 if (tile == null || tile.IsOccupied || tile.ColorState == TileColorState.Enemy)
                     return false;
             }
         }
+
         return true;
     }
 
-    public List<Tile> GetTilesInRange(Vector3 worldPos, float range)
+    public List<Vector2Int> GetTilesInRange(Vector3 worldPos, float range)
     {
-        List<Tile> result = new();
+        List<Vector2Int> result = new();
 
         int minX = Mathf.FloorToInt((worldPos.x - range) / cubeSize);
         int maxX = Mathf.FloorToInt((worldPos.x + range) / cubeSize);
@@ -86,27 +90,22 @@ public class TileGridManager : MonoBehaviour
         {
             for (int z = minZ; z <= maxZ; z++)
             {
-                Tile tile = GetTile(x, z);
-                if (tile == null) continue;
+                if (!IsInBounds(x, z)) continue;
 
-                Vector3 tilePos = new Vector3((x + 0.5f) * cubeSize, 0, (z + 0.5f) * cubeSize);
-                Vector3 diff = tilePos - worldPos;
-
-                if (diff.sqrMagnitude > range * range) continue;
-
-                result.Add(tile);
+                Vector3 tileCenter = GetWorldPositionFromGrid(x, z) + new Vector3(cubeSize * 0.5f, 0, cubeSize * 0.5f);
+                if ((tileCenter - worldPos).sqrMagnitude <= range * range)
+                    result.Add(new Vector2Int(x, z));
             }
         }
 
         return result;
     }
 
+    public bool IsInBounds(int x, int z) => x >= 0 && x < Width && z >= 0 && z < Height;
+
     public static Vector3 GetWorldPositionFromGrid(int x, int z)
     {
-        float worldX = x * Instance.cubeSize;
-        float worldZ = z * Instance.cubeSize;
-        Debug.Log("cubesize : " + TileGridManager.Instance.cubeSize);
-        return new Vector3(worldX, TileGridManager.Instance.cubeSize, worldZ);
+        return new Vector3(x * Instance.cubeSize, 0, z * Instance.cubeSize);
     }
 
     public static Vector2Int GetCenterGrid()
@@ -124,12 +123,10 @@ public class TileGridManager : MonoBehaviour
 
         return new Vector3[]
         {
-            GetWorldPositionFromGrid(midX, 0),                     // 하단 중앙
-            GetWorldPositionFromGrid(midX, Instance.Height - 1),   // 상단 중앙
-            GetWorldPositionFromGrid(0, midZ),                     // 좌측 중앙
-            GetWorldPositionFromGrid(Instance.Width - 1, midZ),    // 우측 중앙
+            GetWorldPositionFromGrid(midX, 0),
+            GetWorldPositionFromGrid(midX, Instance.Height - 1),
+            GetWorldPositionFromGrid(0, midZ),
+            GetWorldPositionFromGrid(Instance.Width - 1, midZ),
         };
     }
-
-
 }

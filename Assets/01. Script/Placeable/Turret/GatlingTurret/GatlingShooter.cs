@@ -90,33 +90,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
         ConsumeAmmo();
     }
 
-    public void ShootAtTile(Tile tile)
-    {
-        if (isReloading || tile == null) return;
-
-        Vector3 dir = (tile.CenterWorldPos - gatling.GetFirePoint().position).normalized;
-
-        BulletPool.Instance.GetGatlingTileBullet(gatling.GetFirePoint().position, dir, () =>
-        {
-            if (tile.ColorState == TileColorState.Enemy)
-            {
-                tile.SetColor(TileColorState.Player);
-                tile.AnimateBump();
-            }
-
-            tile.Release();
-            tile.TargetingTurret = null;
-
-            EffectManager.Instance.PlayEffect(
-                turret.turretData.turretType,
-                turret.turretData.actionType,
-                tile.CenterWorldPos
-            );
-        });
-
-        ConsumeAmmo();
-    }
-
+   
     private void ConsumeAmmo()
     {
         float attackRate = gatling.GetAttackRate(); // Ä³½Ì
