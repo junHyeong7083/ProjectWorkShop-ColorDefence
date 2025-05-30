@@ -12,6 +12,8 @@ public class TileData
 {
     public Vector2Int GridPos; // A*를 위해 좌표 정보가 꼭 필요함
 
+    public FogState fogState = FogState.Hidden;
+
     public TileColorState ColorState = TileColorState.None;
     public TurretBase TargetingTurret;
     public Fence OccupyingFence; // 울타리 점유용 필드 추가

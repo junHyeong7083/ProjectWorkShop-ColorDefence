@@ -739,8 +739,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 735f76e4fc9fdc44da979d0fe44ce16e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textureSize: 256
-  worldSize: 64
 --- !u!4 &100389547
 Transform:
   m_ObjectHideFlags: 0
@@ -2773,7 +2771,6 @@ MonoBehaviour:
   rtsCameraTransform: {fileID: 330585546}
   miniMapImage: {fileID: 225423402}
   textureSize: 128
-  worldSize: 64
   renderInterval: 0.1
 --- !u!4 &516929654
 Transform:
@@ -6752,6 +6749,7 @@ GameObject:
   - component: {fileID: 1532891989}
   - component: {fileID: 1532891988}
   - component: {fileID: 1532891992}
+  - component: {fileID: 1532891993}
   m_Layer: 0
   m_Name: PlayerQueenAnt
   m_TagString: QueenAnt
@@ -6860,8 +6858,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 74f28895f50d69d45a7e17eb82dcd644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  type: 1
-  color: {r: 0, g: 0.052033424, b: 1, a: 1}
+  type: 4
+  color: {r: 0.13399029, g: 0, b: 1, a: 1}
+--- !u!114 &1532891993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1532891987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7249e678a2e64e746af6a96cb5a059f1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  viewRange: 15
 --- !u!1 &1555474110
 GameObject:
   m_ObjectHideFlags: 0

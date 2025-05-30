@@ -1,16 +1,19 @@
+using JetBrains.Annotations;
+using System.Collections.Generic;
 using UnityEngine;
+public enum FogState { Hidden, Explored, Visible }
+
+public interface FogRevealFog
+{
+    public void RevealFog();
+}
 
 public class FogOfWarSystem : MonoBehaviour
 {
     public static FogOfWarSystem Instance;
-
-    public enum FogState {  Unexplored, Explored, Visible }
-
-    [Header("설정")]
-    public int textureSize = 256;
-    public float worldSize = 64f;
-
-    private FogState[] fogStates;
+    private readonly List<FogRevealFog> revealers = new();
+    private float updateInterval = 0.1f;
+    private float timer = 0f;
 
     private void Awake()
     {
@@ -20,64 +23,89 @@ public class FogOfWarSystem : MonoBehaviour
             return;
         }
         Instance = this;
-        fogStates = new FogState[textureSize * textureSize];
     }
 
-    public void RevealArea(Vector3 worldPos, float radius)
+    private void Update()
     {
-        Vector2Int center = WorldToMiniMap(worldPos);
-        int pixelRadius = Mathf.CeilToInt((radius / worldSize) * textureSize);
-        Debug.Log($"center : {center}, pixelRadius : {pixelRadius}");
-        for (int y = -pixelRadius; y <= pixelRadius; y++)
+        timer += Time.deltaTime;
+        if (timer > updateInterval) 
         {
-            for (int x = -pixelRadius; x <= pixelRadius; x++)
+            timer = 0f;
+
+            UpdateFog(); // 기존 visible => explored로 변경
+            foreach (var revealer in revealers)
+                revealer.RevealFog();
+        }
+        
+    }
+
+
+    public void Register(FogRevealFog revealer) => revealers.Add(revealer);
+    public void Unregister(FogRevealFog revealer) => revealers.Remove(revealer);
+
+
+    /// <summary>
+    /// UpdateFog() → 모든 Revealer.RevealFog() 호출을 한 번에 수행
+    /// </summary>
+    public void RevealAll()
+    {
+        UpdateFog();            // 이전 Visible → Explored 처리
+        foreach (var r in revealers)
+            r.RevealFog();      // 각 TurretBase.RevealFog() → RevealAreaGradient()
+    }
+
+    public void RevealAreaGradient(Vector3 worldPos, float radius)
+    {
+        // 1) 터렛의 미니맵상 픽셀 좌표 구하기
+        var center = MiniMapRenderer.Instance.WorldToMiniMap(worldPos);
+
+        // 2) 세계 단위 → 픽셀 단위 비율 계산
+        float worldW = TileGridManager.Instance.Width * TileGridManager.Instance.cubeSize;
+        float pxPerUnit = MiniMapRenderer.Instance.TextureSize / worldW;
+        int rpx = Mathf.CeilToInt(radius * pxPerUnit);
+
+        int texSize = MiniMapRenderer.Instance.TextureSize;
+
+        // 3) 픽셀 반경만큼 돌면서 원 형태 그라데이션
+        for (int dx = -rpx; dx <= rpx; dx++)
+        {
+            int x = center.x + dx;
+            if (x < 0 || x >= texSize) continue;
+
+            for (int dy = -rpx; dy <= rpx; dy++)
             {
-                int px = center.x + x;
-                int py = center.y + y;
+                int y = center.y + dy;
+                if (y < 0 || y >= texSize) continue;
 
-                if (px < 0 || py < 0 || px >= textureSize || py >= textureSize)
-                    continue;
+                float dist = Mathf.Sqrt(dx * dx + dy * dy);
+                if (dist > rpx) continue;
 
-                float dist = new Vector2(x, y).magnitude;
-                if (dist > pixelRadius) continue;
+                // 0~1로 정규화
+                float t = dist / rpx;
+                float alpha = Mathf.Pow(1 - t, 0.4f);
 
-                int index = py * textureSize + px;
-                fogStates[index] = FogState.Visible;
+                MiniMapRenderer.Instance.MarkVisiblePixel(new Vector2Int(x, y), alpha);
             }
         }
     }
 
-    public void DowngradeVisibleToExplored()
+
+    /// <summary>
+    /// 모든 타일 순회 및 visible -> explored로 전환 (한번은 봤지만 지금은 안보임으로 세팅)
+    /// </summary>
+    public void UpdateFog()
     {
-        for (int i = 0; i < fogStates.Length; i++)
+        var tiles = TileGridManager.Instance.tiles;
+        for(int x = 0; x< TileGridManager.Instance.Width; ++x)
         {
-            if (fogStates[i] == FogState.Visible)
-                fogStates[i] = FogState.Explored;
+            for(int z = 0; z < TileGridManager.Instance.Height; ++z)
+            {
+                var tile = tiles[x, z];
+                if(tile.fogState == FogState.Visible)
+                    tile.fogState = FogState.Explored;
+            }
         }
     }
+  
 
-    public FogState[] GetFogStates()
-    {
-        return fogStates;
-    }
-
-    public FogState GetStateAt(Vector2Int pos)
-    {
-        int index = pos.y * textureSize + pos.x;
-        if (index < 0 || index >= fogStates.Length)
-            return FogState.Unexplored;
-        return fogStates[index];
-    }
-
-    private Vector2Int WorldToMiniMap(Vector3 worldPos)
-    {
-        float halfSize = worldSize * 0.5f;
-        float xRatio = (worldPos.x + halfSize) / worldSize;
-        float yRatio = (worldPos.z + halfSize) / worldSize;
-
-        int x = Mathf.Clamp((int)(xRatio * textureSize), 0, textureSize - 1);
-        int y = Mathf.Clamp((int)(yRatio * textureSize), 0, textureSize - 1);
-
-        return new Vector2Int(x, y);
-    }
 }
