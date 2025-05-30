@@ -8,6 +8,7 @@ TagManager:
   - Tile
   - AttackAnt
   - FastAnt
+  - QueenAnt
   layers:
   - Default
   - TransparentFX

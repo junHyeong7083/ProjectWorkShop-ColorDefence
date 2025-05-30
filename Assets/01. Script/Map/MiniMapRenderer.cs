@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class MiniMapRenderer : MonoBehaviour
 {
     public static MiniMapRenderer Instance { get; private set; }
+
+    [Header("미니맵 기본세팅")]
     [SerializeField] private Transform rtsCameraTransform;
     [SerializeField] private RawImage miniMapImage;
     [SerializeField] private int textureSize = 256;
@@ -18,6 +20,7 @@ public class MiniMapRenderer : MonoBehaviour
     private List<MiniMapMarker> fastAntMarkers = new();
     private List<MiniMapMarker> spawnAntMarkers = new();
 
+    [Header("시야 관련")]
     [SerializeField] private float renderInterval = 0.1f;
     private float timer;
 
@@ -44,7 +47,7 @@ public class MiniMapRenderer : MonoBehaviour
         var worldCenter = TileGridManager.GetWorldPositionFromGrid(gridCenter.x, gridCenter.y);
         var minimapCenter = WorldToMiniMap(worldCenter);
 
-        Debug.Log($"[중앙 디버그] GridPos: {gridCenter} → WorldPos: {worldCenter} → MiniMapPos: {minimapCenter} (expected around {textureSize / 2},{textureSize / 2})");
+      //  Debug.Log($"[중앙 디버그] GridPos: {gridCenter} → WorldPos: {worldCenter} → MiniMapPos: {minimapCenter} (expected around {textureSize / 2},{textureSize / 2})");
     }
 
     private void Update()
@@ -70,13 +73,13 @@ public class MiniMapRenderer : MonoBehaviour
     }
     public void RegisterFastAnt(MiniMapMarker marker)
     {
-        if(!fastAntMarkers.Contains(marker))
+        if (!fastAntMarkers.Contains(marker))
             fastAntMarkers.Add(marker);
     }
 
     public void RegisterSpawnAnt(MiniMapMarker marker)
     {
-        if(!spawnAntMarkers.Contains(marker))
+        if (!spawnAntMarkers.Contains(marker))
             spawnAntMarkers.Add(marker);
     }
 

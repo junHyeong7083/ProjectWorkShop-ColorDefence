@@ -68,6 +68,7 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         //Debug.Log($"[Pathfinder] path count after recalc: {path.Count}");
+        InfectCurrentTile();
     }
 
 
@@ -80,7 +81,7 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         var goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
-        Debug.Log($"goalTile: {goalTile?.GridPos}, IsOccupied: {goalTile?.IsOccupied}");
+        //Debug.Log($"goalTile: {goalTile?.GridPos}, IsOccupied: {goalTile?.IsOccupied}");
 
         if (goalTile == null || goalTile.IsOccupied)
             return;
@@ -144,6 +145,17 @@ public class EnemyPathfinder : MonoBehaviour
         return result != null;
     }
 
+    private void InfectCurrentTile()
+    {
+        if (currentTile == null) return;
+
+        if (currentTile.ColorState != enemy.Data.InfectColor)
+        {
+            currentTile.ColorState = enemy.Data.InfectColor;
+          //  Debug.Log($"Tile at {currentTile.GridPos} infected by {enemy.name}");
+        }
+    }
+
     private void Update()
     {
         if (path == null || path.Count == 0) return;
@@ -160,6 +172,7 @@ public class EnemyPathfinder : MonoBehaviour
             currentTile = next;
             path.Dequeue();
 
+            InfectCurrentTile();
             // enemy?.InfectTile(); // 필요 시
         }
     }

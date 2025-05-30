@@ -1,6 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+ None : 중립
+ Player : 여왕개미 중심으로 확산된 플레이어 점령지
+ Enemy : 적이 침범해서 점령된 지역
+ */
 public enum TileColorState { None, Player, Enemy }
 
 public class TileData
@@ -17,6 +22,7 @@ public class TileData
     public bool IsReserved = false;
 
     public float LastChangedTime = -999f;
+
 
     public void Reserve() => IsReserved = true;
     public void Release() => IsReserved = false;
@@ -75,6 +81,12 @@ public class TileGridManager : MonoBehaviour
         }
 
         return true;
+    }
+    public static Vector2Int GetGridPositionFromWorld(Vector3 worldPos)
+    {
+        int x = Mathf.FloorToInt(worldPos.x / Instance.cubeSize);
+        int z = Mathf.FloorToInt(worldPos.z / Instance.cubeSize);
+        return new Vector2Int(x, z);
     }
 
     public List<Vector2Int> GetTilesInRange(Vector3 worldPos, float range)

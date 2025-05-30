@@ -11,6 +11,8 @@ public class PlacementManager : MonoBehaviour
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
     [SerializeField] private Color previewRangeColor = new Color(0f, 1f, 1f, 1f);
+    [SerializeField] private Texture2D cursorTexture;
+    Texture2D originCursorTexutre;
 
     private GameObject currentPrefab;
     private ScriptableObject currentData;
@@ -27,7 +29,7 @@ public class PlacementManager : MonoBehaviour
 
     public void StartPlacement(ScriptableObject data, GameObject prefab, PlacementType type)
     {
-        Debug.Log($"StartPlacement called with type: {type}, prefab: {prefab?.name}, data: {data?.name}");
+        //Debug.Log($"StartPlacement called with type: {type}, prefab: {prefab?.name}, data: {data?.name}");
         CancelPreview();
 
         currentData = data;
@@ -42,6 +44,9 @@ public class PlacementManager : MonoBehaviour
 
         // 부드러운 위치 초기화
         currentPreviewPos = previewInstance.transform.position;
+
+        // 설치상태인 커서로 변경
+        Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
     }
     EnemyPathfinder enemyPathfinder = new EnemyPathfinder();
     private void Update()
@@ -163,6 +168,7 @@ public class PlacementManager : MonoBehaviour
                 }
             }
         }
+
         MiniMapMarker marker;
         marker = turret.GetComponent<MiniMapMarker>();
         marker.enabled = true;
@@ -219,5 +225,8 @@ public class PlacementManager : MonoBehaviour
 
         currentData = null;
         currentPrefab = null;
+
+        // 커서 기본상태로 초기화
+        Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }

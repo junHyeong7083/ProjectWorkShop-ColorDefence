@@ -31,6 +31,7 @@ public class MiniMapMarker : MonoBehaviour
     private void OnDisable()
     {
         if (MiniMapRenderer.Instance == null) return;
+        Debug.Log($"[OnDisable] {name} ∫Ò»∞º∫»≠µ ");
         MiniMapRenderer.Instance.Unregister(this);
     }
 }

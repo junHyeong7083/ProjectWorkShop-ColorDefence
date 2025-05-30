@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
     {
         CurrentSpeed = mode;
         Time.timeScale = GameSpeedUtility.GetTimeScale(mode);
-        Debug.Log($"Speed changed to: {mode} / TimeScale: {Time.timeScale}");
+        //Debug.Log($"Speed changed to: {mode} / TimeScale: {Time.timeScale}");
     }
 
 

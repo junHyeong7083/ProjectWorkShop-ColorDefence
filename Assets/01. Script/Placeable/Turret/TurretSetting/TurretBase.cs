@@ -5,6 +5,8 @@ public abstract class TurretBase : PlaceableBase
     public TurretData turretData { get; private set; }
     public int CurrentLevel { get; private set; } = 1;
 
+    public float viewRange = 10f;
+
     [SerializeField] GameObject selectBox;
 
     public override void SetData(ScriptableObject data)
@@ -39,9 +41,15 @@ public abstract class TurretBase : PlaceableBase
 
     public void ShowSelectBox() => selectBox?.SetActive(true);
     public void HideSelectBox() => selectBox?.SetActive(false);
+    private void LateUpdate()
+    {
+        if (FogOfWarSystem.Instance == null || turretData == null)
+            return;
+        FogOfWarSystem.Instance.RevealArea(transform.position, GetRange());
+        
+    }
 
     #region 스탯 계산 메서드
-
     public int GetDamage()
         => turretData.baseDamage + (turretData.damageGrowth * (CurrentLevel - 1));
 
