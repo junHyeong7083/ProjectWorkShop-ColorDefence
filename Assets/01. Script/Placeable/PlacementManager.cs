@@ -1,6 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using Unity.VisualScripting;
+using FischlWorks_FogWar;
+using static FischlWorks_FogWar.csFogWar;
 
 public enum PlacementType { Turret, Fence }
 
@@ -155,7 +157,15 @@ public class PlacementManager : MonoBehaviour
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
         TurretBase turretBase = turret.GetComponent<TurretBase>();
         turretBase.SetData(data);
+        int viewRangeUnits = Mathf.RoundToInt(turretBase.viewRange / csFogWar.Instance._UnitScale);
 
+        // FogRevealer 생성 및 등록
+        var revealer = new csFogWar.FogRevealer(
+            turretBase.transform,         // 터렛 Transform
+            viewRangeUnits,              // 시야 범위
+            false                        // 터렛은 고정형이므로 움직임 기반 갱신은 false
+        );
+        csFogWar.Instance.AddFogRevealer(revealer);
         for (int x = 0; x < data.width; x++)
         {
             for (int z = 0; z < data.height; z++)
