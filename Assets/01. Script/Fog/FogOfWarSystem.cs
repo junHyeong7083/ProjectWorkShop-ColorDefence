@@ -1,3 +1,4 @@
+using FischlWorks_FogWar;
 using JetBrains.Annotations;
 using System.Collections.Generic;
 using UnityEngine;
@@ -33,6 +34,36 @@ public class FogOfWarSystem : MonoBehaviour
         {
             timer = 0f;
             RevealAll();
+        }
+    }
+
+    /// <summary>
+    /// 터렛을 설치할 때 호출.
+    /// csFogWar.Instance.AddFogRevealer(...) 의 반환값(인덱스)을 TurretBase.FogRevealerIndex에 저장.
+    /// </summary>
+    public void RegisterAssetFog(TurretBase turret)
+    {
+        int viewRangeUnits = Mathf.RoundToInt(turret.viewRange / csFogWar.Instance._UnitScale);
+        var revealer = new csFogWar.FogRevealer(
+            turret.transform,
+            viewRangeUnits,
+            false   // 터렛은 고정형이므로 움직임 발생 시만 갱신할 필요 없음
+        );
+
+        // fog 리스트에 추가하고, 인덱스를 TurretBase에 저장
+        turret.FogRevealerIndex = csFogWar.Instance.AddFogRevealer(revealer);
+    }
+
+    /// <summary>
+    /// 터렛을 판매(제거)할 때 호출.
+    /// TurretBase.FogRevealerIndex를 이용해 csFogWar.Instance.RemoveFogRevealer(index) 호출.
+    /// </summary>
+    public void UnregisterAssetFog(TurretBase turret)
+    {
+        if (turret.FogRevealerIndex >= 0)
+        {
+            csFogWar.Instance.RemoveFogRevealer(turret.FogRevealerIndex);
+            turret.FogRevealerIndex = -1;
         }
     }
 

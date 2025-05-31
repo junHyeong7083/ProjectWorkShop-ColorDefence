@@ -3,10 +3,14 @@ using UnityEngine;
 public abstract class TurretBase : PlaceableBase, FogRevealFog
 {
     public TurretData turretData { get; private set; }
+
+    [HideInInspector]
     public int CurrentLevel { get; private set; } = 1;
 
     public float viewRange = 10f;
 
+    [HideInInspector]
+    public int FogRevealerIndex { get; set; } = -1;
     [SerializeField] GameObject selectBox;
     public override void SetData(ScriptableObject data)
     {
@@ -14,6 +18,7 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
         CurrentLevel = 1;
 
         FogOfWarSystem.Instance?.Register(this);
+        FogOfWarSystem.Instance?.RegisterAssetFog(this);
     }
 
     public override void Upgrade()
@@ -25,8 +30,6 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
 
     public override void Sell()
     {
-        GameManager.instance.AddGold(GetSellPrice());
-
         // 痢蜡 秦力: TileData 流立 贸府
         foreach (var tile in occupiedTiles)
         {
@@ -37,6 +40,8 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
             }
         }
         FogOfWarSystem.Instance?.Unregister(this);
+        FogOfWarSystem.Instance.UnregisterAssetFog(this);
+        GameManager.instance.AddGold(GetSellPrice());
         Destroy(this.gameObject);
     }
 

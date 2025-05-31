@@ -9872,7 +9872,7 @@ GameObject:
   - component: {fileID: 2118538898}
   - component: {fileID: 2118538897}
   m_Layer: 0
-  m_Name: FogWar
+  m_Name: FogOfWar
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9890,14 +9890,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5de54c084f472845b61ee9a97cb8a48, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fogRevealers: []
+  fogRevealers:
+  - revealerTransform: {fileID: 1532891991}
+    sightRange: 7
+    updateOnlyOnMove: 0
+    lastSeenAt: {x: 0, y: -12}
   levelMidPoint: {fileID: 287938548}
   FogRefreshRate: 10
   fogPlaneHeight: 2
   fogPlaneMaterial: {fileID: 2100000, guid: 36b93ac6fcf129c449491654e397fe4a, type: 2}
   fogColor: {r: 0.019607844, g: 0.05882353, b: 0.09803922, a: 1}
   fogPlaneAlpha: 1
-  fogLerpSpeed: 2.5
+  fogLerpSpeed: 2
   keepRevealedTiles: 0
   revealedTileOpacity: 0.5
   fogPlaneTextureLerpTarget: {fileID: 0}
@@ -9909,13 +9913,13 @@ MonoBehaviour:
   levelDimensionY: 100
   unitScale: 10
   scanSpacingPerUnit: 0.25
-  rayStartHeight: 10
-  rayMaxDistance: 20
+  rayStartHeight: 3
+  rayMaxDistance: 5
   obstacleLayers:
     serializedVersion: 2
     m_Bits: 16
   ignoreTriggers: 1
-  drawGizmos: 0
+  drawGizmos: 1
   LogOutOfRange: 0
 --- !u!4 &2118538898
 Transform:
@@ -10000,6 +10004,7 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 740821223}
   - {fileID: 33079062}
+  - {fileID: 2118538898}
   - {fileID: 100389547}
   - {fileID: 1636429894}
   - {fileID: 1250951418}
@@ -10022,4 +10027,3 @@ SceneRoots:
   - {fileID: 138795744}
   - {fileID: 1509237501}
   - {fileID: 1532891991}
-  - {fileID: 2118538898}

@@ -618,19 +618,12 @@ namespace FischlWorks_FogWar
 
             return fogRevealers.Count - 1;
         }
-
-
-
-        /// Removes a FogRevealer instance from the list with index
         public void RemoveFogRevealer(int revealerIndex)
         {
             if (fogRevealers.Count > revealerIndex && revealerIndex > -1)
             {
                 fogRevealers.RemoveAt(revealerIndex);
-            }
-            else
-            {
-                Debug.LogFormat("Given index of {0} exceeds the revealers' container range", revealerIndex);
+                // fogWar.RemoveFogRevealer
             }
         }
 

@@ -10,6 +10,7 @@ public class PlacementManager : MonoBehaviour
 {
     public static PlacementManager Instance;
 
+    [BigHeader("PlacementManager")]
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
     [SerializeField] private Color previewRangeColor = new Color(0f, 1f, 1f, 1f);
@@ -157,7 +158,7 @@ public class PlacementManager : MonoBehaviour
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
         TurretBase turretBase = turret.GetComponent<TurretBase>();
         turretBase.SetData(data);
-        int viewRangeUnits = Mathf.RoundToInt(turretBase.viewRange / csFogWar.Instance._UnitScale);
+       /* int viewRangeUnits = Mathf.RoundToInt(turretBase.viewRange / csFogWar.Instance._UnitScale);
 
         // FogRevealer 생성 및 등록
         var revealer = new csFogWar.FogRevealer(
@@ -165,7 +166,10 @@ public class PlacementManager : MonoBehaviour
             viewRangeUnits,              // 시야 범위
             false                        // 터렛은 고정형이므로 움직임 기반 갱신은 false
         );
-        csFogWar.Instance.AddFogRevealer(revealer);
+        int idx = csFogWar.Instance.AddFogRevealer(revealer);
+        turretBase.FogRevealerIndex = idx;
+
+        csFogWar.Instance.AddFogRevealer(revealer);*/
         for (int x = 0; x < data.width; x++)
         {
             for (int z = 0; z < data.height; z++)
