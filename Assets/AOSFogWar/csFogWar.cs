@@ -1,4 +1,4 @@
-/*
+﻿/*
  * Created :    Winter 2022
  * Author :     SeungGeon Kim (keithrek@hanmail.net)
  * Project :    FogWar
@@ -48,8 +48,10 @@ namespace FischlWorks_FogWar
             }
 
             // Indexer definition
-            public LevelColumn this[int index] {
-                get {
+            public LevelColumn this[int index]
+            {
+                get
+                {
                     if (index >= 0 && index < levelRow.Count)
                     {
                         return levelRow[index];
@@ -61,7 +63,8 @@ namespace FischlWorks_FogWar
                         return null;
                     }
                 }
-                set {
+                set
+                {
                     if (index >= 0 && index < levelRow.Count)
                     {
                         levelRow[index] = value;
@@ -105,8 +108,10 @@ namespace FischlWorks_FogWar
             }
 
             // Indexer definition
-            public ETileState this[int index] {
-                get {
+            public ETileState this[int index]
+            {
+                get
+                {
                     if (index >= 0 && index < levelColumn.Count)
                     {
                         return levelColumn[index];
@@ -118,7 +123,8 @@ namespace FischlWorks_FogWar
                         return ETileState.Empty;
                     }
                 }
-                set {
+                set
+                {
                     if (index >= 0 && index < levelColumn.Count)
                     {
                         levelColumn[index] = value;
@@ -172,8 +178,10 @@ namespace FischlWorks_FogWar
             public bool _UpdateOnlyOnMove => updateOnlyOnMove;
 
             private Vector2Int currentLevelCoordinates = new Vector2Int();
-            public Vector2Int _CurrentLevelCoordinates {
-                get {
+            public Vector2Int _CurrentLevelCoordinates
+            {
+                get
+                {
                     lastSeenAt = currentLevelCoordinates;
 
                     return currentLevelCoordinates;
@@ -377,34 +385,30 @@ namespace FischlWorks_FogWar
         }
 
 
-
+        int upscale = 1;
         private void InitializeFog()
         {
             fogPlane = GameObject.CreatePrimitive(PrimitiveType.Plane);
-
             fogPlane.name = "[RUNTIME] Fog_Plane";
-
             fogPlane.transform.position = new Vector3(
                 levelMidPoint.position.x,
                 levelMidPoint.position.y + fogPlaneHeight,
                 levelMidPoint.position.z);
-
             fogPlane.transform.localScale = new Vector3(
                 (levelDimensionX * unitScale) / 10.0f,
                 1,
                 (levelDimensionY * unitScale) / 10.0f);
+            fogPlane.layer = LayerMask.NameToLayer("FogLayer");
 
-            fogPlaneTextureLerpTarget = new Texture2D(levelDimensionX, levelDimensionY);
-            fogPlaneTextureLerpBuffer = new Texture2D(levelDimensionX, levelDimensionY);
+            int up = Mathf.Max(1, upscale);
+            fogPlaneTextureLerpTarget = new Texture2D(levelDimensionX * up, levelDimensionY * up);
+            fogPlaneTextureLerpBuffer = new Texture2D(levelDimensionX * up, levelDimensionY * up);
 
             fogPlaneTextureLerpBuffer.wrapMode = TextureWrapMode.Clamp;
-
             fogPlaneTextureLerpBuffer.filterMode = FilterMode.Bilinear;
 
             fogPlane.GetComponent<MeshRenderer>().material = new Material(fogPlaneMaterial);
-
             fogPlane.GetComponent<MeshRenderer>().material.SetTexture("_MainTex", fogPlaneTextureLerpBuffer);
-
             fogPlane.GetComponent<MeshCollider>().enabled = false;
         }
 
@@ -480,6 +484,7 @@ namespace FischlWorks_FogWar
                     Mathf.RoundToInt(fogRevealer._SightRange / unitScale));
             }
 
+          //  UpdateFogPlaneMaterial();
             UpdateFogPlaneTextureTarget();
         }
 
@@ -501,12 +506,37 @@ namespace FischlWorks_FogWar
             {
                 bufferPixels[i] = Color.Lerp(bufferPixels[i], targetPixels[i], fogLerpSpeed * Time.deltaTime);
             }
-            
+
             fogPlaneTextureLerpBuffer.SetPixels(bufferPixels);
 
             fogPlaneTextureLerpBuffer.Apply();
         }
 
+        private void UpdateFogPlaneMaterial()
+        {
+            // 1) FogPlane의 MeshRenderer 가져오기
+            var mr = fogPlane.GetComponent<MeshRenderer>();
+            var mat = mr.material;
+
+            // 2) Fog Color (원래처럼 설정)
+            mat.SetColor("_FogColor", fogColor);
+
+            // 3) Reveal Center: UV (0~1) 기준
+            //    예를 들어, 씬 상에서 플레이어(혹은 첫 번째 FogRevealer)를 기준 삼는다고 가정
+            Vector3 worldPos = fogRevealers[0]._RevealerTransform.position;
+            // 월드 좌표 → 레벨 좌표(정수 타일) → 다시 UV(0~1)로 변환
+            Vector2Int lvlCoords = fogRevealers[0].GetCurrentLevelCoordinates(this);
+            float u = (lvlCoords.x + 0.5f) / (float)levelDimensionX;
+            float v = (lvlCoords.y + 0.5f) / (float)levelDimensionY;
+            mat.SetVector("_RevealCenter", new Vector4(u, v, 0, 0));
+
+            // 4) Reveal Radius: “시야 범위(유닛 기준)” → “UV 반경”
+            //    예시로, FogRevealer의 sightRange 값을 UV 반경으로 계산:
+            int sightTiles = Mathf.RoundToInt(fogRevealers[0]._SightRange / unitScale);
+            // sightTiles 은 타일 단위 반경. UV로 바꾸려면 /levelDimension
+            float uvRadius = sightTiles / (float)Mathf.Max(levelDimensionX, levelDimensionY);
+            mat.SetFloat("_RevealRadius", uvRadius);
+        }
 
 
         private void UpdateFogPlaneTextureTarget()
@@ -514,6 +544,7 @@ namespace FischlWorks_FogWar
             fogPlane.GetComponent<MeshRenderer>().material.SetColor("_Color", fogColor);
 
             fogPlaneTextureLerpTarget.SetPixels(shadowcaster.fogField.GetColors(fogPlaneAlpha, this));
+
 
             fogPlaneTextureLerpTarget.Apply();
         }
@@ -673,7 +704,7 @@ namespace FischlWorks_FogWar
 
             if (additionalRadius == 0)
             {
-                return shadowcaster.fogField[levelCoordinates.x][levelCoordinates.y] == 
+                return shadowcaster.fogField[levelCoordinates.x][levelCoordinates.y] ==
                     Shadowcaster.LevelColumn.ETileVisibility.Revealed;
             }
 
@@ -684,7 +715,7 @@ namespace FischlWorks_FogWar
                 for (int yIterator = -1; yIterator < additionalRadius + 1; yIterator++)
                 {
                     if (CheckLevelGridRange(new Vector2Int(
-                        levelCoordinates.x + xIterator, 
+                        levelCoordinates.x + xIterator,
                         levelCoordinates.y + yIterator)) == false)
                     {
                         scanResult = 0;
@@ -693,7 +724,7 @@ namespace FischlWorks_FogWar
                     }
 
                     scanResult += Convert.ToInt32(
-                        shadowcaster.fogField[levelCoordinates.x + xIterator][levelCoordinates.y + yIterator] == 
+                        shadowcaster.fogField[levelCoordinates.x + xIterator][levelCoordinates.y + yIterator] ==
                         Shadowcaster.LevelColumn.ETileVisibility.Revealed);
                 }
             }
@@ -724,8 +755,8 @@ namespace FischlWorks_FogWar
         public Vector3 GetWorldVector(Vector2Int worldCoordinates)
         {
             return new Vector3(
-                GetWorldX(worldCoordinates.x + (levelDimensionX / 2)), 
-                0, 
+                GetWorldX(worldCoordinates.x + (levelDimensionX / 2)),
+                0,
                 GetWorldY(worldCoordinates.y + (levelDimensionY / 2)));
         }
 
@@ -855,7 +886,8 @@ namespace FischlWorks_FogWar
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class ShowIfAttribute : PropertyAttribute
     {
-        public string _BaseCondition {
+        public string _BaseCondition
+        {
             get { return mBaseCondition; }
         }
 
@@ -872,7 +904,8 @@ namespace FischlWorks_FogWar
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = true)]
     public class BigHeaderAttribute : PropertyAttribute
     {
-        public string _Text {
+        public string _Text
+        {
             get { return mText; }
         }
 

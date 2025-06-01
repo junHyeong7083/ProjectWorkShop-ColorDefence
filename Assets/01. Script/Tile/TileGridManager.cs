@@ -25,7 +25,7 @@ public class TileData
 
     public float LastChangedTime = -999f;
 
-
+    public int EnemyPresenceCount = 0;
     public void Reserve() => IsReserved = true;
     public void Release() => IsReserved = false;
 }
@@ -81,7 +81,14 @@ public class TileGridManager : MonoBehaviour
                     return false;
             }
         }
-
+        /*foreach (var pathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
+        {
+            if (pathfinder.CurrentTile == )
+            {
+                Debug.Log($"[설치불가] 몬스터가 타일 ({tile.GridPos}) 위에 있음");
+                return false;
+            }
+        }*/
         return true;
     }
     public static Vector2Int GetGridPositionFromWorld(Vector3 worldPos)

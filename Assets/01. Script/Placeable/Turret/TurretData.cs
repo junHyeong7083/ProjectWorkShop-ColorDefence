@@ -21,6 +21,8 @@ public class TurretData : ScriptableObject
     public TurretActionType actionType;
     public TurretType turretType;
 
+    public int Star;
+
     public float baseAttackRange;
     public float baseAttackRate;
     public int baseDamage;

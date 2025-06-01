@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 
 [DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
@@ -67,8 +68,8 @@ public class EnemyPathfinder : MonoBehaviour
             RecalculatePath();
         }
 
-        //Debug.Log($"[Pathfinder] path count after recalc: {path.Count}");
-        InfectCurrentTile();
+        currentTile.EnemyPresenceCount++;
+        currentTile.ColorState = TileColorState.Enemy;
     }
 
 
@@ -133,6 +134,7 @@ public class EnemyPathfinder : MonoBehaviour
 
     public bool WouldHavePathIf(List<TileData> occupiedTiles)
     {
+        Debug.Log("Fucking sibal");
         foreach (var tile in occupiedTiles)
             tile.OccupyingFence = new DummyFence(); // 임시 점유
 
@@ -145,16 +147,16 @@ public class EnemyPathfinder : MonoBehaviour
         return result != null;
     }
 
-    private void InfectCurrentTile()
+  /*  private void InfectCurrentTile()
     {
         if (currentTile == null) return;
 
-        if (currentTile.ColorState != enemy.Data.InfectColor)
-        {
-            currentTile.ColorState = enemy.Data.InfectColor;
-          //  Debug.Log($"Tile at {currentTile.GridPos} infected by {enemy.name}");
-        }
-    }
+       // if (currentTile.ColorState != enemy.Data.InfectColor)
+       // {
+       //     currentTile.ColorState = enemy.Data.InfectColor;
+       //   //  Debug.Log($"Tile at {currentTile.GridPos} infected by {enemy.name}");
+       // }
+    }*/
 
     private void Update()
     {
@@ -171,8 +173,24 @@ public class EnemyPathfinder : MonoBehaviour
             var previousTile = currentTile;
             currentTile = next;
             path.Dequeue();
+            if (previousTile != null)
+            {
+                previousTile.EnemyPresenceCount--;
+                if (previousTile.EnemyPresenceCount <= 0)
+                {
+                    previousTile.EnemyPresenceCount = 0;
+                    if (previousTile.ColorState == TileColorState.Enemy)
+                        previousTile.ColorState = TileColorState.None;
+                }
+            }
 
-            InfectCurrentTile();
+            //  현재 타일 몬스터 수 증가
+            if (currentTile != null)
+            {
+                currentTile.EnemyPresenceCount++;
+                currentTile.ColorState = TileColorState.Enemy;
+            }
+            //  InfectCurrentTile();
             // enemy?.InfectTile(); // 필요 시
         }
     }

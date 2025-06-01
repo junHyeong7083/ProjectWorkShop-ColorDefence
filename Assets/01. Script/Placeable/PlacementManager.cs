@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using FischlWorks_FogWar;
 using static FischlWorks_FogWar.csFogWar;
 
@@ -13,142 +12,125 @@ public class PlacementManager : MonoBehaviour
     [BigHeader("PlacementManager")]
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
-    [SerializeField] private Color previewRangeColor = new Color(0f, 1f, 1f, 1f);
     [SerializeField] private Texture2D cursorTexture;
-    Texture2D originCursorTexutre;
 
+    private Texture2D originCursorTexture;
     private GameObject currentPrefab;
     private ScriptableObject currentData;
     private GameObject previewInstance;
     private PlacementType placementType;
 
-    private Vector3 currentPreviewPos;
+    private int lastStartX;
+    private int lastStartZ;
+    private Vector3 lastPreviewPos;
+    bool isCanPlace = false;
+    public bool IsCanPlace  => isCanPlace;
+
+    public bool IsPlacing { get; private set; } = false;
+
     private List<TileData> simulatedTiles = new();
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(this.gameObject);
     }
 
+    /// <summary>
+    /// 카드 드래그가 TopPanel 절반 이상 겹치는 순간 호출
+    /// → Preview 인스턴스를 생성하고 IsPlacing을 true로 세팅
+    /// </summary>
     public void StartPlacement(ScriptableObject data, GameObject prefab, PlacementType type)
     {
-        //Debug.Log($"StartPlacement called with type: {type}, prefab: {prefab?.name}, data: {data?.name}");
         CancelPreview();
 
         currentData = data;
         currentPrefab = prefab;
         placementType = type;
+        IsPlacing = true;
 
+        // Preview 인스턴스 생성
         previewInstance = Instantiate(prefab);
         previewInstance.GetComponent<Collider>().enabled = false;
 
-        foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
-            renderer.material = previewGreen;
+        foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
+            r.material = previewGreen;
 
-        // 부드러운 위치 초기화
-        currentPreviewPos = previewInstance.transform.position;
-
-        // 설치상태인 커서로 변경
+        // 커서 변경
+        originCursorTexture = null;
         Cursor.SetCursor(cursorTexture, Vector2.zero, CursorMode.Auto);
     }
-    EnemyPathfinder enemyPathfinder = new EnemyPathfinder();
+
     private void Update()
     {
         if (previewInstance == null) return;
 
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        //Debug.Log($"[Ray] Origin: {ray.origin}, Direction: {ray.direction}");
-
-        if (!Physics.Raycast(ray, out var hit))
-        {
-        //    Debug.LogWarning("[Raycast] Did not hit anything.");
-            return;
-        }
-
-      //  Debug.Log($"Hit point: {hit.point}");
+        if (!Physics.Raycast(ray, out var hit)) return;
 
         int width = 0, height = 0;
-
         if (placementType == PlacementType.Turret)
         {
             var data = currentData as TurretData;
-            if (data == null)
-            {
-                //Debug.LogError("TurretData is null!");
-                return;
-            }
+            if (data == null) return;
             width = data.width;
             height = data.height;
         }
         else if (placementType == PlacementType.Fence)
         {
             var data = currentData as FenceData;
-            if (data == null)
-            {
-             //   Debug.LogError("FenceData is null!");
-                return;
-            }
+            if (data == null) return;
             width = data.Width;
             height = data.Height;
         }
 
         float tileSize = TileGridManager.Instance.cubeSize;
-       // Debug.Log($"Tile size: {tileSize}, PlacementType: {placementType}, width: {width}, height: {height}");
-
         int startX = Mathf.FloorToInt(hit.point.x / tileSize);
         int startZ = Mathf.FloorToInt(hit.point.z / tileSize);
 
         float offsetX = (width - 1) * 0.5f * tileSize;
         float offsetZ = (height - 1) * 0.5f * tileSize;
-
         Vector3 previewPos = new Vector3(startX * tileSize + offsetX, 0f, startZ * tileSize + offsetZ);
 
-      //  Debug.Log($"startX: {startX}, startZ: {startZ}, previewPos: {previewPos}");
-
         previewInstance.transform.position = previewPos;
-        bool canPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
 
-       
-
-
+         isCanPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
+        
         foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
         {
             if (!enemyPathfinder.WouldHavePathIf(simulatedTiles))
             {
-                canPlace = false;
+                isCanPlace = false;
                 break;
             }
         }
+        //  Debug.Log($"canPlace : {isCanPlace}");
+        Debug.Log($"[설치 가능 판정] canPlace={isCanPlace}, start=({startX},{startZ}), size=({width}x{height})");
 
+        foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
+            renderer.material = isCanPlace ? previewGreen : previewRed;
 
-        if (canPlace)
-        {
-            foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
-                renderer.material = previewGreen;
-        }
-        else
-        {
-            foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
-                renderer.material = previewRed;
-        }
-
-
-        if (Input.GetMouseButtonDown(0) && canPlace)
-        {
-       //     Debug.Log($"Placing {placementType} at ({startX}, {startZ})");
-            if (placementType == PlacementType.Turret)
-                PlaceTurret(startX, startZ, previewPos);
-            else if (placementType == PlacementType.Fence)
-                PlaceFence(startX, startZ, previewPos);  // Fence 설치 함수 필요
-        }
+        // ──────────────────────────────────────────
+        // 아래 마우스 클릭 체크를 통째로 제거합니다.
+        // if (Input.GetMouseButtonDown(0) && canPlace)
+        // {
+        //     if (placementType == PlacementType.Turret)
+        //         PlaceTurret(startX, startZ, previewPos);
+        //     else if (placementType == PlacementType.Fence)
+        //         PlaceFence(startX, startZ, previewPos);
+        // }
+        // ──────────────────────────────────────────
     }
 
-    private void PlaceTurret(int startX, int startZ, Vector3 pos)
+
+    /// <summary>
+    /// 터렛 설치 로직
+    /// </summary>
+    public void PlaceTurret(int startX, int startZ, Vector3 pos)
     {
         var data = currentData as TurretData;
         if (data == null) return;
 
-       
         if (!GameManager.instance.SpendGold(data.placementCost))
         {
             Debug.LogWarning("Not enough gold to place turret.");
@@ -158,18 +140,7 @@ public class PlacementManager : MonoBehaviour
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
         TurretBase turretBase = turret.GetComponent<TurretBase>();
         turretBase.SetData(data);
-       /* int viewRangeUnits = Mathf.RoundToInt(turretBase.viewRange / csFogWar.Instance._UnitScale);
 
-        // FogRevealer 생성 및 등록
-        var revealer = new csFogWar.FogRevealer(
-            turretBase.transform,         // 터렛 Transform
-            viewRangeUnits,              // 시야 범위
-            false                        // 터렛은 고정형이므로 움직임 기반 갱신은 false
-        );
-        int idx = csFogWar.Instance.AddFogRevealer(revealer);
-        turretBase.FogRevealerIndex = idx;
-
-        csFogWar.Instance.AddFogRevealer(revealer);*/
         for (int x = 0; x < data.width; x++)
         {
             for (int z = 0; z < data.height; z++)
@@ -183,22 +154,19 @@ public class PlacementManager : MonoBehaviour
             }
         }
 
-        MiniMapMarker marker;
-        marker = turret.GetComponent<MiniMapMarker>();
-        marker.enabled = true;
+        var marker = turret.GetComponent<MiniMapMarker>();
+        if (marker != null) marker.enabled = true;
 
         CancelPreview();
     }
 
-    // PlacementManager.cs 내 PlaceFence 함수 전체 수정 예시
-    private void PlaceFence(int startX, int startZ, Vector3 pos)
+    /// <summary>
+    /// 울타리 설치 로직
+    /// </summary>
+    public void PlaceFence(int startX, int startZ, Vector3 pos)
     {
         var data = currentData as FenceData;
-        if (data == null)
-        {
-            Debug.LogError("FenceData is null in PlaceFence!");
-            return;
-        }
+        if (data == null) return;
 
         if (!GameManager.instance.SpendGold(data.placementCost))
         {
@@ -208,8 +176,7 @@ public class PlacementManager : MonoBehaviour
 
         GameObject fence = Instantiate(currentPrefab, pos, Quaternion.identity);
         Fence fenceBase = fence.GetComponent<Fence>();
-        if (fenceBase != null)
-            fenceBase.SetData(data);
+        if (fenceBase != null) fenceBase.SetData(data);
 
         for (int x = 0; x < data.Width; x++)
         {
@@ -218,12 +185,13 @@ public class PlacementManager : MonoBehaviour
                 var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
                 if (tile != null)
                 {
-                    tile.OccupyingFence = fenceBase;   // 울타리 점유 표시
-                    tile.ColorState = TileColorState.Player; // 필요시 타일 상태 변경
+                    tile.OccupyingFence = fenceBase;
+                    tile.ColorState = TileColorState.Player;
                 }
             }
         }
 
+        // 설치 후 적 경로 재계산
         CancelPreview();
         foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
         {
@@ -231,16 +199,18 @@ public class PlacementManager : MonoBehaviour
         }
     }
 
-
-    private void CancelPreview()
+    /// <summary>
+    /// Preview 인스턴스를 즉시 파괴하고, 모든 상태 초기화
+    /// </summary>
+    public void CancelPreview()
     {
         if (previewInstance != null) Destroy(previewInstance);
         previewInstance = null;
 
+        IsPlacing = false;
         currentData = null;
         currentPrefab = null;
 
-        // 커서 기본상태로 초기화
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }
 }

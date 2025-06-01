@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 310e292351095e84c86d777a39c1824e, type: 3}
+  m_Name: LaserCard
+  m_EditorClassIdentifier: 
+  cardName: Laser
+  cardIcon: {fileID: 21300014, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  cost: 0
+  prefabToSpawn: {fileID: 5483216115147444546, guid: 25eca3ad31f20044198e2badd038c812, type: 3}
+  scriptable: {fileID: 11400000, guid: 33153ec7e7f5ac243a398a5de5f78bab, type: 2}

@@ -50,8 +50,8 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
 
     public void RevealFog()
     {
-      //  FogOfWarSystem.Instance.RevealArea(this.transform.position, viewRange);
-       FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);
+        //  FogOfWarSystem.Instance.RevealArea(this.transform.position, viewRange);
+        FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);
     }
 
     #region 스탯 계산 메서드
@@ -76,7 +76,7 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
         };
     }
 
-    
+
     public int GetUpgradeCost() => 100 + (CurrentLevel * 50);
     public int GetSellPrice() => 50 + (CurrentLevel * 25);
     public string GetDescription() => turretData.description;

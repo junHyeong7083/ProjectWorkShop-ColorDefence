@@ -8,6 +8,6 @@ public class QueenAnt : MonoBehaviour, FogRevealFog
         FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);
     }
 
-    private void OnEnable() => FogOfWarSystem.Instance?.Register(this);
+    private void Start() => FogOfWarSystem.Instance?.Register(this);
     private void OnDisable() => FogOfWarSystem.Instance?.Unregister(this);
 }

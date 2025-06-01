@@ -9,6 +9,7 @@ TagManager:
   - AttackAnt
   - FastAnt
   - QueenAnt
+  - Card
   layers:
   - Default
   - TransparentFX
@@ -19,9 +20,9 @@ TagManager:
   - BloomLayer
   - Enemy
   - CubeLayer
-  - 
-  - 
-  - 
+  - FogLayer
+  - FogMask
+  - placementLayer
   - 
   - 
   - 

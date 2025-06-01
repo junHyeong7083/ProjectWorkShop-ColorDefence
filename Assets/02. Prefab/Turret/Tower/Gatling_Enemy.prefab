@@ -49,7 +49,7 @@ GameObject:
   - component: {fileID: 821237011160589228}
   - component: {fileID: 7868941031402116334}
   - component: {fileID: 6126560610746092628}
-  - component: {fileID: -517592231544666794}
+  - component: {fileID: 5346794202065257173}
   m_Layer: 0
   m_Name: Gatling_Enemy
   m_TagString: AttackAnt
@@ -106,6 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af24a24dcf76ee242896cf26a5736c72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  viewRange: 15
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
@@ -200,20 +201,20 @@ MonoBehaviour:
   attackBarPrefab: {fileID: 497956164141976805, guid: 0d2b34241e36d0e4ab7ff0cbb3c44a1b, type: 3}
   offsetY: 1
   offsetZ: -1
---- !u!114 &-517592231544666794
+--- !u!114 &5346794202065257173
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8570189920556401514}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 74f28895f50d69d45a7e17eb82dcd644, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   type: 1
-  color: {r: 0, g: 0, b: 1, a: 1}
+  color: {r: 0, g: 0.033422947, b: 1, a: 1}
 --- !u!1001 &8423034224741092812
 PrefabInstance:
   m_ObjectHideFlags: 0

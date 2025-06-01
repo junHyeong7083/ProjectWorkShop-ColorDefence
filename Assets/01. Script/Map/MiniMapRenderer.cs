@@ -156,6 +156,36 @@ public class MiniMapRenderer : MonoBehaviour
 
         // 2) 안개 리빌 강제 호출
         FogOfWarSystem.Instance.RevealAll();
+        for (int i = 0; i < alphaBuffer.Length; i++)
+        {
+            if (alphaBuffer[i] > 0f)
+            {
+                // 1) 픽셀 인덱스 → 텍스처 좌표 (x,y) 역산
+                int px = i % textureSize;
+                int py = i / textureSize;
+
+                // 2) 텍스처 좌표 → 월드 좌표
+                Vector3 worldPos = MiniMapToWorld(new Vector2Int(px, py));
+
+                // 3) 월드 좌표 → 타일 인덱스
+                float tileSize = TileGridManager.Instance.cubeSize;
+                int tileX = Mathf.FloorToInt(worldPos.x / tileSize);
+                int tileZ = Mathf.FloorToInt(worldPos.z / tileSize);
+
+                TileData tile = TileGridManager.Instance.GetTile(tileX, tileZ);
+                if (tile != null)
+                {
+                    // Visible로 변경
+                    tile.fogState = FogState.Visible;
+                    // exploredBuffer는 이미 alphaBuffer>0인 경우 true로 설정됨
+                    // UpdateFog() 는 다음 프레임에 Visible→Explored 해 줄 것
+                }
+            }
+        }
+
+
+
+
 
         // 3) alphaBuffer → pixels 매핑
         for (int i = 0; i < pixels.Length; i++)
