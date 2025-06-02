@@ -12,7 +12,7 @@ public class Fence : PlaceableBase
 
     public override void Sell()
     {
-        GameManager.instance.AddGold(GetSellPrice());
+      // GameManager.instance.AddGold(GetSellPrice());
 
         // 점유 해제 처리
         foreach (var tile in occupiedTiles)

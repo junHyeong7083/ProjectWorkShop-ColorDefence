@@ -74,16 +74,10 @@ public class DeckManager : MonoBehaviour
     /// <summary>
     /// deck에 남은 카드 수 반환
     /// </summary>
-    public int GetDeckCount()
-    {
-        return deck?.Count ?? 0;
-    }
+    public int GetDeckCount() => deck?.Count ?? 0;
 
     /// <summary>
     /// discard에 쌓인 카드 수 반환
     /// </summary>
-    public int GetDiscardCount()
-    {
-        return discard?.Count ?? 0;
-    }
+    public int GetDiscardCount() => discard?.Count ?? 0;
 }

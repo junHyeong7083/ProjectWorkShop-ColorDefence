@@ -105,7 +105,7 @@ public class PlacementManager : MonoBehaviour
             }
         }
         //  Debug.Log($"canPlace : {isCanPlace}");
-        Debug.Log($"[설치 가능 판정] canPlace={isCanPlace}, start=({startX},{startZ}), size=({width}x{height})");
+      //  Debug.Log($"[설치 가능 판정] canPlace={isCanPlace}, start=({startX},{startZ}), size=({width}x{height})");
 
         foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
             renderer.material = isCanPlace ? previewGreen : previewRed;
@@ -131,12 +131,12 @@ public class PlacementManager : MonoBehaviour
         var data = currentData as TurretData;
         if (data == null) return;
 
-        if (!GameManager.instance.SpendGold(data.placementCost))
+/*        if (!GameManager.instance.SpendGold(data.placementCost))
         {
             Debug.LogWarning("Not enough gold to place turret.");
             return;
         }
-
+*/
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
         TurretBase turretBase = turret.GetComponent<TurretBase>();
         turretBase.SetData(data);
@@ -167,13 +167,13 @@ public class PlacementManager : MonoBehaviour
     {
         var data = currentData as FenceData;
         if (data == null) return;
-
+/*
         if (!GameManager.instance.SpendGold(data.placementCost))
         {
             Debug.LogWarning("Not enough gold to place fence.");
             return;
         }
-
+*/
         GameObject fence = Instantiate(currentPrefab, pos, Quaternion.identity);
         Fence fenceBase = fence.GetComponent<Fence>();
         if (fenceBase != null) fenceBase.SetData(data);

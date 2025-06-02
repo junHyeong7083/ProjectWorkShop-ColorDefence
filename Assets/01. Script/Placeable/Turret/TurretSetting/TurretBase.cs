@@ -24,7 +24,7 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
     public override void Upgrade()
     {
         int cost = GetUpgradeCost();
-        if (GameManager.instance.SpendGold(cost))
+    //    if (GameManager.instance.SpendGold(cost))
             CurrentLevel++;
     }
 
@@ -41,7 +41,7 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
         }
         FogOfWarSystem.Instance?.Unregister(this);
         FogOfWarSystem.Instance.UnregisterAssetFog(this);
-        GameManager.instance.AddGold(GetSellPrice());
+       // GameManager.instance.AddGold(GetSellPrice());
         Destroy(this.gameObject);
     }
 

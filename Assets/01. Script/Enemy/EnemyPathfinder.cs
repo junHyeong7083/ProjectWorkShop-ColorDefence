@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Rendering;
 
 [DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
@@ -134,7 +133,7 @@ public class EnemyPathfinder : MonoBehaviour
 
     public bool WouldHavePathIf(List<TileData> occupiedTiles)
     {
-        Debug.Log("Fucking sibal");
+      //  Debug.Log("Fucking sibal");
         foreach (var tile in occupiedTiles)
             tile.OccupyingFence = new DummyFence(); // 임시 점유
 
