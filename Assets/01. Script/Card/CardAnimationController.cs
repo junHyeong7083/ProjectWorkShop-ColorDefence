@@ -84,6 +84,7 @@ public class CardAnimationController : MonoBehaviour
 
         GameObject newCard = Instantiate(cardPrefab, deckPoint.parent);
         RectTransform rt = newCard.GetComponent<RectTransform>();
+
         rt.anchoredPosition = targetSlot.anchoredPosition;
         rt.localScale = Vector3.one;
         rt.localRotation = Quaternion.Euler(0, 0, targetZ);
@@ -113,16 +114,16 @@ public class CardAnimationController : MonoBehaviour
 
         GameObject topCard = deckVisualStack.Pop();
         RectTransform rt = topCard.GetComponent<RectTransform>();
-
+       // rt.SetParent(targetSlot.parent, false);
         // 카드 보이게 만들고 위치 초기화
         rt.gameObject.SetActive(true);
 
         // 병렬 애니메이션 처리
         Sequence seq = DOTween.Sequence();
+        Vector3 worldTargetPos = targetSlot.position;
 
-        // 초기 팝업 + 이동 + 회전 + 스케일 복구 병렬로 실행
         seq.Append(rt.DOScale(initialPopupScale, moveDuration * 0.3f).SetEase(Ease.OutBack));
-        seq.Join(rt.DOAnchorPos(targetSlot.anchoredPosition, moveDuration).SetEase(Ease.OutCubic));
+        seq.Join(rt.DOMove(worldTargetPos, moveDuration).SetEase(Ease.OutCubic));
         seq.Join(rt.DOScale(1f, moveDuration).SetEase(Ease.InBack));
         seq.Join(rt.DOLocalRotate(new Vector3(0f, 0f, targetZ), moveDuration).SetEase(Ease.OutCubic));
 

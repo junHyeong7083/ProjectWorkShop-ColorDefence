@@ -34,7 +34,7 @@ public class TurretTargetSelector : MonoBehaviour
             if (distSqr > rangeSqr) continue;
 
             float minSq = turret.minRange * turret.minRange;
-            Debug.Log($"DistSq : {distSqr} || MinSq : {minSq}");
+           // Debug.Log($"DistSq : {distSqr} || MinSq : {minSq}");
 
             if (distSqr < bestScore && distSqr > minSq)
             {
