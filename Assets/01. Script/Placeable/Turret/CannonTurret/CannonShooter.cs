@@ -29,8 +29,7 @@ public class CannonShooter : MonoBehaviour, ITurretShooter
         {
             CameraShakeManager.Instance.RequestShake(0.6f);
             EffectManager.Instance.PlayEffect(
-                turret.turretData.turretType,
-                turret.turretData.actionType,
+                "BigExplosion",
                 end
             );
         });

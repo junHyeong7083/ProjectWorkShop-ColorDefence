@@ -114,21 +114,32 @@ public class CardAnimationController : MonoBehaviour
         GameObject topCard = deckVisualStack.Pop();
         RectTransform rt = topCard.GetComponent<RectTransform>();
 
+        // 카드 보이게 만들고 위치 초기화
+        rt.gameObject.SetActive(true);
+
+        // 병렬 애니메이션 처리
         Sequence seq = DOTween.Sequence();
-        seq.Append(rt.DOScale(initialPopupScale, moveDuration * 0.4f).SetEase(Ease.OutBack));
-        seq.Append(rt.DOAnchorPos(targetSlot.anchoredPosition, moveDuration * 0.6f).SetEase(Ease.OutCubic));
-        seq.Join(rt.DOScale(1f, moveDuration * 0.6f).SetEase(Ease.InBack));
-        seq.Join(rt.DOLocalRotate(new Vector3(0f, 0f, targetZ), moveDuration * 0.6f).SetEase(Ease.OutCubic));
-        seq.Append(rt.DOScale(initialPopupScale, popupBackDuration).SetEase(Ease.OutQuad));
-        seq.Append(rt.DOScale(1f, popupBackDuration).SetEase(Ease.InQuad));
+
+        // 초기 팝업 + 이동 + 회전 + 스케일 복구 병렬로 실행
+        seq.Append(rt.DOScale(initialPopupScale, moveDuration * 0.3f).SetEase(Ease.OutBack));
+        seq.Join(rt.DOAnchorPos(targetSlot.anchoredPosition, moveDuration).SetEase(Ease.OutCubic));
+        seq.Join(rt.DOScale(1f, moveDuration).SetEase(Ease.InBack));
+        seq.Join(rt.DOLocalRotate(new Vector3(0f, 0f, targetZ), moveDuration).SetEase(Ease.OutCubic));
+
+        // 팝업 효과 병렬 처리 (선택 사항)
+        seq.Join(rt.DOScale(initialPopupScale, popupBackDuration).SetEase(Ease.OutQuad).SetDelay(moveDuration));
+        seq.Join(rt.DOScale(1f, popupBackDuration).SetEase(Ease.InQuad).SetDelay(moveDuration + popupBackDuration));
 
         bool sequenceDone = false;
         seq.OnComplete(() => sequenceDone = true);
+
         while (!sequenceDone)
             yield return null;
 
+        // 덱 시각 카드 숨김
         rt.gameObject.SetActive(false);
     }
+
 
     public void UseCardAtIndex_Fan(int i)
     {

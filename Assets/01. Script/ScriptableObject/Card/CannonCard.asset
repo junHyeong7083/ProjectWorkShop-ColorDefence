@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CannonCard
   m_EditorClassIdentifier: 
   cardName: Cannon
-  cardIcon: {fileID: -6279640769779937744, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  cardIcon: {fileID: 21300000, guid: a8abde5fd18893a48b0a00ee3c6bf2e0, type: 3}
   cost: 0
   prefabToSpawn: {fileID: 232714186913778390, guid: 024c31e3a81f6af40bd89899b3c6484b, type: 3}
   scriptable: {fileID: 11400000, guid: 3d74d557f9bcf5844b9bf9bdd8b9b603, type: 2}

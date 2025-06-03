@@ -24,12 +24,21 @@ public class CannonBulletEnemy : MonoBehaviour
     /// <summary>
     /// 포탄 발사 초기화
     /// </summary>
-    public void Init(Vector3 start, Vector3 end, float height, float flightTime, int _damage, Action callback)
+    public void Init(Vector3 start, Vector3 end, float maxHeight, float flightTime, int _damage, Action callback)
     {
         startPoint = start;
         endPoint = end;
 
-        controlPoint = Vector3.Lerp(start, end, 0.7f) + Vector3.up * height;
+        float distance = Vector3.Distance(start, end);
+
+        float minCurveDistance = 3f;
+        float maxCurveDistance = 10f;
+
+        float heightT = Mathf.InverseLerp(minCurveDistance, maxCurveDistance, distance);
+        float finalHeight = Mathf.Lerp(0.1f, maxHeight, heightT); // 너무 낮으면 0.1f 정도
+
+        Vector3 mid = (start + end) * 0.5f;
+        controlPoint = mid + Vector3.up * (finalHeight * 0.3f);
 
         duration = flightTime;
         elapsed = 0f;
@@ -39,25 +48,29 @@ public class CannonBulletEnemy : MonoBehaviour
         gameObject.SetActive(true);
     }
 
+
     void Update()
     {
         elapsed += Time.deltaTime;
         float t = Mathf.Clamp01(elapsed / duration);
 
-        float curvedT = t * t;
+        // 그냥 t 사용 (너무 왜곡된 t*t 안 씀)
+        Vector3 pos = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, t);
+        transform.position = pos;
 
-        transform.position = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, curvedT);
+        // 궤도 따라 회전
+        Vector3 next = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, Mathf.Min(1f, t + 0.01f));
+        transform.rotation = Quaternion.LookRotation(next - pos);
 
-        float angle = Mathf.Lerp(startEngler, endEngler,curvedT);
-        transform.rotation = Quaternion.Euler(angle,0,0);   
         if (t >= 1f)
         {
             ApplyAoEDamage(endPoint);
             onHit?.Invoke();
-            EffectManager.Instance.PlayEffect(turretType, actionType, endPoint);
+            EffectManager.Instance.PlayEffect("BigExplosion", endPoint);
             ReturnToPool();
         }
     }
+
 
     Vector3 GetQuadraticBezierPoint(Vector3 p0, Vector3 p1, Vector3 p2, float t)
     {

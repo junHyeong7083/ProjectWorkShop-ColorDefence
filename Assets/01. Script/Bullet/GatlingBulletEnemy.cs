@@ -50,8 +50,7 @@ public class GatlingBulletEnemy : MonoBehaviour
 
             onArrive?.Invoke();
             EffectManager.Instance.PlayEffect(
-                TurretType.Gatling,
-                TurretActionType.AttackEnemy,
+               "Gatling_Enemy_HitFX",
                 transform.position
             );
 

@@ -8,7 +8,7 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
     public int CurrentLevel { get; private set; } = 1;
 
     public float viewRange = 10f;
-
+    public float minRange;
     [HideInInspector]
     public int FogRevealerIndex { get; set; } = -1;
     [SerializeField] GameObject selectBox;
@@ -24,8 +24,12 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
     public override void Upgrade()
     {
         int cost = GetUpgradeCost();
-    //    if (GameManager.instance.SpendGold(cost))
-            CurrentLevel++;
+        CurrentLevel++;
+
+        EffectManager.Instance.PlayEffect(
+               "UpgradeEffect",
+                transform.position,true
+            );
     }
 
     public override void Sell()
@@ -82,4 +86,14 @@ public abstract class TurretBase : PlaceableBase, FogRevealFog
     public string GetDescription() => turretData.description;
 
     #endregion
+
+
+
+#if UNITY_EDITOR
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, minRange);
+    }
+#endif
 }

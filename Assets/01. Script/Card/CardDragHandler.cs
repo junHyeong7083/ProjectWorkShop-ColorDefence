@@ -20,7 +20,6 @@ public class CardDragHandler : MonoBehaviour,
     [Header("사용(소환) 직전 대기 시간")]
     public float useDelay = 0.1f;
 
-    // 슬롯 정보
     private Vector2 originalAnchoredPos;
     private float originalZRotation;
     private Vector3 originalScale;
@@ -36,13 +35,12 @@ public class CardDragHandler : MonoBehaviour,
     [HideInInspector] public CardData cardData;
 
     private bool isPreviewActive = false;
-    //  LayerMask placementLayer;
     private bool wasDragged = false;
+
     private void Awake()
     {
         rect = GetComponent<RectTransform>();
         originalScale = rect.localScale;
-      //  placementLayer = LayerMask.GetMask("PlacementLayer"); // 레이어 설정 필요
         canvasGroup = GetComponent<CanvasGroup>() ?? gameObject.AddComponent<CanvasGroup>();
         canvasGroup.alpha = 1f;
 
@@ -51,10 +49,6 @@ public class CardDragHandler : MonoBehaviour,
             Debug.LogError($"[{name}] 부모 Canvas를 찾을 수 없습니다.");
     }
 
-    /// <summary>
-    /// CardAnimationController에서 슬롯에 배치할 때 호출
-    /// 슬롯 정보(위치, 회전)와 CardData를 세팅
-    /// </summary>
     public void InitializeSlot(Vector2 anchoredPos, float zRotation, CardData data)
     {
         originalAnchoredPos = anchoredPos;
@@ -63,9 +57,6 @@ public class CardDragHandler : MonoBehaviour,
         cardData = data;
     }
 
-    //───────────────────────────────────────────────────────────────────────────────────
-    // 드래그 시작: 스케일 키우고, 포인터-카드 오프셋 계산, UpdateOverlapStateAndColor 호출
-    //───────────────────────────────────────────────────────────────────────────────────
     public void OnBeginDrag(PointerEventData eventData)
     {
         wasDragged = false;
@@ -86,9 +77,6 @@ public class CardDragHandler : MonoBehaviour,
         UpdateOverlapStateAndColor();
     }
 
-    //───────────────────────────────────────────────────────────────────────────────────
-    // 드래그 중: 카드 위치 업데이트, UpdateOverlapStateAndColor 호출
-    //───────────────────────────────────────────────────────────────────────────────────
     public void OnDrag(PointerEventData eventData)
     {
         wasDragged = true;
@@ -104,77 +92,95 @@ public class CardDragHandler : MonoBehaviour,
         UpdateOverlapStateAndColor();
     }
 
-    //───────────────────────────────────────────────────────────────────────────────────
-    // 드래그 종료: 설치 여부 판단 → 설치(PlaceTurret/PlaceFence) 혹은 복귀
-    //───────────────────────────────────────────────────────────────────────────────────
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!wasDragged) return;
-
-
-        // Debug.Log("Drag End!");
 
         if (canvasGroup != null)
             canvasGroup.blocksRaycasts = true;
 
         bool overHalf = IsOverTopPanelByHalf();
 
-        if (overHalf && PlacementManager.Instance.IsPlacing && PlacementManager.Instance.IsCanPlace)
+        if (overHalf)
         {
-          //  Debug.Log("ifff");
-            // 드래그가 TopPanel 위에 있고, Preview도 설치 가능 상태면 → 설치 시도
             Ray ray = Camera.main.ScreenPointToRay(eventData.position);
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
-            //    Debug.Log("ray");
-                int width = 0, height = 0;
-                if (cardData.scriptable is TurretData tData)
+                switch (cardData.cardType)
                 {
-                    width = tData.width;
-                    height = tData.height;
+                    case CardType.TURRET:
+                    case CardType.FENCE:
+                        HandlePlaceableCard(hit);
+                        return;
+
+                    case CardType.UPGRADE:
+                        HandleUpgradeCard(hit);
+                        return;
+
+                    default:
+                        ReturnImmediately();
+                        return;
                 }
-                else if (cardData.scriptable is FenceData fData)
-                {
-                    width = fData.Width;
-                    height = fData.Height;
-                }
-                else
-                {
-                    ReturnImmediately();
-                    return;
-                }
-
-                float tileSize = TileGridManager.Instance.cubeSize;
-                int startX = Mathf.FloorToInt(hit.point.x / tileSize);
-                int startZ = Mathf.FloorToInt(hit.point.z / tileSize);
-
-                Vector3 worldPos = new Vector3(
-                    startX * tileSize + (width - 1) * 0.5f * tileSize,
-                    0f,
-                    startZ * tileSize + (height - 1) * 0.5f * tileSize
-                );
-
-                // 설치 수행
-                if (cardData.scriptable is TurretData)
-                    PlacementManager.Instance.PlaceTurret(startX, startZ, worldPos);
-                else
-                    PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
-
-                animationController.UseCardAtIndex_Fan(slotIndex);
-                return;
             }
         }
 
-        // 설치 불가 상황 → 복귀 처리
         ReturnImmediately();
     }
 
+    private void HandlePlaceableCard(RaycastHit hit)
+    {
+        int width = 0, height = 0;
 
-    //───────────────────────────────────────────────────────────────────────────────────
-    // 드래그 중 실시간으로 “TopPanel 절반 이상 겹쳤는지” 판단
-    // • 겹치면 카드 전체 투명 + Preview 생성
-    // • 안 겹치면 카드 전체 복원 + Preview 취소
-    //───────────────────────────────────────────────────────────────────────────────────
+        if (cardData.scriptable is TurretData tData)
+        {
+            width = tData.width;
+            height = tData.height;
+        }
+        else if (cardData.scriptable is FenceData fData)
+        {
+            width = fData.Width;
+            height = fData.Height;
+        }
+        else
+        {
+            ReturnImmediately();
+            return;
+        }
+
+        float tileSize = TileGridManager.Instance.cubeSize;
+        int startX = Mathf.FloorToInt(hit.point.x / tileSize);
+        int startZ = Mathf.FloorToInt(hit.point.z / tileSize);
+
+        Vector3 worldPos = new Vector3(
+            startX * tileSize + (width - 1) * 0.5f * tileSize,
+            0f,
+            startZ * tileSize + (height - 1) * 0.5f * tileSize
+        );
+
+        if (cardData.scriptable is TurretData)
+            PlacementManager.Instance.PlaceTurret(startX, startZ, worldPos);
+        else
+            PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
+
+        animationController.UseCardAtIndex_Fan(slotIndex);
+    }
+
+    private void HandleUpgradeCard(RaycastHit hit)
+    {
+        var turret = hit.collider.GetComponent<TurretBase>();
+        if (turret == null)
+        {
+            Debug.LogWarning("업그레이드 실패: 터렛이 아닙니다.");
+            ReturnImmediately();
+            return;
+        }
+
+        turret.Upgrade();
+        Debug.Log($"업그레이드 완료: {turret.name} → Lv.{turret.CurrentLevel}");
+
+        animationController.UseCardAtIndex_Fan(slotIndex);
+    }
+
     private void UpdateOverlapStateAndColor()
     {
         if (canvasGroup == null || topPanel == null || cardData == null)
@@ -182,50 +188,100 @@ public class CardDragHandler : MonoBehaviour,
 
         bool overHalf = IsOverTopPanelByHalf();
 
-        if (overHalf)
-        {
-            canvasGroup.alpha = 0f;
-            if (!isPreviewActive)
-            {
-                PlacementType type = (cardData.scriptable is TurretData)
-                                        ? PlacementType.Turret
-                                        : PlacementType.Fence;
+        // 기본값
+        canvasGroup.alpha = 1f;
 
-                PlacementManager.Instance.StartPlacement(
-                    cardData.scriptable,
-                    cardData.prefabToSpawn,
-                    type
-                );
-                isPreviewActive = true;
-            }
-        }
-        else
+        if (!overHalf)
         {
-            canvasGroup.alpha = 1f;
             if (isPreviewActive)
             {
                 PlacementManager.Instance.CancelPreview();
                 isPreviewActive = false;
             }
+            return;
+        }
+
+        // TopPanel 절반 이상 겹침
+
+        switch (cardData.cardType)
+        {
+            case CardType.TURRET:
+            case CardType.FENCE:
+                canvasGroup.alpha = 0f;
+                if (!isPreviewActive)
+                {
+                    PlacementManager.Instance.StartPlacement(
+                        cardData.scriptable,
+                        cardData.prefabToSpawn,
+                        cardData.cardType == CardType.TURRET ? PlacementType.Turret : PlacementType.Fence
+                    );
+                    isPreviewActive = true;
+                }
+                break;
+
+            case CardType.UPGRADE:
+                canvasGroup.alpha = 0.5f;
+
+                Transform back = transform.Find("Back");
+                if(back != null)
+                {
+                    Image backImage = back.GetComponent<Image>();
+                    Color c = backImage.color;
+                    c.a = 0f;
+                    backImage.color = c;
+                }
+
+
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    var turret = hit.collider.GetComponent<TurretBase>();
+                    if (turret != null)
+                    {
+                        canvasGroup.alpha = 0f;
+
+                        if (!isPreviewActive)
+                        {
+                            PlacementManager.Instance.StartPlacement(
+                                cardData.scriptable,
+                                cardData.prefabToSpawn,
+                                PlacementType.Upgrade
+                            );
+                            isPreviewActive = true;
+                        }
+                    }
+                    else
+                    {
+                        if (isPreviewActive)
+                        {
+                            PlacementManager.Instance.CancelPreview();
+                            isPreviewActive = false;
+                        }
+                    }
+                }
+                else
+                {
+                    if (isPreviewActive)
+                    {
+                        PlacementManager.Instance.CancelPreview();
+                        isPreviewActive = false;
+                    }
+                }
+                break;
         }
     }
 
-    /// <summary>
-    /// 카드 UI가 TopPanel과 절반 이상 겹쳤는지 계산
-    /// </summary>
     private bool IsOverTopPanelByHalf()
     {
         if (topPanel == null)
             return false;
 
-        // 카드 UI 사각형 (world → screen 좌표)
         Vector3[] cardCorners = new Vector3[4];
         rect.GetWorldCorners(cardCorners);
         Vector2 cardMin = RectTransformUtility.WorldToScreenPoint(null, cardCorners[0]);
         Vector2 cardMax = RectTransformUtility.WorldToScreenPoint(null, cardCorners[2]);
         Rect cardRect = Rect.MinMaxRect(cardMin.x, cardMin.y, cardMax.x, cardMax.y);
 
-        // topPanel 사각형 (world → screen 좌표)
         Vector3[] panelCorners = new Vector3[4];
         topPanel.GetWorldCorners(panelCorners);
         Vector2 panelMin = RectTransformUtility.WorldToScreenPoint(null, panelCorners[0]);
@@ -242,9 +298,6 @@ public class CardDragHandler : MonoBehaviour,
         return interArea >= (cardArea * 0.5f);
     }
 
-    /// <summary>
-    /// 두 Rect의 교집합을 계산하여 반환
-    /// </summary>
     private Rect RectIntersect(Rect a, Rect b)
     {
         float xMin = Mathf.Max(a.xMin, b.xMin);
@@ -258,22 +311,13 @@ public class CardDragHandler : MonoBehaviour,
         return Rect.MinMaxRect(xMin, yMin, xMax, yMax);
     }
 
-    /// <summary>
-    /// “설치 불가” 피드백 (임시로 로그 출력)
-    /// 필요하다면 UI 텍스트나 사운드로 확장 가능
-    /// </summary>
     private void ShowCannotPlaceFeedback()
     {
         Debug.LogWarning("이 위치에는 설치할 수 없습니다!");
     }
 
-    /// <summary>
-    /// 즉시 Preview 취소 후 슬롯 복귀
-    /// </summary>
     private void ReturnImmediately()
     {
-        //Debug.Log($"[카드 복귀] SlotIndex={slotIndex}, CardName={cardData?.cardName}");
-
         if (canvasGroup != null)
             canvasGroup.alpha = 1f;
 
@@ -286,15 +330,12 @@ public class CardDragHandler : MonoBehaviour,
         ReturnToSlot();
     }
 
-    /// <summary>
-    /// 슬롯 복귀 애니메이션: 스케일 복원 → 위치/회전 복원
-    /// </summary>
     private void ReturnToSlot()
     {
         Sequence seq = DOTween.Sequence();
         seq.Append(rect.DOScale(originalScale, returnDuration * 0.5f).SetEase(Ease.InBack));
         seq.Append(rect.DOAnchorPos(originalAnchoredPos, returnDuration * 0.5f).SetEase(Ease.OutCubic));
         seq.Join(rect.DOLocalRotate(new Vector3(0f, 0f, originalZRotation), returnDuration * 0.5f).SetEase(Ease.OutCubic));
-        GetComponent<Button>().interactable = false; // 클릭 허용
+        GetComponent<Button>().interactable = false;
     }
 }

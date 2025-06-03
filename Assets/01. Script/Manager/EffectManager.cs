@@ -1,26 +1,25 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Collections;
-
 
 [System.Serializable]
 public struct EffectEntry
 {
-    public TurretType turretType;
-    public TurretActionType turretActionType;
     public GameObject effectPrefab;
     public int Count;
 }
+
 public class EffectManager : MonoBehaviour
 {
     public static EffectManager Instance;
 
     [SerializeField] private List<EffectEntry> effectEntries;
 
-    private Dictionary<(TurretType, TurretActionType), Queue<GameObject>> effectPools;
-    private Dictionary<(TurretType, TurretActionType), GameObject> prefabDict;
+    private Dictionary<string, Queue<GameObject>> effectPools;
+    private Dictionary<string, GameObject> prefabDict;
 
-    Transform ParticleParnet;
+    Transform particleParent;
+
     private void Awake()
     {
         Instance = this;
@@ -28,106 +27,101 @@ public class EffectManager : MonoBehaviour
         prefabDict = new();
 
         GameObject parent = new GameObject("ParticleParent");
-        ParticleParnet = parent.transform;
+        particleParent = parent.transform;
 
         foreach (var entry in effectEntries)
         {
-            var key = (entry.turretType, entry.turretActionType);
+            string key = entry.effectPrefab.name;
+
             prefabDict[key] = entry.effectPrefab;
             effectPools[key] = new Queue<GameObject>();
 
             for (int i = 0; i < entry.Count; i++)
             {
-                GameObject fx = Instantiate(entry.effectPrefab, ParticleParnet);
+                GameObject fx = Instantiate(entry.effectPrefab, particleParent);
                 fx.SetActive(false);
                 effectPools[key].Enqueue(fx);
             }
         }
     }
 
-    public void PlayEffect(TurretType turret, TurretActionType action, Vector3 position)
+    public void PlayEffect(string effectName, Vector3 position)
     {
-        var key = (turret, action);
-        if (!prefabDict.ContainsKey(key))
+        if (!prefabDict.ContainsKey(effectName))
         {
-            Debug.LogWarning($"이펙트 미등록: {turret}_{action}");
+            Debug.LogWarning($"이펙트 미등록: {effectName}");
             return;
         }
 
         GameObject fx = null;
 
-        if (effectPools[key].Count > 0)
+        if (effectPools[effectName].Count > 0)
         {
-            fx = effectPools[key].Dequeue();
+            fx = effectPools[effectName].Dequeue();
         }
         else
         {
-            fx = Instantiate(prefabDict[key]);
-            fx.transform.SetParent(ParticleParnet);
+            fx = Instantiate(prefabDict[effectName], particleParent);
         }
 
         fx.transform.position = position + Vector3.up * 1.5f;
         fx.SetActive(true);
 
-        // 파티클 플레이
         var ps = fx.GetComponent<ParticleSystem>();
         if (ps != null)
         {
             ps.Play();
-            StartCoroutine(ReturnToPoolAfterSeconds(key, fx, ps.main.duration + ps.main.startLifetime.constant));
+            StartCoroutine(ReturnToPoolAfterSeconds(effectName, fx, ps.main.duration + ps.main.startLifetime.constant));
         }
         else
         {
-            // 그냥 1.5초 후에 꺼버리기
-            StartCoroutine(ReturnToPoolAfterSeconds(key, fx, 1.5f));
+            StartCoroutine(ReturnToPoolAfterSeconds(effectName, fx, 1.5f));
         }
     }
 
-    IEnumerator ReturnToPoolAfterSeconds((TurretType, TurretActionType) key, GameObject fx, float delay)
+    public void PlayEffect(string effectName, Vector3 position, bool isDynamicSize)
     {
-        yield return YieldCache.WaitForSeconds(delay);
-        fx.SetActive(false);
-        if (!effectPools[key].Contains(fx)) effectPools[key].Enqueue(fx);
-    }
-
-    public GameObject GetDynamicEffect(TurretType turret, TurretActionType action)
-    {
-        var key = (turret, action);
-        if (!prefabDict.ContainsKey(key))
+        if (!prefabDict.ContainsKey(effectName))
         {
-            Debug.LogWarning($"이펙트 미등록: {turret}_{action}");
-            return null;
+            Debug.LogWarning($"이펙트 미등록: {effectName}");
+            return;
         }
 
         GameObject fx = null;
 
-        if (effectPools[key].Count > 0)
+        if (effectPools[effectName].Count > 0)
+            fx = effectPools[effectName].Dequeue();
+        else
+            fx = Instantiate(prefabDict[effectName], particleParent);
+
+        fx.transform.position = position + Vector3.up * 1.5f;
+        fx.SetActive(true);
+
+        var ps = fx.GetComponent<ParticleSystem>();
+        if (ps != null)
         {
-            fx = effectPools[key].Dequeue();
+            if (isDynamicSize)
+            {
+                float dynamicSize = transform.localScale.magnitude * 0.5f; // 적당히 조절
+                var main = ps.main;
+                main.startSize = new ParticleSystem.MinMaxCurve(dynamicSize);
+            }
+
+            ps.Play();
+            StartCoroutine(ReturnToPoolAfterSeconds(effectName, fx, ps.main.duration + ps.main.startLifetime.constant));
         }
         else
         {
-            fx = Instantiate(prefabDict[key], ParticleParnet);
+            StartCoroutine(ReturnToPoolAfterSeconds(effectName, fx, 1.5f));
         }
-
-        var ps = fx.GetComponent<ParticleSystem>();
-        if (ps != null) ps.Play(); // 바로 재생은 하되 위치는 사용자가 지정
-
-        fx.SetActive(true);
-        return fx;
     }
-    public void ReturnDynamicEffect(TurretType turret, TurretActionType action, GameObject fx)
+
+    IEnumerator ReturnToPoolAfterSeconds(string effectName, GameObject fx, float delay)
     {
-        var key = (turret, action);
-
-        if (!effectPools.ContainsKey(key))
-        {
-            Debug.LogWarning($"풀 없음: {turret}_{action}");
-            return;
-        }
-
+        yield return YieldCache.WaitForSeconds(delay);
         fx.SetActive(false);
-        effectPools[key].Enqueue(fx);
+        if (!effectPools[effectName].Contains(fx))
+            effectPools[effectName].Enqueue(fx);
     }
-}
 
+}

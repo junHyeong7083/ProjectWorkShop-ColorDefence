@@ -16,7 +16,6 @@ public class UIReferences
     public Text damageText;
     public Text rangeText;
     public Text rateText;
-    public Text upgradeText;
     public Text sellCostText;
     public Text description;
 }
@@ -34,7 +33,6 @@ public class TurretUIBinder : IPlaceableUIBinder
         ui.damageText.text = $"Damage.{turret.GetDamage()}";
         ui.rangeText.text = $"Range.{turret.GetRange()}";
         ui.rateText.text = $"Rate.{turret.GetAttackRate()}";
-        ui.upgradeText.text = $"Upgrade Price.{turret.GetUpgradeCost()}";
         ui.sellCostText.text = $"Sell Price.{turret.GetSellPrice()}";
         ui.description.text = $"Description.{turret.GetDescription()}";
     }
@@ -56,7 +54,6 @@ public class FenceUIBinder : IPlaceableUIBinder
         ui.damageText.text = "";
         ui.rangeText.text = "";
         ui.rateText.text = "";
-        ui.upgradeText.text = "";
         ui.sellCostText.text = $"Sell Price.{fence.GetSellPrice()}";
         ui.description.text = $"Description.{fence.GetDescription()}";
     }

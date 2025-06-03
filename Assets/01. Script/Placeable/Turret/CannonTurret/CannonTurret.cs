@@ -12,6 +12,7 @@ public class CannonTurret : TurretBase
     [SerializeField] private Transform headToRotate;
     [SerializeField] float rotateSpeed = 10f;
 
+    
     private void Awake()
     {
         var rotator = GetComponent<TurretRotationController>(); 

@@ -102,15 +102,16 @@ public class TurretCombatLoop : MonoBehaviour
         if (health == null || health.currentHp <= 0)
             return false;
 
-        float range = turret.GetRange();
-        float rangeSqr = range * range;
+        float maxRangeSqr = turret.GetRange() * turret.GetRange();
+        float minRangeSqr = turret.minRange * turret.minRange;
 
         Vector3 turretPos = transform.position;
         Vector3 enemyPos = enemy.transform.position;
 
         float distSqr = (enemyPos - turretPos).sqrMagnitude;
-        return distSqr <= rangeSqr;
+        return distSqr >= minRangeSqr && distSqr <= maxRangeSqr;
     }
+
 
 
     /// 현재 shooter가 LaserShooter일 경우 강제로 레이저 끄기

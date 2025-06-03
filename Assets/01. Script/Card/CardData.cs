@@ -1,6 +1,18 @@
 // CardData.cs
 using UnityEngine;
 
+public enum CardType
+{
+    TURRET,
+    FENCE,
+    UPGRADE,
+    SELL,
+}
+
+
+
+
+
 [CreateAssetMenu(menuName = "Game/CardData")]
 public class CardData : ScriptableObject
 {
@@ -9,9 +21,10 @@ public class CardData : ScriptableObject
     public Sprite cardIcon;            // 카드 아이콘
     public int cost;                   // 카드 사용 비용
 
-    [Header("카드 효과")]
-    public GameObject prefabToSpawn;   // 소환할 Prefab (터렛이나 울타리 등)
+    [Header("카드 타입")]
+    public CardType cardType;
 
-    [Header("소환에 필요한 Data (TurretData, FenceData 등)")]
-    public ScriptableObject scriptable; // TurretData 또는 FenceData
+    public GameObject prefabToSpawn;
+    public ScriptableObject scriptable;
+
 }

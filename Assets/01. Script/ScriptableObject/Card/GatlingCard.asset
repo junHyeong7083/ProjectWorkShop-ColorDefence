@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GatlingCard
   m_EditorClassIdentifier: 
   cardName: Gatling
-  cardIcon: {fileID: 7681201850867341242, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
+  cardIcon: {fileID: 21300000, guid: daa5e017387146e4caed2060f4871986, type: 3}
   cost: 1
   prefabToSpawn: {fileID: 8570189920556401514, guid: 92e60f4e79b2994448c4c683572bc492, type: 3}
   scriptable: {fileID: 11400000, guid: ea41338f5590440468bc3a2dfcea78f5, type: 2}

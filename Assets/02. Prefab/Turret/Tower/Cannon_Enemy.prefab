@@ -129,6 +129,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5b91cd4be6bdd48815b9290235f8f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  viewRange: 30
+  minRange: 20
   selectBox: {fileID: 3286373476463588236}
   firePoint: {fileID: 8492255283205079813}
   headToRotate: {fileID: 7381993580478446839}

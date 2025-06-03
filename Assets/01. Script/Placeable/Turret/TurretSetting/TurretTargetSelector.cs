@@ -1,6 +1,4 @@
 using UnityEngine;
-using System.Collections.Generic;
-using static UnityEngine.UI.Image;
 
 [RequireComponent(typeof(TurretBase))]
 public class TurretTargetSelector : MonoBehaviour
@@ -35,7 +33,10 @@ public class TurretTargetSelector : MonoBehaviour
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 
-            if (distSqr < bestScore)
+            float minSq = turret.minRange * turret.minRange;
+            Debug.Log($"DistSq : {distSqr} || MinSq : {minSq}");
+
+            if (distSqr < bestScore && distSqr > minSq)
             {
                 bestScore = distSqr;
                 bestTarget = enemy;
@@ -45,31 +46,7 @@ public class TurretTargetSelector : MonoBehaviour
         IsEnemyInRange = bestTarget != null;
         return bestTarget;
     }
-  /*  public GameObject FindClosestEnemy(GameObject exclude)
-    {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject bestTarget = null;
-        float bestScore = float.MaxValue;
-        float rangeSqr = turret.GetRange()* turret.GetRange();
-        Debug.Log($"Current Turret Range : {rangeSqr} ");
-        Vector3 origin = transform.position;
 
-        foreach (var enemy in enemies)
-        {
-            if (!IsValidTargetEnemy(enemy, origin, rangeSqr)) continue;
-
-            float distSqr = (enemy.transform.position - origin).sqrMagnitude;
-            if (distSqr > rangeSqr) continue;
-
-            if (distSqr < bestScore)
-            {
-                bestScore = distSqr;
-                bestTarget = enemy;
-            }
-        }
-
-        return bestTarget;
-    }*/
 
   
 }

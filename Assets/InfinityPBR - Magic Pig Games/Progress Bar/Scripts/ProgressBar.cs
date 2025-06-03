@@ -53,9 +53,10 @@ namespace MagicPigGames
                 Debug.LogError($"Progress value must be between 0 and 1. Value was {progress}. Will clamp.");
                 progress = Mathf.Clamp(progress, 0, 1);
             }
-            
+            // Invert Ã¼Å©¿ë 
             _progress = ValueBasedOnInvert(progress);
             _lastProgress = _progress;
+
             
             // If we don't transition, set the bar directly
             if (transitionTime <= 0f)

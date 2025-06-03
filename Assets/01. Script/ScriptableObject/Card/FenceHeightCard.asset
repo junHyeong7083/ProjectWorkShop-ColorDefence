@@ -15,5 +15,9 @@ MonoBehaviour:
   cardName: "\uC138\uB85C\uBC29\uD5A5 \uC124\uCE58\uAC00\uB2A5\uD55C \uC6B8\uD0C0\uB9AC"
   cardIcon: {fileID: -1659708932042841261, guid: 215687feeab0b7445b4a1cd86c82c2e1, type: 3}
   cost: 0
+  cardType: 1
   prefabToSpawn: {fileID: 1235838559106974458, guid: 9ec4006eb148f9945be507fa1b6462b9, type: 3}
   scriptable: {fileID: 11400000, guid: fa35888667abfeb468b039c6d8d6827d, type: 2}
+  targetTurretType: 0
+  upgradeLevel: 0
+  isSellCard: 0

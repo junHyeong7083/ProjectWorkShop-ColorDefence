@@ -67,8 +67,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             health.TakeDamage(turret.GetDamage());
 
             EffectManager.Instance.PlayEffect(
-                turret.turretData.turretType,
-                TurretActionType.AttackEnemy,
+              "Laser_Enemy_HitFX",
                 enemy.transform.position
             );
 

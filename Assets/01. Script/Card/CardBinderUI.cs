@@ -18,6 +18,51 @@ public class CardBinderUI : MonoBehaviour
     public Text attackRateText;
     public Text attackRangeText;
 
+    
+
+    void ClearUI()
+    {
+        // cardData가 할당되지 않았으면, UI를 모두 초기화(비움)
+        if (iconImage != null) iconImage.enabled = false;
+        if (nameText != null) nameText.text = "";
+        if (costText != null) costText.text = "";
+        if (descriptionText != null) descriptionText.text = "";
+    }
+    void BindTurretCard()
+    {
+        if (cardData.scriptable is TurretData tData)
+        {
+            starText.text = $"Star : {tData.Star}";
+            damageText.text = $"Damage : {tData.baseDamage}";
+            attackRateText.text = $"Rate : {tData.baseAttackRate}";
+            attackRangeText.text = $"Range : {tData.baseAttackRange}";
+            descriptionText.text = $"Description : {tData.description}";
+        }
+    }
+    void BindFenceCard()
+    {
+        if (cardData.scriptable is FenceData fData)
+        {
+            starText.text = "";
+            damageText.text = "";
+            attackRateText.text = "";
+            attackRangeText.text = "";
+            descriptionText.text = $"Description : {fData.description}";
+        }
+    }
+
+
+    void BindUpgradeCard()
+    {
+        starText.text = "";
+        damageText.text = "";
+        attackRateText.text = "";
+        attackRangeText.text = "";
+
+        descriptionText.text = $"Description : 특정 타워를 강화하는 카드입니다.";
+    }
+
+
     /// <summary>
     /// cardData를 기반으로 모든 UI(아이콘, 이름, 비용, 설명)를 업데이트합니다.
     /// </summary>
@@ -25,132 +70,28 @@ public class CardBinderUI : MonoBehaviour
     {
         if (cardData == null)
         {
-            // cardData가 할당되지 않았으면, UI를 모두 초기화(비움)
-            if (iconImage != null) iconImage.enabled = false;
-            if (nameText != null) nameText.text = "";
-            if (costText != null) costText.text = "";
-            if (descriptionText != null) descriptionText.text = "";
+            ClearUI();
             return;
         }
 
-        // 1) 카드 아이콘 세팅
-        if (iconImage != null)
-        {
-            iconImage.sprite = cardData.cardIcon;
-            iconImage.enabled = (cardData.cardIcon != null);
-        }
+        // 공통 처리
+        iconImage.sprite = cardData.cardIcon;
+        iconImage.enabled = (cardData.cardIcon != null);
+        nameText.text = $"Name : {cardData.cardName}";
+        costText.text = $"Cost : {cardData.cost}";
 
-        // 2) 카드 이름 세팅
-        string displayName = cardData.scriptable != null
-            ? cardData.cardName
-            : cardData.cardName;
-
-        if (nameText != null)
-            nameText.text = "Name : " +displayName;
-
-        // 3) 카드 비용(cost) 세팅
-        if (costText != null)
+        // 카드 타입에 따라 처리 분기
+        switch (cardData.cardType)
         {
-            // a) TurretData 타입인지 검사
-            if (cardData.scriptable is TurretData turretData)
-            {
-                costText.text = "Cost : " + turretData.placementCost.ToString();
-            }
-            // b) FenceData 타입인지 검사
-            else if (cardData.scriptable is FenceData fenceData)
-            {
-                costText.text = "Cost : " + fenceData.placementCost.ToString();
-            }
-            // c) 그 외 일반 CardData는 cardData.cost 사용
-            else
-            {
-                costText.text = "Cost : " + cardData.cost.ToString();
-            }
-        }
-
-        // 4) 카드 설명(description) 세팅
-        if (descriptionText != null)
-        {
-            if (cardData.scriptable is TurretData tData)
-            {
-                // TurretData가 public string description; 같은 필드를 넣어 두었다면
-                descriptionText.text = "Descrition : " + tData.description;
-            }
-            else if (cardData.scriptable is FenceData fData)
-            {
-                descriptionText.text = "Descrition : \n" + fData.description;
-            }
-            else
-            {
-                descriptionText.text = "Descrition : " + ""; // 일반 카드라면 설명이 없다면 빈 문자열
-            }
-        }
-
-        if (damageText != null)
-        {
-            if (cardData.scriptable is TurretData tData)
-            {
-                // TurretData가 public string description; 같은 필드를 넣어 두었다면
-                damageText.text = "Damage : " + tData.baseDamage.ToString();
-            }
-            else if (cardData.scriptable is FenceData fData)
-            {
-                damageText.text = "";
-            }
-            else
-            {
-                descriptionText.text = ""; // 일반 카드라면 설명이 없다면 빈 문자열
-            }
-        }
-
-        if (attackRateText != null)
-        {
-            if (cardData.scriptable is TurretData tData)
-            {
-                // TurretData가 public string description; 같은 필드를 넣어 두었다면
-                attackRateText.text = "Rate : " + tData.baseAttackRate.ToString();
-            }
-            else if (cardData.scriptable is FenceData fData)
-            {
-                attackRateText.text = "";
-            }
-            else
-            {
-                attackRateText.text = ""; // 일반 카드라면 설명이 없다면 빈 문자열
-            }
-        }
-
-        if (attackRangeText != null)
-        {
-            if (cardData.scriptable is TurretData tData)
-            {
-                // TurretData가 public string description; 같은 필드를 넣어 두었다면
-                attackRangeText.text = "Range : " + tData.baseAttackRange.ToString();
-            }
-            else if (cardData.scriptable is FenceData fData)
-            {
-                attackRangeText.text = "";
-            }
-            else
-            {
-                attackRangeText.text = ""; // 일반 카드라면 설명이 없다면 빈 문자열
-            }
-        }
-        if (starText != null)
-        {
-            if (cardData.scriptable is TurretData tData)
-            {
-                // TurretData가 public string description; 같은 필드를 넣어 두었다면
-                starText.text = "Star : " + tData.Star.ToString();
-            }
-            else if (cardData.scriptable is FenceData fData)
-            {
-                starText.text = "";
-            }
-            else
-            {
-                starText.text = ""; // 일반 카드라면 설명이 없다면 빈 문자열
-            }
+            case CardType.TURRET:
+                BindTurretCard();
+                break;
+            case CardType.FENCE:
+                BindFenceCard();
+                break;
+            case CardType.UPGRADE:
+                BindUpgradeCard();
+                break;
         }
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.Rendering;
 public class BulletPool : MonoBehaviour
 {
     public static BulletPool Instance { get; private set; }
