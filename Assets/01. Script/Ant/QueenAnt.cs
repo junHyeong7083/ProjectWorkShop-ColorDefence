@@ -1,8 +1,10 @@
 using UnityEngine;
 
-public class QueenAnt : MonoBehaviour, FogRevealFog
+public class QueenAnt : MonoBehaviour, IFogRevealer
 {
-    [SerializeField] float viewRange;
+    public float viewRange => 15f;
+
+    public int FogRevealerIndex { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
     public void RevealFog()
     {
         FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);

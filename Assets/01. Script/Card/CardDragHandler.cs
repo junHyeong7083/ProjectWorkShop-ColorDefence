@@ -162,7 +162,9 @@ public class CardDragHandler : MonoBehaviour,
         else
             PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
 
-        animationController.UseCardAtIndex_Fan(slotIndex);
+        animationController.UseCardAndReposition(slotIndex);
+
+        PlacementManager.Instance.CancelPreview();
     }
 
     private void HandleUpgradeCard(RaycastHit hit)
@@ -178,7 +180,7 @@ public class CardDragHandler : MonoBehaviour,
         turret.Upgrade();
         Debug.Log($"업그레이드 완료: {turret.name} → Lv.{turret.CurrentLevel}");
 
-        animationController.UseCardAtIndex_Fan(slotIndex);
+        animationController.UseCardAndReposition(slotIndex);
     }
 
     private void UpdateOverlapStateAndColor()

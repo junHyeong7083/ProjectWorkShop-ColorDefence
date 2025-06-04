@@ -1,16 +1,17 @@
 using UnityEngine;
 
-public abstract class TurretBase : PlaceableBase, FogRevealFog
+public abstract class TurretBase : PlaceableBase, IFogRevealer
 {
     public TurretData turretData { get; private set; }
 
     [HideInInspector]
     public int CurrentLevel { get; private set; } = 1;
 
-    public float viewRange = 10f;
     public float minRange;
     [HideInInspector]
     public int FogRevealerIndex { get; set; } = -1;
+    public float viewRange => 10f;
+
     [SerializeField] GameObject selectBox;
     public override void SetData(ScriptableObject data)
     {

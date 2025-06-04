@@ -18,9 +18,10 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
 
     private bool isReloading = false;
     public bool IsReloading => isReloading;
-
+    private Animator animator;
     private void Awake()
     {
+        animator = GetComponent<Animator>();
         gatling = GetComponent<GatlingTurret>();
         turret = GetComponent<TurretBase>();
         targetSelector = GetComponent<TurretTargetSelector>();
@@ -41,6 +42,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
     {
         if (isReloading)
         {
+            animator.SetBool("IsAttack", false);
             reloadElapsed += deltaTime;
             fillAmount = reloadElapsed / reloadDuration;
 
@@ -55,6 +57,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
         {
             if (!targetSelector.IsEnemyInRange)
             {
+                animator.SetBool("IsAttack", false);
                 fillAmount += deltaTime / reloadDuration;
                 fillAmount = Mathf.Min(fillAmount, 1f);
             }
@@ -93,6 +96,7 @@ public class GatlingShooter : MonoBehaviour, ITurretShooter
    
     private void ConsumeAmmo()
     {
+        animator.SetBool("IsAttack", true);
         float attackRate = gatling.GetAttackRate(); // Ä³½Ì
         fillAmount -= attackRate / fireDuration;
 

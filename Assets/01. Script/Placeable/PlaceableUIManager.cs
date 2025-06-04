@@ -20,13 +20,13 @@ public class PlaceableUIManager : MonoBehaviour
 
     public void Select(PlaceableBase placeableBase)
     {
-        selectedPlaceable = placeableBase;
+        /*selectedPlaceable = placeableBase;
         ui.selectPanel.SetActive(true);
 
         binder = GetBinder(placeableBase);
         binder?.BindUI(placeableBase);
 
-        PositionPanelNextTo(placeableBase.transform);
+        PositionPanelNextTo(placeableBase.transform);*/
     }
     void PositionPanelNextTo(Transform target)
     {

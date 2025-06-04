@@ -2,9 +2,5 @@ using UnityEngine;
 
 public class TestSceneLoad : MonoBehaviour
 {
-    void Start()
-    {
-        LoadingSceneManager.LoadScene("GameScene");
-    }
-
+    public void StartButton() => LoadingSceneManager.LoadScene("GameScene");
 }

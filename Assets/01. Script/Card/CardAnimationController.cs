@@ -142,7 +142,7 @@ public class CardAnimationController : MonoBehaviour
     }
 
 
-    public void UseCardAtIndex_Fan(int i)
+    public void UseCardAndReposition(int i)
     {
         if (i < 0 || i >= handCards.Count) return;
 

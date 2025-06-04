@@ -5,15 +5,20 @@ using UnityEngine;
 
 public enum FogState { Hidden, Explored, Visible }
 
-public interface FogRevealFog
+
+public interface IFogRevealer
 {
     void RevealFog();
+    Transform transform { get; }
+    float viewRange { get; }
+    int FogRevealerIndex { get; set; }
 }
+
 
 public class FogOfWarSystem : MonoBehaviour
 {
     public static FogOfWarSystem Instance;
-    private readonly List<FogRevealFog> revealers = new();
+    private readonly List<IFogRevealer> revealers = new();
     private float updateInterval = 0.1f;
     private float timer = 0f;
 
@@ -54,16 +59,24 @@ public class FogOfWarSystem : MonoBehaviour
         turret.FogRevealerIndex = csFogWar.Instance.AddFogRevealer(revealer);
     }
 
-    /// <summary>
-    /// 터렛을 판매(제거)할 때 호출.
-    /// TurretBase.FogRevealerIndex를 이용해 csFogWar.Instance.RemoveFogRevealer(index) 호출.
-    /// </summary>
-    public void UnregisterAssetFog(TurretBase turret)
+    public void RegisterAssetFog(IFogRevealer revealer)
     {
-        if (turret.FogRevealerIndex >= 0)
+        int viewRangeUnits = Mathf.RoundToInt(revealer.viewRange / csFogWar.Instance._UnitScale);
+        var fogRevealer = new csFogWar.FogRevealer(
+            revealer.transform,
+            viewRangeUnits,
+            false // 고정형
+        );
+
+        revealer.FogRevealerIndex = csFogWar.Instance.AddFogRevealer(fogRevealer);
+    }
+
+    public void UnregisterAssetFog(IFogRevealer revealer)
+    {
+        if (revealer.FogRevealerIndex >= 0)
         {
-            csFogWar.Instance.RemoveFogRevealer(turret.FogRevealerIndex);
-            turret.FogRevealerIndex = -1;
+            csFogWar.Instance.RemoveFogRevealer(revealer.FogRevealerIndex);
+            revealer.FogRevealerIndex = -1;
         }
     }
 
@@ -77,9 +90,9 @@ public class FogOfWarSystem : MonoBehaviour
             r.RevealFog();
     }
 
-    public IReadOnlyList<FogRevealFog> GetRevealers() => revealers;
-    public void Register(FogRevealFog revealer) => revealers.Add(revealer);
-    public void Unregister(FogRevealFog revealer) => revealers.Remove(revealer);
+    public IReadOnlyList<IFogRevealer> GetRevealers() => revealers;
+    public void Register(IFogRevealer revealer) => revealers.Add(revealer);
+    public void Unregister(IFogRevealer revealer) => revealers.Remove(revealer);
 
     public void RevealAreaGradient(Vector3 worldPos, float radius)
     {

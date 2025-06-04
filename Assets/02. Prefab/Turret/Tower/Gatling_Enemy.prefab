@@ -12,7 +12,7 @@ GameObject:
   m_Layer: 0
   m_Name: Firepos
   m_TagString: Untagged
-  m_Icon: {fileID: 7174288486110832750, guid: 0000000000000000d000000000000000, type: 0}
+  m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -50,6 +50,7 @@ GameObject:
   - component: {fileID: 7868941031402116334}
   - component: {fileID: 6126560610746092628}
   - component: {fileID: 5346794202065257173}
+  - component: {fileID: 9141328793903149350}
   m_Layer: 0
   m_Name: Gatling_Enemy
   m_TagString: AttackAnt
@@ -107,6 +108,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   viewRange: 15
+  minRange: 0
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
@@ -215,6 +217,28 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   type: 1
   color: {r: 0, g: 0.033422947, b: 1, a: 1}
+--- !u!95 &9141328793903149350
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8570189920556401514}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 9f190599ca2b06c45a2853078beb0b94, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &8423034224741092812
 PrefabInstance:
   m_ObjectHideFlags: 0
