@@ -15,9 +15,10 @@ MonoBehaviour:
   actionType: 0
   turretType: 1
   Star: 1
-  baseAttackRange: 15
+  baseAttackRange: 30
   baseAttackRate: 4
   baseDamage: 15
+  minAttackRange: 20
   attackRangeGrowth: 1
   attackRateGrowth: 1
   damageGrowth: 2

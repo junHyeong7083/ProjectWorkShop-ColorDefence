@@ -7,7 +7,6 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
     [HideInInspector]
     public int CurrentLevel { get; private set; } = 1;
 
-    public float minRange;
     [HideInInspector]
     public int FogRevealerIndex { get; set; } = -1;
     public float viewRange => 10f;
@@ -81,6 +80,7 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
         };
     }
 
+    public int GetMinAttackRange() => turretData.minAttackRange;
 
     public int GetUpgradeCost() => 100 + (CurrentLevel * 50);
     public int GetSellPrice() => 50 + (CurrentLevel * 25);
@@ -94,7 +94,7 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, minRange);
+        Gizmos.DrawWireSphere(transform.position, GetMinAttackRange());
     }
 #endif
 }

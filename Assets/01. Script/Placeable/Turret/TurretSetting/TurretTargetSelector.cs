@@ -33,7 +33,7 @@ public class TurretTargetSelector : MonoBehaviour
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 
-            float minSq = turret.minRange * turret.minRange;
+            float minSq = turret.GetMinAttackRange() * turret.GetMinAttackRange();
            // Debug.Log($"DistSq : {distSqr} || MinSq : {minSq}");
 
             if (distSqr < bestScore && distSqr > minSq)

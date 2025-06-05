@@ -103,7 +103,7 @@ public class TurretCombatLoop : MonoBehaviour
             return false;
 
         float maxRangeSqr = turret.GetRange() * turret.GetRange();
-        float minRangeSqr = turret.minRange * turret.minRange;
+        float minRangeSqr = turret.GetMinAttackRange() * turret.GetMinAttackRange();
 
         Vector3 turretPos = transform.position;
         Vector3 enemyPos = enemy.transform.position;

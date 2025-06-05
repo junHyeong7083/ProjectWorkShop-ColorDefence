@@ -26,6 +26,8 @@ public class TurretData : ScriptableObject
     public float baseAttackRange;
     public float baseAttackRate;
     public int baseDamage;
+    public int minAttackRange;
+
 
     public float attackRangeGrowth;
     public float attackRateGrowth;

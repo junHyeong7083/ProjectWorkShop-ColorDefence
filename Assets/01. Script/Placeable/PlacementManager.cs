@@ -24,7 +24,7 @@ public class PlacementManager : MonoBehaviour
     private int lastStartX;
     private int lastStartZ;
     private Vector3 lastPreviewPos;
-    bool isCanPlace = false;
+     bool isCanPlace = false;
     public bool IsCanPlace => isCanPlace;
 
     public bool IsPlacing { get; private set; } = false;

@@ -157,15 +157,24 @@ public class CardDragHandler : MonoBehaviour,
             startZ * tileSize + (height - 1) * 0.5f * tileSize
         );
 
+        //  설치 가능 여부 먼저 체크
+        if (!PlacementManager.Instance.IsCanPlace)
+        {
+            ShowCannotPlaceFeedback();
+            ReturnImmediately();
+            return;
+        }
+
+        // 🛠 설치 실행
         if (cardData.scriptable is TurretData)
             PlacementManager.Instance.PlaceTurret(startX, startZ, worldPos);
         else
             PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
 
         animationController.UseCardAndReposition(slotIndex);
-
         PlacementManager.Instance.CancelPreview();
     }
+
 
     private void HandleUpgradeCard(RaycastHit hit)
     {
