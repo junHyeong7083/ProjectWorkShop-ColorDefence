@@ -44,8 +44,8 @@ public class GatlingBulletEnemy : MonoBehaviour
         // µµÂø ÆÇÁ¤
         if (Vector3.Distance(transform.position, target.position) <= hitThreshold || t >= 1f)
         {
-            var health = target.GetComponent<EnemyHealth>();
-            if (health != null && health.currentHp > 0)
+            var health = target.GetComponent<BaseEnemy>();
+            if (health != null && health.GetCurrentHp() > 0)
                 health.TakeDamage(damage);
 
             onArrive?.Invoke();
@@ -57,6 +57,8 @@ public class GatlingBulletEnemy : MonoBehaviour
             ReturnToPool();
         }
     }
+
+
 
     private void ReturnToPool()
     {

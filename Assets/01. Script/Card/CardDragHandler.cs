@@ -191,7 +191,7 @@ public class CardDragHandler : MonoBehaviour,
 
         animationController.UseCardAndReposition(slotIndex);
 
-        PlacementManager.Instance.CancelPreview(); // 🔥 업그레이드 후 초기화
+        PlacementManager.Instance.CancelPreview(); 
         isPreviewActive = false;
     }
 

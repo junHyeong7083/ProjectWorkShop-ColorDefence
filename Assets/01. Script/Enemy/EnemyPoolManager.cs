@@ -68,10 +68,10 @@ public class EnemyPoolManager : MonoBehaviour
         col.enabled = false;
         col.enabled = true;
 
-        var health = obj.GetComponent<EnemyHealth>();
+        var health = obj.GetComponent<BaseEnemy>();
         var pathfinder = obj.GetComponent<EnemyPathfinder>();
 
-        health?.ResetHp();
+        health?.ResetHP();
         if (pathfinder != null)
         {
             pathfinder.goalGridPosition = goalGridPos;

@@ -16,4 +16,7 @@ MonoBehaviour:
   Height: 3
   MaxHp: 20
   Speed: 4
+  DetectRange: 25
+  AttackDamage: 0
+  AttackCoolTime: 0
   InfectColor: 2

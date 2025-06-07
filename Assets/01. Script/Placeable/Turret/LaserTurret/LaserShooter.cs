@@ -34,8 +34,8 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             return;
         }
 
-        var health = enemy.GetComponent<EnemyHealth>();
-        if (health == null || health.currentHp <= 0)
+        var health = enemy.GetComponent<BaseEnemy>();
+        if (health == null || health.GetCurrentHp() <= 0)
         {
             DisableLaser();
             return;
@@ -74,7 +74,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
             tickElapsed = 0f;
         }
 
-        if (health.currentHp <= 0)
+        if (health.GetCurrentHp() <= 0)
         {
             DisableLaser();   // 
             currentEnemy = null;
@@ -96,8 +96,8 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
     {
         while (currentEnemy != null)
         {
-            var health = currentEnemy.GetComponent<EnemyHealth>();
-            if (health == null || health.currentHp <= 0 || !currentEnemy.activeInHierarchy)
+            var health = currentEnemy.GetComponent<BaseEnemy>();
+            if (health == null || health.GetCurrentHp() <= 0 || !currentEnemy.activeInHierarchy)
             {
                 DisableLaser();
                 yield break;
@@ -117,6 +117,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         float length = magoffset.magnitude;
 
         laserBeamObject.gameObject.SetActive(true);
+        Debug.Log("laserBeamObj : " + laserBeamObject.gameObject);
         laserBeamObject.position = start;
         laserBeamObject.rotation = Quaternion.LookRotation(dir);
         laserBeamObject.localScale = new Vector3(0.3f, 0.3f, length * 0.15f);
@@ -135,41 +136,4 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         }
     }
 
-    GameObject chargingEffectInstance;
-
-    /*  private IEnumerator CooldownRoutine()
-{
-isCoolingDown = true;
-
-// 1. 이펙트 활성화
-chargingEffectInstance = EffectManager.Instance.GetDynamicEffect(
-turret.turretData.turretType,
-TurretActionType.Both
-);
-
-float duration = 3f;
-float chargingTime = 0f;
-
-while (chargingTime < duration)
-{
-// 2. 실시간 위치 업데이트
-if (chargingEffectInstance != null)
-chargingEffectInstance.transform.position = new Vector3( firePoint.position.x, firePoint.position.y, firePoint.position.z + 1f);
-
-chargingTime += Time.deltaTime;
-yield return null;
-}
-
-// 3. 이펙트 반환 및 초기화
-EffectManager.Instance.ReturnDynamicEffect(
-turret.turretData.turretType,
-TurretActionType.Both,
-chargingEffectInstance
-);
-chargingEffectInstance = null;
-
-// elapsed = 0f;
-tickElapsed = 0f;
-isCoolingDown = false;
-}*/
 }

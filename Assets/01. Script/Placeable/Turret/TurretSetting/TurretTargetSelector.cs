@@ -25,11 +25,13 @@ public class TurretTargetSelector : MonoBehaviour
         foreach (var enemy in enemies)
         {
             if (enemy == null) continue;
+            Debug.Log("Enemy!! : " + enemy);
 
-            var health = enemy.GetComponent<EnemyHealth>();
-            if (health == null || health.currentHp <= 0 || !enemy.activeInHierarchy)
+            var health = enemy.GetComponent<BaseEnemy>();
+            Debug.Log("health!! : " + health);
+            if (health == null || health.GetCurrentHp() <= 0 || !enemy.activeInHierarchy)
                 continue;
-
+            Debug.Log("currentHP !! : " + health.GetCurrentHp());
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 
@@ -44,6 +46,7 @@ public class TurretTargetSelector : MonoBehaviour
         }
 
         IsEnemyInRange = bestTarget != null;
+      //  Debug.Log(bestTarget);
         return bestTarget;
     }
 

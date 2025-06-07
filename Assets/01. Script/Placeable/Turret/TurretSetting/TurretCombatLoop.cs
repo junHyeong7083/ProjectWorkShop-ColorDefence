@@ -98,8 +98,8 @@ public class TurretCombatLoop : MonoBehaviour
         if (enemy == null || !enemy.activeInHierarchy)
             return false;
 
-        var health = enemy.GetComponent<EnemyHealth>();
-        if (health == null || health.currentHp <= 0)
+        var health = enemy.GetComponent<BaseEnemy>();
+        if (health == null || health.GetCurrentHp() <= 0)
             return false;
 
         float maxRangeSqr = turret.GetRange() * turret.GetRange();

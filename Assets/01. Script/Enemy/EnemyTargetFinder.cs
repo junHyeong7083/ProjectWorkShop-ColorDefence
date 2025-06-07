@@ -3,7 +3,7 @@ using UnityEngine;
 [DisallowMultipleComponent]
 public class EnemyTargetFinder : MonoBehaviour
 {
-    private Enemy enemy;
+    private BaseEnemy enemy;
 
     [Header("탐지 대상 레이어")]
     [SerializeField] private LayerMask targetLayer;
@@ -12,7 +12,7 @@ public class EnemyTargetFinder : MonoBehaviour
 
     private void Awake()
     {
-        enemy = GetComponent<Enemy>();
+        enemy = GetComponent<BaseEnemy>();
     }
 
 
@@ -45,7 +45,7 @@ public class EnemyTargetFinder : MonoBehaviour
 
     private void OnDrawGizmosSelected()
     {
-        if (enemy == null) enemy = GetComponent<Enemy>();
+        if (enemy == null) enemy = GetComponent<BaseEnemy>();
         if (enemy == null || enemy.Data == null) return;
 
         Gizmos.color = new Color(1f, 0f, 0f, 1f); // 반투명 빨강

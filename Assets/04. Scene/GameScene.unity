@@ -1933,7 +1933,7 @@ MonoBehaviour:
   m_RendererIndex: 0
   m_VolumeLayerMask:
     serializedVersion: 2
-    m_Bits: 183
+    m_Bits: 4279
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
   m_RenderPostProcessing: 1
@@ -4016,7 +4016,7 @@ Transform:
   m_GameObject: {fileID: 608850232}
   serializedVersion: 2
   m_LocalRotation: {x: 0.38268343, y: -0, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 25, y: 28.3, z: -8}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6660,7 +6660,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterNames:
   - Enemy
-  spawnInterval: 0.5
+  spawnInterval: 1
 --- !u!114 &1250951420
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8260,6 +8260,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spawnManager: {fileID: 1250951419}
   strategyInterval: 10
+  scoutTimeout: 5
 --- !u!4 &1499625080
 Transform:
   m_ObjectHideFlags: 0

@@ -6,6 +6,18 @@ public interface IDamageable
     void TakeDamage(int amount);
 }
 
+
+public enum EnemyState
+{
+    MOVE, // 이동
+    ATTACK, // 공격
+    FLEE, // 도주
+    DEAD // 사망
+}
+
+
+
+
 [RequireComponent(typeof(EnemyPathfinder))]
 [RequireComponent(typeof(EnemyTargetFinder))]
 public class BaseEnemy : MonoBehaviour, IDamageable
@@ -16,7 +28,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     protected EnemyTargetFinder targetFinder;
     protected Transform targetTransform;
     protected int currentHp;
-
+    public int GetCurrentHp() => currentHp;
     public event Action<BaseEnemy> OnDie;
 
     [SerializeField] private GameObject hpBarPrefab;
@@ -43,6 +55,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         isHolding = false;
         CurrentState = EnemyState.MOVE;
     }
+
+    public void ResetHP()
+    {
+        currentHp = Data.MaxHp;
+        /*CurrentState = EnemyState.MOVE;
+        targetTransform = null;*/
+    }
+
 
     protected virtual void Awake()
     {

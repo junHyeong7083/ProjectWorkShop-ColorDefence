@@ -93,7 +93,7 @@ public class CannonBulletEnemy : MonoBehaviour
 
         foreach (var col in hits)
         {
-            var hp = col.GetComponent<EnemyHealth>();
+            var hp = col.GetComponent<BaseEnemy>();
             if (hp == null) continue;
 
             Vector3 offset = col.transform.position - center;

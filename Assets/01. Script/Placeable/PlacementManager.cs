@@ -137,17 +137,17 @@ public class PlacementManager : MonoBehaviour
         var currentTile = TileGridManager.Instance.GetTile(startX, startZ);
         if (currentTile != null)
         {
-            Debug.Log($"[Placement] Tile ({startX},{startZ}) ¡æ " +
-                      $"IsBlocked: {currentTile.IsOccupied}, " +
-                      $"HasTurret: {currentTile.TargetingTurret != null}, " +
-                      $"HasFence: {currentTile.OccupyingFence != null}, " +
-                      $"ColorState: {currentTile.ColorState}");
+      //      Debug.Log($"[Placement] Tile ({startX},{startZ}) ¡æ " +
+                    //  $"IsBlocked: {currentTile.IsOccupied}, " +
+                    //  $"HasTurret: {currentTile.TargetingTurret != null}, " +
+                    //  $"HasFence: {currentTile.OccupyingFence != null}, " +
+                    //  $"ColorState: {currentTile.ColorState}");
         }
         else
         {
-            Debug.Log($"[Placement] Tile ({startX},{startZ}) ¡æ NULL");
+          //  Debug.Log($"[Placement] Tile ({startX},{startZ}) ¡æ NULL");
         }
-        Debug.Log("[PathCheck] Start path validation");
+      //  Debug.Log("[PathCheck] Start path validation");
 
        /* foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
         {
@@ -159,7 +159,7 @@ public class PlacementManager : MonoBehaviour
             }
         }*/
 
-        Debug.Log($"[PathCheck] Final result: {(isCanPlace ? "ALLOW" : "BLOCK")}");
+     //   Debug.Log($"[PathCheck] Final result: {(isCanPlace ? "ALLOW" : "BLOCK")}");
 
         foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
             renderer.material = isCanPlace ? previewGreen : previewRed;
