@@ -91,10 +91,10 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
 
 
 #if UNITY_EDITOR
-    private void OnDrawGizmosSelected()
+/*    private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, GetMinAttackRange());
-    }
+    }*/
 #endif
 }

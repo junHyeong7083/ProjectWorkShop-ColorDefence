@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5377272941126160798}
   - component: {fileID: 4366194199317607745}
   - component: {fileID: -5350635854949845681}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cylinder
   m_TagString: FastAnt
   m_Icon: {fileID: 0}

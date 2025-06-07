@@ -15,6 +15,8 @@ public class EnemyHealth : MonoBehaviour
     private GameObject hpBarInstance;
     private HpBarUI hpBarUI;
 
+    public event Action<Enemy> OnDie;
+
     private void Awake()
     {
         enemy = GetComponent<Enemy>();
@@ -26,6 +28,7 @@ public class EnemyHealth : MonoBehaviour
        // Debug.Log(currentHp);
     }
 
+    private void OnEnable() => ResetHp();
     void CreateHpBar()
     {
         if (hpBarPrefab == null) return;
@@ -37,8 +40,13 @@ public class EnemyHealth : MonoBehaviour
 
         UpdateHpBar();
     }
-
-
+    // 몬스터 사망시 EnemyPool로 반환해주는 함수
+    void Death()
+    {
+        OnDie?.Invoke(enemy);
+        EnemyPoolManager.Instance.Return(enemy.name.Replace("(Clone)", "").Trim(), gameObject);
+        Debug.Log("Death!!");
+    }
 
 
     // 데미지 줄어드는 로직
@@ -49,8 +57,6 @@ public class EnemyHealth : MonoBehaviour
         if (currentHp <= 0) Death();
     }
 
-    // 몬스터 사망시 EnemyPool로 반환해주는 함수
-    void Death() => EnemyPoolManager.Instance.Return(enemy.name.Replace("(Clone)", "").Trim(), gameObject);
 
 
 

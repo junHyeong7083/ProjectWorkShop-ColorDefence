@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 1699076614829370199}
   - component: {fileID: 394070592474835506}
   - component: {fileID: 3805387556901419825}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cannon_Enemy
   m_TagString: AttackAnt
   m_Icon: {fileID: 0}
@@ -129,8 +129,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7e5b91cd4be6bdd48815b9290235f8f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewRange: 30
-  minRange: 20
   selectBox: {fileID: 3286373476463588236}
   firePoint: {fileID: 8492255283205079813}
   headToRotate: {fileID: 7381993580478446839}
@@ -179,7 +177,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1025137730267802277}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Cannon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -212,7 +210,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8582700862386046415}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -244,7 +242,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8492255283205079813}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Firepos
   m_TagString: Untagged
   m_Icon: {fileID: 7148428337604731935, guid: 0000000000000000d000000000000000, type: 0}
@@ -277,6 +275,10 @@ PrefabInstance:
     - target: {fileID: 3874196043010353253, guid: 0aa9b66235ea6bb4889a70924f0a53e4, type: 3}
       propertyPath: m_Name
       value: SelectPrefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 3874196043010353253, guid: 0aa9b66235ea6bb4889a70924f0a53e4, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 3874196043010353253, guid: 0aa9b66235ea6bb4889a70924f0a53e4, type: 3}
       propertyPath: m_IsActive
@@ -393,6 +395,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: CannonTower
       objectReference: {fileID: 0}
+    - target: {fileID: 5839377106348506521, guid: 1777e97210c83d742a8e67f3c2c8fe13, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -417,6 +423,10 @@ PrefabInstance:
     - target: {fileID: 5786559230512329471, guid: fe8543f03859dbf4fa7ef192ea93027e, type: 3}
       propertyPath: m_Name
       value: CannonBase
+      objectReference: {fileID: 0}
+    - target: {fileID: 5786559230512329471, guid: fe8543f03859dbf4fa7ef192ea93027e, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6650909654548280872, guid: fe8543f03859dbf4fa7ef192ea93027e, type: 3}
       propertyPath: m_RootOrder

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1983380663276917863}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Firepos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51,7 +51,7 @@ GameObject:
   - component: {fileID: 6126560610746092628}
   - component: {fileID: 5346794202065257173}
   - component: {fileID: 9141328793903149350}
-  m_Layer: 0
+  m_Layer: 12
   m_Name: Gatling_Enemy
   m_TagString: AttackAnt
   m_Icon: {fileID: 0}
@@ -107,8 +107,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: af24a24dcf76ee242896cf26a5736c72, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  viewRange: 15
-  minRange: 0
   selectBox: {fileID: 0}
   firePoint: {fileID: 1983380663276917863}
   headToRotate: {fileID: 2925610957421879921}
@@ -247,9 +245,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8890478538682028612}
     m_Modifications:
+    - target: {fileID: 504265173773706316, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 595325539508656204, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 3226583421603586234, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
       propertyPath: m_Name
       value: Turret_HeavyMachine01_Prefab
+      objectReference: {fileID: 0}
+    - target: {fileID: 3226583421603586234, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 5076717872328464351, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
       propertyPath: m_LocalScale.x
@@ -326,6 +336,14 @@ PrefabInstance:
     - target: {fileID: 6664617895696904125, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6795079548319989463, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_Layer
+      value: 12
+      objectReference: {fileID: 0}
+    - target: {fileID: 7244190358722250494, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}
+      propertyPath: m_Layer
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3336406643087354461, guid: 027d3d2e3059a8a4497ef9f01a9ac5cc, type: 3}

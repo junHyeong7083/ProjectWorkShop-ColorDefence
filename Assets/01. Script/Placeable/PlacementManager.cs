@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
 using FischlWorks_FogWar;
-using static FischlWorks_FogWar.csFogWar;
 
 public enum PlacementType { Turret, Fence, Upgrade }
 
@@ -24,7 +23,7 @@ public class PlacementManager : MonoBehaviour
     private int lastStartX;
     private int lastStartZ;
     private Vector3 lastPreviewPos;
-     bool isCanPlace = false;
+    private bool isCanPlace = false;
     public bool IsCanPlace => isCanPlace;
 
     public bool IsPlacing { get; private set; } = false;
@@ -47,10 +46,14 @@ public class PlacementManager : MonoBehaviour
         currentData = data;
         currentPrefab = prefab;
         placementType = type;
-        IsPlacing = true;
 
         if (type == PlacementType.Upgrade)
+        {
+            // 업그레이드는 설치 시스템과 분리
             return;
+        }
+
+        IsPlacing = true;
 
         previewInstance = Instantiate(prefab);
         previewInstance.GetComponent<Collider>().enabled = false;
@@ -64,11 +67,10 @@ public class PlacementManager : MonoBehaviour
 
     private void Update()
     {
-        if (!IsPlacing) return;
-
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit)) return;
 
+        // 업그레이드 프리뷰 처리
         if (placementType == PlacementType.Upgrade)
         {
             var turret = hit.collider.GetComponent<TurretBase>();
@@ -94,7 +96,7 @@ public class PlacementManager : MonoBehaviour
             return;
         }
 
-        if (previewInstance == null) return;
+        if (!IsPlacing || previewInstance == null) return;
 
         int width = 0, height = 0;
         if (placementType == PlacementType.Turret)
@@ -121,17 +123,43 @@ public class PlacementManager : MonoBehaviour
         Vector3 previewPos = new Vector3(startX * tileSize + offsetX, 0f, startZ * tileSize + offsetZ);
 
         previewInstance.transform.position = previewPos;
-
+        simulatedTiles = new();
+        for (int x = 0; x < width; x++)
+        {
+            for (int z = 0; z < height; z++)
+            {
+                var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
+                if (tile != null)
+                    simulatedTiles.Add(tile);
+            }
+        }
         isCanPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
+        var currentTile = TileGridManager.Instance.GetTile(startX, startZ);
+        if (currentTile != null)
+        {
+            Debug.Log($"[Placement] Tile ({startX},{startZ}) → " +
+                      $"IsBlocked: {currentTile.IsOccupied}, " +
+                      $"HasTurret: {currentTile.TargetingTurret != null}, " +
+                      $"HasFence: {currentTile.OccupyingFence != null}, " +
+                      $"ColorState: {currentTile.ColorState}");
+        }
+        else
+        {
+            Debug.Log($"[Placement] Tile ({startX},{startZ}) → NULL");
+        }
+        Debug.Log("[PathCheck] Start path validation");
 
-        foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
+       /* foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
         {
             if (!enemyPathfinder.WouldHavePathIf(simulatedTiles))
             {
+                Debug.Log($"[PathCheck] Monster {enemyPathfinder.name} → path blocked");
                 isCanPlace = false;
                 break;
             }
-        }
+        }*/
+
+        Debug.Log($"[PathCheck] Final result: {(isCanPlace ? "ALLOW" : "BLOCK")}");
 
         foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
             renderer.material = isCanPlace ? previewGreen : previewRed;
@@ -204,6 +232,8 @@ public class PlacementManager : MonoBehaviour
         IsPlacing = false;
         currentData = null;
         currentPrefab = null;
+        isCanPlace = false;
+        simulatedTiles.Clear();
 
         Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
     }

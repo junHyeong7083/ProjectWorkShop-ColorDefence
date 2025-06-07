@@ -190,6 +190,9 @@ public class CardDragHandler : MonoBehaviour,
         Debug.Log($"업그레이드 완료: {turret.name} → Lv.{turret.CurrentLevel}");
 
         animationController.UseCardAndReposition(slotIndex);
+
+        PlacementManager.Instance.CancelPreview(); // 🔥 업그레이드 후 초기화
+        isPreviewActive = false;
     }
 
     private void UpdateOverlapStateAndColor()

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 [DisallowMultipleComponent]
 public class EnemyPathfinder : MonoBehaviour
 {
-    [SerializeField] private MonsterData data;
     public Vector2Int goalGridPosition = new Vector2Int(0, 0);
 
     private TileData currentTile;
@@ -13,16 +12,13 @@ public class EnemyPathfinder : MonoBehaviour
     private float speed;
 
     public TileData CurrentTile => currentTile;
-    private Enemy enemy;
+    private BaseEnemy baseEnemy;
 
-    private void Awake()
-    {
-        enemy = GetComponent<Enemy>();
-    }
+    private void Awake() => baseEnemy = GetComponent<BaseEnemy>();
 
     private IEnumerator Start()
     {
-        speed = data.Speed;
+        speed = baseEnemy.Data.Speed;
 
         while (!TileGridManager.Instance || !TileGridManager.Instance.IsInitialized)
             yield return null;
@@ -44,11 +40,9 @@ public class EnemyPathfinder : MonoBehaviour
 
         if (currentTile == null)
         {
-           // Debug.LogError($"[Pathfinder] currentTile is NULL! spawnPos = {spawnPos}");
             return;
         }
 
-        //Debug.Log($"[Pathfinder] Init at GridPos: {currentTile.GridPos}");
 
         transform.position = TileGridManager.GetWorldPositionFromGrid(
             currentTile.GridPos.x, currentTile.GridPos.y
@@ -58,12 +52,10 @@ public class EnemyPathfinder : MonoBehaviour
 
         if (distanceMap != null)
         {
-          //  Debug.Log("[Pathfinder] Using DistanceMap");
             RecalculatePathFromMap(distanceMap);
         }
         else
         {
-           // Debug.Log("[Pathfinder] Using APointFindPath");
             RecalculatePath();
         }
 
@@ -81,7 +73,6 @@ public class EnemyPathfinder : MonoBehaviour
         }
 
         var goalTile = TileGridManager.Instance.GetTile(goalGridPosition.x, goalGridPosition.y);
-        //Debug.Log($"goalTile: {goalTile?.GridPos}, IsOccupied: {goalTile?.IsOccupied}");
 
         if (goalTile == null || goalTile.IsOccupied)
             return;
@@ -133,7 +124,11 @@ public class EnemyPathfinder : MonoBehaviour
 
     public bool WouldHavePathIf(List<TileData> occupiedTiles)
     {
-      //  Debug.Log("Fucking sibal");
+        if (occupiedTiles.Contains(currentTile))
+        {
+            Debug.LogWarning("[PATH] currentTile이 시뮬레이션 점유 타일에 포함되어 있음");
+        }
+
         foreach (var tile in occupiedTiles)
             tile.OccupyingFence = new DummyFence(); // 임시 점유
 
@@ -189,8 +184,6 @@ public class EnemyPathfinder : MonoBehaviour
                 currentTile.EnemyPresenceCount++;
                 currentTile.ColorState = TileColorState.Enemy;
             }
-            //  InfectCurrentTile();
-            // enemy?.InfectTile(); // 필요 시
         }
     }
 }

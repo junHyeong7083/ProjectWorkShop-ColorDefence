@@ -1,15 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
-using FischlWorks_FogWar;
 
 public class BalanceEditorUI : MonoBehaviour
 {
-    [BigHeader("SODatas")]
+ //   [BigHeader("SODatas")]
     public TurretData gatlingData;
     public TurretData cannonData;
     public TurretData laserData;
 
-    [BigHeader("Turret Data")]
+  //  [BigHeader("Turret Data")]
     #region
     [Header("Gatling")]
     public InputField gatlingAttackRange_InputFiled;
@@ -68,7 +67,7 @@ public class BalanceEditorUI : MonoBehaviour
     public InputField laserHeight_InputFiled;
     public Button laserHeight_Button;
     #endregion
-    [Header("Gatling Text")]
+//    [Header("Gatling Text")]
     public Text gatlingAttackRange_Text;
     public Text gatlingAttackRate_Text;
     public Text gatlingMinRange_Text;
