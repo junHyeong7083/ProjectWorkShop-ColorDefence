@@ -25,13 +25,13 @@ public class TurretTargetSelector : MonoBehaviour
         foreach (var enemy in enemies)
         {
             if (enemy == null) continue;
-            Debug.Log("Enemy!! : " + enemy);
+            //Debug.Log("Enemy!! : " + enemy);
 
             var health = enemy.GetComponent<BaseEnemy>();
-            Debug.Log("health!! : " + health);
+ //           Debug.Log("health!! : " + health);
             if (health == null || health.GetCurrentHp() <= 0 || !enemy.activeInHierarchy)
                 continue;
-            Debug.Log("currentHP !! : " + health.GetCurrentHp());
+   //         Debug.Log("currentHP !! : " + health.GetCurrentHp());
             float distSqr = (enemy.transform.position - origin).sqrMagnitude;
             if (distSqr > rangeSqr) continue;
 

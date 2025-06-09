@@ -86,37 +86,41 @@ public class FogOfWarSystem : MonoBehaviour
     public void RevealAll()
     {
         UpdateFog();
+      //  Debug.Log("RevealAll 실행됨");
+        // Shadowcaster 내부 FogField 정보 기반으로 TileData.fogState를 업데이트
+        var fogField = csFogWar.Instance.shadowcaster.fogField;
+        var tiles = TileGridManager.Instance.tiles;
+        int w = TileGridManager.Instance.Width;
+        int h = TileGridManager.Instance.Height;
+
+        for (int x = 0; x < w; x++)
+        {
+            for (int z = 0; z < h; z++)
+            {
+                var tile = tiles[x, z];
+                var visibility = fogField[x][z]; // Shadowcaster 내부 데이터
+
+                tile.fogState = visibility switch
+                {
+                    Shadowcaster.LevelColumn.ETileVisibility.Hidden => FogState.Hidden,
+                    Shadowcaster.LevelColumn.ETileVisibility.PreviouslyRevealed => FogState.Explored,
+                    Shadowcaster.LevelColumn.ETileVisibility.Revealed => FogState.Visible,
+                    _ => FogState.Hidden
+                };
+
+
+
+            }
+        }
+
         foreach (var r in revealers)
             r.RevealFog();
     }
 
+
     public IReadOnlyList<IFogRevealer> GetRevealers() => revealers;
     public void Register(IFogRevealer revealer) => revealers.Add(revealer);
     public void Unregister(IFogRevealer revealer) => revealers.Remove(revealer);
-
-    public void RevealAreaGradient(Vector3 worldPos, float radius)
-    {
-        var center = MiniMapRenderer.Instance.WorldToMiniMap(worldPos);
-        float worldW = TileGridManager.Instance.Width * TileGridManager.Instance.cubeSize;
-        float pxPerUnit = MiniMapRenderer.Instance.TextureSize / worldW;
-        int rpx = Mathf.CeilToInt(radius * pxPerUnit);
-        int texSize = MiniMapRenderer.Instance.TextureSize;
-
-        for (int dx = -rpx; dx <= rpx; dx++)
-        {
-            int x = center.x + dx;
-            if (x < 0 || x >= texSize) continue;
-            for (int dy = -rpx; dy <= rpx; dy++)
-            {
-                int y = center.y + dy;
-                if (y < 0 || y >= texSize) continue;
-                float dist = Mathf.Sqrt(dx * dx + dy * dy);
-                if (dist > rpx) continue;
-                float alpha = Mathf.Pow(1 - (dist / rpx), 0.4f);
-                MiniMapRenderer.Instance.MarkVisiblePixel(new Vector2Int(x, y), alpha);
-            }
-        }
-    }
 
     public void UpdateFog()
     {

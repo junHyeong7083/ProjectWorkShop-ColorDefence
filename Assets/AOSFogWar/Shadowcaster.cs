@@ -35,13 +35,17 @@ namespace FischlWorks_FogWar
     /// the FogField class defined within Shadowcaster class holds the information about player sight.
     public class Shadowcaster
     {
-        /// A class that holds visibility data updated based on the FOV.
-        /// 
-        /// This class is only instantiated and managed by a single Shadowcaster object,\n
-        /// and the object only lasts per session, unlike the serialized LevelData of csFogWar.\n
-        /// This class also has the GetColors() method, which returns the actual texture data in a 1D Color array format. 
+        /// 시야(FOV, Field of View)를 기반으로 갱신되는 가시성 데이터를 보관하는 클래스입니다.
+        ///
+        /// 이 클래스는 단 하나의 Shadowcaster 객체에 의해 인스턴스화되고 관리되며,
+        /// csFogWar의 직렬화된 LevelData와는 달리 **한 세션 동안만 존재**합니다.
+        ///
+        /// 또한 이 클래스는 실제 텍스처 데이터를 1차원 Color 배열 형태로 반환하는
+        /// `GetColors()` 메서드도 포함하고 있습니다.
         public class FogField
         {
+            public int Width => levelRow.Count;
+            public int Height => levelRow.Count > 0 ? levelRow[0].Count() : 0;
             public void AddColumn(LevelColumn levelColumn)
             {
                 levelRow.Add(levelColumn);
@@ -116,7 +120,7 @@ namespace FischlWorks_FogWar
                 }
             }
 
-            private List<LevelColumn> levelRow = new List<LevelColumn>();
+            public List<LevelColumn> levelRow = new List<LevelColumn>();
 
             // To be initialized with the dependant initialization function call
             private Color[] colors = null;

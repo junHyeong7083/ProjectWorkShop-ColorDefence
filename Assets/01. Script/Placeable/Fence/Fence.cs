@@ -35,7 +35,7 @@ public class Fence : PlaceableBase, IFogRevealer
     public void RevealFog()
     {
         //  FogOfWarSystem.Instance.RevealArea(this.transform.position, viewRange);
-        FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);
+      //  FogOfWarSystem.Instance.RevealAreaGradient(transform.position, viewRange);
     }
 
     public override void Upgrade()

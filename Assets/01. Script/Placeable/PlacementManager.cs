@@ -187,8 +187,8 @@ public class PlacementManager : MonoBehaviour
             }
         }
 
-        var marker = turret.GetComponent<MiniMapMarker>();
-        if (marker != null) marker.enabled = true;
+        //var marker = turret.GetComponent<MiniMapMarker>();
+        //if (marker != null) marker.enabled = true;
 
         CancelPreview();
     }

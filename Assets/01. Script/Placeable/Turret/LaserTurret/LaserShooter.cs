@@ -117,7 +117,7 @@ public class LaserShooter : MonoBehaviour, ITurretShooter
         float length = magoffset.magnitude;
 
         laserBeamObject.gameObject.SetActive(true);
-        Debug.Log("laserBeamObj : " + laserBeamObject.gameObject);
+     //   Debug.Log("laserBeamObj : " + laserBeamObject.gameObject);
         laserBeamObject.position = start;
         laserBeamObject.rotation = Quaternion.LookRotation(dir);
         laserBeamObject.localScale = new Vector3(0.3f, 0.3f, length * 0.15f);

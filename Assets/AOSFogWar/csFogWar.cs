@@ -321,6 +321,9 @@ namespace FischlWorks_FogWar
 
             // This is needed because we do not update the fog when there's no unit-scale movement of each fogRevealer
             ForceUpdateFog();
+
+            Debug.Log($"[FogWar] fogField size = {shadowcaster.fogField.Width} x {shadowcaster.fogField.Height}");
+Debug.Log($"[TileGridManager] size = {TileGridManager.Instance.Width} x {TileGridManager.Instance.Height}");
         }
 
 
@@ -483,8 +486,9 @@ namespace FischlWorks_FogWar
                     fogRevealer._CurrentLevelCoordinates,
                     Mathf.RoundToInt(fogRevealer._SightRange / unitScale));
             }
+            SyncFogToTiles();
 
-          //  UpdateFogPlaneMaterial();
+            //  UpdateFogPlaneMaterial();
             UpdateFogPlaneTextureTarget();
         }
 
@@ -638,6 +642,56 @@ namespace FischlWorks_FogWar
             scanSpacingPerUnit = levelData.scanSpacingPerUnit;
 
             Debug.LogFormat("Successfully loaded level scan data with the name of \"{0}\"", LevelDataToLoad.name);
+        }
+        public int fogFieldWidth()
+        {
+            return shadowcaster.fogField != null ? shadowcaster.fogField.levelRow.Count : 0;
+        }
+
+
+        public int fogFieldHeight()
+        {
+            return (shadowcaster.fogField != null && shadowcaster.fogField[0] != null)
+                ? shadowcaster.fogField[0].Count()
+                : 0;
+        }
+        public void SyncFogToTiles()
+        {
+          /*  var fogField = shadowcaster.fogField;
+            int width = fogField.Width;
+            int height = fogField.Height;
+
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    var tile = TileGridManager.Instance.GetTile(x, y);
+                    if (tile == null)
+                        continue;
+
+
+                    var visibility = fogField[x][y];  // safe if height is correct
+
+                    switch (visibility)
+                    {
+                        case Shadowcaster.LevelColumn.ETileVisibility.Revealed:
+                            tile.fogState = FogState.Visible;
+                            break;
+
+                        case Shadowcaster.LevelColumn.ETileVisibility.PreviouslyRevealed:
+                            if (tile.fogState != FogState.Visible)
+                                tile.fogState = FogState.Explored;
+                            break;
+
+                        default:
+                            if (tile.fogState != FogState.Visible)
+                                tile.fogState = FogState.Hidden;
+                            break;
+                    }
+
+                  //  Debug.Log($"Tile Visible : {tile.fogState}");
+                }
+            }*/
         }
 
 
@@ -815,70 +869,56 @@ namespace FischlWorks_FogWar
 #if UNITY_EDITOR
         private void OnDrawGizmos()
         {
-            if (Application.isPlaying == false)
-            {
+            if (!Application.isPlaying || !drawGizmos || shadowcaster?.fogField == null)
                 return;
-            }
 
-            if (drawGizmos == false)
+            int width = shadowcaster.fogField.Width;
+            int height = shadowcaster.fogField.Height;
+
+            for (int x = 0; x < width; x++)
             {
-                return;
-            }
-
-            Handles.color = Color.yellow;
-
-            for (int xIterator = 0; xIterator < levelDimensionX; xIterator++)
-            {
-                for (int yIterator = 0; yIterator < levelDimensionY; yIterator++)
+                for (int y = 0; y < height; y++)
                 {
-                    if (levelData[xIterator][yIterator] == LevelColumn.ETileState.Obstacle)
-                    {
-                        if (shadowcaster.fogField[xIterator][yIterator] == Shadowcaster.LevelColumn.ETileVisibility.Revealed)
-                        {
-                            Handles.color = Color.green;
-                        }
-                        else
-                        {
-                            Handles.color = Color.red;
-                        }
+                    var tileState = levelData[x][y];
+                    var vis = shadowcaster.fogField[x][y];
 
-                        Handles.DrawWireCube(
-                            new Vector3(
-                                GetWorldX(xIterator),
-                                levelMidPoint.position.y,
-                                GetWorldY(yIterator)),
-                            new Vector3(
-                                unitScale - scanSpacingPerUnit,
-                                unitScale,
-                                unitScale - scanSpacingPerUnit));
+                    Vector3 pos = new Vector3(GetWorldX(x), levelMidPoint.position.y, GetWorldY(y));
+
+                    // 1. 장애물 타일 → 와이어 박스
+                    if (tileState == LevelColumn.ETileState.Obstacle)
+                    {
+                        Handles.color = (vis == Shadowcaster.LevelColumn.ETileVisibility.Revealed) ? Color.green : Color.red;
+                        Handles.DrawWireCube(pos, new Vector3(
+                            unitScale - scanSpacingPerUnit,
+                            unitScale,
+                            unitScale - scanSpacingPerUnit));
                     }
+
+                    // 2. Empty 타일인데 Revealed → 밝은 초록색
+                    else if (vis == Shadowcaster.LevelColumn.ETileVisibility.Revealed)
+                    {
+                        Gizmos.color = new Color(0.4f, 1f, 0.4f);  // 밝은 초록
+                        Gizmos.DrawCube(pos + Vector3.up * 0.05f, Vector3.one * (unitScale * 0.3f));
+                    }
+
+                    // 3. Empty 타일인데 Previously Revealed → 파란색
+                    else if (vis == Shadowcaster.LevelColumn.ETileVisibility.PreviouslyRevealed)
+                    {
+                        Gizmos.color = Color.cyan;
+                        Gizmos.DrawCube(pos + Vector3.up * 0.05f, Vector3.one * (unitScale * 0.2f));
+                    }
+
+                    // 4. Empty + Hidden → 무시하거나 회색 점
                     else
                     {
-                        Gizmos.color = Color.yellow;
-
-                        Gizmos.DrawSphere(
-                            new Vector3(
-                                GetWorldX(xIterator),
-                                levelMidPoint.position.y,
-                                GetWorldY(yIterator)),
-                            unitScale / 5.0f);
-                    }
-
-                    if (shadowcaster.fogField[xIterator][yIterator] == Shadowcaster.LevelColumn.ETileVisibility.Revealed)
-                    {
-                        Gizmos.color = Color.green;
-
-                        Gizmos.DrawSphere(
-                            new Vector3(
-                                GetWorldX(xIterator),
-                                levelMidPoint.position.y,
-                                GetWorldY(yIterator)),
-                            unitScale / 3.0f);
+                        Gizmos.color = Color.gray;
+                        Gizmos.DrawSphere(pos + Vector3.up * 0.05f, unitScale * 0.05f);
                     }
                 }
             }
         }
 #endif
+
     }
 
 
