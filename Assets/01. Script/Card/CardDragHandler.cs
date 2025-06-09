@@ -181,7 +181,7 @@ public class CardDragHandler : MonoBehaviour,
         var turret = hit.collider.GetComponent<TurretBase>();
         if (turret == null)
         {
-            Debug.LogWarning("업그레이드 실패: 터렛이 아닙니다.");
+          //  Debug.LogWarning("업그레이드 실패: 터렛이 아닙니다.");
             ReturnImmediately();
             return;
         }

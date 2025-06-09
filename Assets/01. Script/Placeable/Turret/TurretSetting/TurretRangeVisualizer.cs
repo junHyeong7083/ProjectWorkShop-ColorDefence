@@ -20,7 +20,7 @@ public class TurretRangeVisualizer : MonoBehaviour
         {
             rangeInstance = Instantiate(rangePrefab);
             rangeInstance.transform.SetParent(transform);
-            rangeInstance.transform.localPosition = Vector3.zero;
+            rangeInstance.transform.localPosition = Vector3.zero + Vector3.up*2f;
             rangeInstance.transform.localRotation = Quaternion.Euler(90, 0, 0);
         }
         Debug.Log("Range : " + range);

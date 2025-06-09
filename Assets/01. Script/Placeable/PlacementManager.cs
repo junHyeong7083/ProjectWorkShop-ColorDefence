@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections.Generic;
 using FischlWorks_FogWar;
 
@@ -12,6 +12,8 @@ public class PlacementManager : MonoBehaviour
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
     [SerializeField] private Material previewUpgrade;
+
+    [SerializeField] Material currentmaterial;
     [SerializeField] private Texture2D cursorTexture;
 
     private Texture2D originCursorTexture;
@@ -26,7 +28,7 @@ public class PlacementManager : MonoBehaviour
     private bool isCanPlace = false;
     public bool IsCanPlace => isCanPlace;
 
-    public bool IsPlacing { get; private set; } = false;
+    public bool IsPlacing { get;  set; } = false;
 
     private List<TileData> simulatedTiles = new();
 
@@ -49,7 +51,7 @@ public class PlacementManager : MonoBehaviour
 
         if (type == PlacementType.Upgrade)
         {
-            // ���׷��̵�� ��ġ �ý��۰� �и�
+            // 업그레이드는 설치 시스템과 분리
             return;
         }
 
@@ -57,6 +59,10 @@ public class PlacementManager : MonoBehaviour
 
         previewInstance = Instantiate(prefab);
         previewInstance.GetComponent<Collider>().enabled = false;
+
+        Transform installParts = previewInstance.transform.Find("InstallParts");
+        if (installParts != null)
+            installParts.gameObject.SetActive(false);
 
         foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
             r.material = previewGreen;
@@ -70,9 +76,12 @@ public class PlacementManager : MonoBehaviour
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit)) return;
 
-        // ���׷��̵� ������ ó��
+        // 업그레이드 프리뷰 처리
         if (placementType == PlacementType.Upgrade)
         {
+           /* if (!IsPlacing)
+                return; // 업그레이드 완료 후에도 마우스 올릴 때 보이는 문제 방지*/
+
             var turret = hit.collider.GetComponent<TurretBase>();
             if (turret != null)
             {
@@ -80,6 +89,7 @@ public class PlacementManager : MonoBehaviour
                 {
                     ClearUpgradePreview();
                     upgradeTarget = turret;
+
                     var renderers = turret.GetComponentsInChildren<Renderer>();
                     originalMaterials = new Material[renderers.Length];
                     for (int i = 0; i < renderers.Length; i++)
@@ -87,6 +97,10 @@ public class PlacementManager : MonoBehaviour
                         originalMaterials[i] = renderers[i].material;
                         renderers[i].material = previewUpgrade;
                     }
+
+                    Transform installParts = turret.transform.Find("InstallParts");
+                    if (installParts != null)
+                        installParts.gameObject.SetActive(false);
                 }
             }
             else
@@ -95,6 +109,7 @@ public class PlacementManager : MonoBehaviour
             }
             return;
         }
+
 
         if (!IsPlacing || previewInstance == null) return;
 
@@ -134,32 +149,22 @@ public class PlacementManager : MonoBehaviour
             }
         }
         isCanPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
-        var currentTile = TileGridManager.Instance.GetTile(startX, startZ);
-        if (currentTile != null)
+        foreach (var tile in simulatedTiles)
         {
-      //      Debug.Log($"[Placement] Tile ({startX},{startZ}) �� " +
-                    //  $"IsBlocked: {currentTile.IsOccupied}, " +
-                    //  $"HasTurret: {currentTile.TargetingTurret != null}, " +
-                    //  $"HasFence: {currentTile.OccupyingFence != null}, " +
-                    //  $"ColorState: {currentTile.ColorState}");
-        }
-        else
-        {
-          //  Debug.Log($"[Placement] Tile ({startX},{startZ}) �� NULL");
-        }
-      //  Debug.Log("[PathCheck] Start path validation");
-
-       /* foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
-        {
-            if (!enemyPathfinder.WouldHavePathIf(simulatedTiles))
+            if (tile == null)
             {
-                Debug.Log($"[PathCheck] Monster {enemyPathfinder.name} �� path blocked");
+                Debug.LogWarning("[설치불가] 타일이 null임");
                 isCanPlace = false;
                 break;
             }
-        }*/
 
-     //   Debug.Log($"[PathCheck] Final result: {(isCanPlace ? "ALLOW" : "BLOCK")}");
+            if (tile.ColorState != TileColorState.Player)
+            {
+                Debug.LogWarning($"[설치불가] 타일 ({tile.GridPos}) = {tile.ColorState}");
+                isCanPlace = false;
+                break;
+            }
+        }
 
         foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
             renderer.material = isCanPlace ? previewGreen : previewRed;
@@ -171,6 +176,11 @@ public class PlacementManager : MonoBehaviour
         if (data == null) return;
 
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
+        Transform installParts = turret.transform.Find("InstallParts");
+        if (installParts != null)
+            installParts.gameObject.SetActive(true);
+
+
         TurretBase turretBase = turret?.GetComponent<TurretBase>();
         turretBase.SetData(data);
 
@@ -247,6 +257,23 @@ public class PlacementManager : MonoBehaviour
             {
                 if (i < originalMaterials.Length)
                     renderers[i].material = originalMaterials[i];
+            }
+
+            Transform installParts = upgradeTarget.transform.Find("InstallParts");
+            if (installParts != null)
+            {
+                installParts.gameObject.SetActive(true);
+
+                if (currentmaterial != null && installParts.childCount > 0)
+                {
+                    var childRenderer = installParts.GetChild(0).GetComponent<Renderer>();
+                    if (childRenderer != null)
+                        childRenderer.material = currentmaterial;
+
+                    Debug.Log($"ChildName : {childRenderer.gameObject.name}");
+
+                    //currentmaterial = null;
+                }
             }
         }
 

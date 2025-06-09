@@ -58,7 +58,7 @@ public class TileGridManager : MonoBehaviour
             }
         }
 
-        TileCounter.Instance.Init(Width * Height);
+   //     TileCounter.Instance.Init(Width * Height);
         IsInitialized = true;
     }
 
@@ -150,4 +150,26 @@ public class TileGridManager : MonoBehaviour
             GetWorldPositionFromGrid(Instance.Width - 1, midZ),
         };
     }
+
+
+#if UNITY_EDITOR
+    void OnDrawGizmos()
+    {
+        if (!Application.isPlaying || tiles == null) return;
+
+        for (int x = 0; x < Width; x++)
+        {
+            for (int z = 0; z < Height; z++)
+            {
+                var tile = tiles[x, z];
+                if (tile.ColorState == TileColorState.Player)
+                {
+                    Gizmos.color = Color.blue;
+                    Gizmos.DrawWireCube(GetWorldPositionFromGrid(x, z) + Vector3.one * 0.5f, Vector3.one);
+                }
+            }
+        }
+    }
+#endif
+
 }
