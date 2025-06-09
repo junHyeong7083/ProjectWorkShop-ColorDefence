@@ -12,6 +12,11 @@ public class CameraSettings : MonoBehaviour
     [Header("MaskQuad를 위한 머티리얼")]
     [SerializeField] private Material maskMaterial;
 
+
+    [Header("기준 오브젝트")]
+    [SerializeField] private Transform queenAnt;
+
+
     private GameObject maskQuad;
     private Vector3 prevMaskCamPos;
     private float prevMaskCamSize;
@@ -172,10 +177,21 @@ public class CameraSettings : MonoBehaviour
 
     private void InitRTSCamera()
     {
+        if (queenAnt == null)
+        {
+            Debug.LogError("CameraSettings: queenant가 할당되지 않았습니다!");
+            return;
+        }
+
         foreach (var cam in cameras)
         {
-            cam.transform.position = new Vector3(60f, 40f, 45f);
-            cam.transform.rotation = Quaternion.Euler(45f, 45f, 0f);
+            // 기준점과 거리/높이 설정
+            Vector3 offset = new Vector3(-30f, 40f, -30f); // ← 상황에 맞게 조정
+            cam.transform.position = queenAnt.position + offset;
+
+            // 항상 여왕개미를 바라보게
+            cam.transform.LookAt(queenAnt.position);
+
             cam.rect = new Rect(0f, 0.3f, 1f, 0.7f);
         }
     }

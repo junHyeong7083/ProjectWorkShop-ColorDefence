@@ -1490,7 +1490,7 @@ MonoBehaviour:
   moveWithEdgeScrolling: 0
   moveWithMouseDrag: 0
   fastSpeed: 0.5
-  normalSpeed: 0.25
+  normalSpeed: 0.1
   movementSensitivity: 0.5
   edgeSize: 50
   cursorArrowUp: {fileID: 2800000, guid: c00747a8befa912458ed7e52e18f1701, type: 3}
@@ -4339,6 +4339,7 @@ MonoBehaviour:
   - {fileID: 1332050282}
   maskCam: {fileID: 1914658021}
   maskMaterial: {fileID: 2100000, guid: c42f6d8c5bb7eaa469df39a4d1a9d471, type: 2}
+  queenAnt: {fileID: 1532891991}
 --- !u!1 &701270970
 GameObject:
   m_ObjectHideFlags: 0
@@ -7059,7 +7060,7 @@ Transform:
   m_GameObject: {fileID: 1291569550}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: -90, y: 0, z: -90}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -8444,7 +8445,7 @@ Transform:
   m_GameObject: {fileID: 1532891987}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 64, y: 1, z: 58.29}
+  m_LocalPosition: {x: 44.2, y: 1, z: 13.9}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children: []
