@@ -81,7 +81,7 @@ public class RTSCameraController : MonoBehaviour
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
                 newPosition += flatRight * movementSpeed;
 
-            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
+            if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && !AntSelectionManager.IsAttackMode)
                 newPosition -= flatRight * movementSpeed;
         }
 

@@ -1,8 +1,22 @@
 using UnityEngine;
 
+
+public enum EnemyAttackType
+{
+    NONE,
+    FAR,
+    NEAR
+}
+
+
+
+
 [CreateAssetMenu(menuName = "Game/MonsterData")]
 public class MonsterData : ScriptableObject
 {
+    public EnemyAttackType enemyAttackType = EnemyAttackType.NONE;
+
+
     public int Width;
     public int Height;
     

@@ -22,6 +22,7 @@ public class TurretData : ScriptableObject
     public TurretType turretType;
 
     public int Star;
+    public float TurretHP;
 
     public float baseAttackRange;
     public float baseAttackRate;

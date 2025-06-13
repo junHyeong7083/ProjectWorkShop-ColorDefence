@@ -1,14 +1,15 @@
-using System.Collections;
+ï»¿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class AntSelectionManager : MonoBehaviour
 {
-    [Header("µå·¡±× ¹Ú½º UI (Canvas)")]
+    public static bool IsAttackMode;
+    [Header("ë“œë˜ê·¸ ë°•ìŠ¤ UI (Canvas)")]
     public RectTransform selectionBox;
 
-    [Header("UI ¿µ¿ª: BottomPanel")]
+    [Header("UI ì˜ì—­: BottomPanel")]
     public RectTransform bottomPanel;
 
     private LineRenderer moveLineRenderer;
@@ -24,7 +25,10 @@ public class AntSelectionManager : MonoBehaviour
 
     private bool isDragging = false;
     private bool readyToDrag = false;
+    [SerializeField] private Texture2D originCursor;
+    [SerializeField] private Texture2D attackCursor;
 
+    private bool isCursorInAttackMode = false; // ì¤‘ë³µ í˜¸ì¶œ ë°©ì§€ìš©
     private void Awake()
     {
         moveLineRenderer = GetComponent<LineRenderer>();
@@ -45,8 +49,6 @@ public class AntSelectionManager : MonoBehaviour
     private void Update()
     {
         if (!readyToDrag) return;
-
-        // ¸¶¿ì½º Down (µå·¡±× ½ÃÀÛ)
         if (Input.GetMouseButtonDown(0) && !IsPointerOverUIElement())
         {
             isDragging = true;
@@ -58,36 +60,108 @@ public class AntSelectionManager : MonoBehaviour
                 dragWorldStartPos = hit.point;
         }
 
-        // µå·¡±× Áß
         if (isDragging && Input.GetMouseButton(0))
         {
             endPos = Input.mousePosition;
             UpdateSelectionBox();
         }
 
-        // ¸¶¿ì½º Up (µå·¡±× Á¾·á)
         if (Input.GetMouseButtonUp(0))
         {
-            selectionBox.gameObject.SetActive(false);
-
-            if (isDragging)
+            if (isCursorInAttackMode)
             {
-                isDragging = false;
+                Cursor.SetCursor(attackCursor, Vector2.zero, CursorMode.Auto);
+                isCursorInAttackMode = false;
+            }
 
-                if (Vector2.Distance(startPos, Input.mousePosition) < clickThreshold)
-                    SelectSingleAnt(Input.mousePosition);
+            selectionBox.gameObject.SetActive(false);
+            isDragging = false;
+
+            if (Vector2.Distance(startPos, Input.mousePosition) < clickThreshold)
+                SelectSingleAnt(Input.mousePosition);
+            else
+                SelectAntsInBox();
+        }
+        if (IsAttackMode && Input.GetMouseButtonDown(0) && !IsPointerOverUIElement())
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Debug.Log($"AttackMode !! ||| MousePos {ray}");
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                GameObject clicked = hit.collider.gameObject;
+                Debug.Log($"Raycast hit: {clicked.name}");
+
+                if (clicked.CompareTag("Enemy"))
+                {
+                    Debug.Log("ì  íƒœê·¸ í™•ì¸ë¨!");
+                    if (!isCursorInAttackMode)
+                    {
+                        Cursor.SetCursor(attackCursor, Vector2.zero, CursorMode.Auto);
+                        isCursorInAttackMode = true;
+                    }
+
+                    {
+                        foreach (var ant in selectedAnts)
+                        {
+                            var movement = ant.GetComponent<AntMovement>();
+                            var bee = ant.GetComponent<BeeController>();
+
+                            if (movement != null && bee != null)
+                            {
+                                movement.OnArrive = () =>
+                                {
+                                    bee.SetAttackTarget(clicked);
+                                };
+                                movement.MoveTo(clicked.transform.position);
+                            }
+                        }
+                    } // ì„ íƒëœ ìœ ë‹› foreach
+                }
                 else
-                    SelectAntsInBox();
+                {
+                    if (isCursorInAttackMode)
+                    {
+                        Cursor.SetCursor(originCursor, Vector2.zero, CursorMode.Auto);
+                        isCursorInAttackMode = false;
+                    }
+                }
+            }
+            else
+            {
+                if (isCursorInAttackMode)
+                {
+                    Cursor.SetCursor(originCursor, Vector2.zero, CursorMode.Auto);
+                    isCursorInAttackMode = false;
+                }
+            }
+            IsAttackMode = false;
+        }
+        else if (Input.GetMouseButtonDown(1) && !IsPointerOverUIElement())
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                Vector3 targetPos = hit.point;
+
+                foreach (var ant in selectedAnts)
+                {
+                    var movement = ant.GetComponent<AntMovement>();
+                    var bee = ant.GetComponent<BeeController>();
+
+                    if (movement != null && bee != null)
+                    {
+                        movement.OnArrive = () =>
+                        {
+                            GameObject nearby = bee.FindClosestEnemyInRange();
+                            if (nearby != null)
+                                bee.SetAttackTarget(nearby);
+                        };
+                        movement.MoveTo(targetPos);
+                    }
+                }
             }
         }
-
-        // ¿ìÅ¬¸¯À¸·Î ÀÌµ¿ ¸í·É
-        if (Input.GetMouseButtonDown(1) && !IsPointerOverUIElement())
-        {
-            IssueMoveCommand();
-        }
     }
-
     void UpdateSelectionBox()
     {
         Vector2 boxStart = startPos;
@@ -225,7 +299,7 @@ public class AntSelectionManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸ğµç UI ¿ä¼Ò À§¿¡ ¸¶¿ì½º°¡ ÀÖ´ÂÁö °Ë»ç
+    /// ëª¨ë“  UI ìš”ì†Œ ìœ„ì— ë§ˆìš°ìŠ¤ê°€ ìˆëŠ”ì§€ ê²€ì‚¬
     /// </summary>
     private bool IsPointerOverUIElement()
     {

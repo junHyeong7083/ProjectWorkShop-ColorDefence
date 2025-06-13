@@ -77,7 +77,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         currentHp = Data.MaxHp;
         CurrentState = EnemyState.MOVE;
         targetTransform = null;
+        attackTimer = 0f; 
     }
+
 
     protected virtual void Update()
     {
@@ -87,11 +89,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void UpdateFSM()
     {
+        if (isHolding) return;
+
         if (targetTransform == null && targetFinder.TryFindTarget(out Transform t))
         {
             targetTransform = t;
             ScoutIntelReport(t);
-            SetPathToTarget(t.position);
+            CurrentState = EnemyState.ATTACK;
+            return;
         }
 
         switch (CurrentState)
@@ -107,9 +112,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable
 
     protected virtual void Move()
     {
-        if (targetTransform == null) return;
+        if (targetTransform != null) return; // 공격 중이면 이동하지 않음
 
-        Vector3 destination = targetTransform.position;
+        // 기존 path 업데이트
+        Vector3 destination = TileGridManager.GetWorldPositionFromGrid(pathFinder.goalGridPosition.x, pathFinder.goalGridPosition.y);
         Vector2Int goalGrid = WorldToGrid(destination);
 
         if (goalGrid != lastGoalGrid)
@@ -119,12 +125,34 @@ public class BaseEnemy : MonoBehaviour, IDamageable
             lastGoalGrid = goalGrid;
         }
     }
-
+    private float attackTimer = 0f;
     protected virtual void Attack()
     {
-        if (targetTransform == null) return;
-        var damageable = targetTransform.GetComponent<IDamageable>();
-        damageable?.TakeDamage((int)Data.AttackDamage);
+        if (targetTransform == null || !targetTransform.gameObject.activeSelf)
+        {
+            targetTransform = null;
+            CurrentState = EnemyState.MOVE;
+            return;
+        }
+
+        float dist = Vector3.Distance(transform.position, targetTransform.position);
+        if (dist > Data.DetectRange)
+        {
+            targetTransform = null;
+            CurrentState = EnemyState.MOVE;
+            return;
+        }
+
+        if (attackTimer <= 0f)
+        {
+            var damageable = targetTransform.GetComponent<IDamageable>();
+            damageable?.TakeDamage((int)Data.AttackDamage);
+            attackTimer = Data.AttackCoolTime;
+        }
+        else
+        {
+            attackTimer -= Time.deltaTime;
+        }
     }
 
     public virtual void TakeDamage(int dmg)

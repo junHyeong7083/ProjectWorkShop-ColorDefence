@@ -7,6 +7,16 @@ public class HpBarUI : MonoBehaviour
     public Image fillImage;
     private Camera mainCam;
 
+
+
+    // 스폰시 현재 체력바 이미지 오류생기는거 방지용
+    void OnEnable()
+    {
+        if (fillImage != null)
+            fillImage.fillAmount = 1f;
+    }
+
+
     void Start()
     {
         mainCam = Camera.main;

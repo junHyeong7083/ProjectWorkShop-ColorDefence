@@ -47,13 +47,13 @@ public class EnemyStrategyController : MonoBehaviour
             // 아직도 아무것도 못봤으면 실패
             if (ScoutIntel.lastSeenUnitCount == 0 && !ScoutIntel.turretSpotted)
             {
-                Debug.Log("[EnemyStrategy] 정찰 실패: 정보 없음");
+             //   Debug.Log("[EnemyStrategy] 정찰 실패: 정보 없음");
                 scoutFailCount++;
                 scoutInProgress = false;
 
                 if (scoutFailCount >= 2)
                 {
-                    Debug.Log("[EnemyStrategy] 정찰 연속 실패 → 강제 RUSH");
+                //    Debug.Log("[EnemyStrategy] 정찰 연속 실패 → 강제 RUSH");
                     ApplyStrategy(EnemyStrategyType.RUSH);
                     scoutFailCount = 0;
                 }
@@ -75,7 +75,7 @@ public class EnemyStrategyController : MonoBehaviour
     {
         lastStrategyChangeTime = Time.time;
         currentStrategy = EvaluateStrategy();
-        Debug.Log($"[EnemyStrategy] 현재 전략 상태: {currentStrategy}");
+       // Debug.Log($"[EnemyStrategy] 현재 전략 상태: {currentStrategy}");
         ApplyStrategy(currentStrategy);
     }
 
@@ -85,7 +85,7 @@ public class EnemyStrategyController : MonoBehaviour
         bool hasSeenUnits = ScoutIntel.lastSeenUnitCount > 0;
         bool hasSeenTurret = ScoutIntel.turretSpotted;
 
-        Debug.Log($"[Intel] 병력 수: {troopCount}, 유닛 탐지: {ScoutIntel.lastSeenUnitCount}, 터렛 발견: {ScoutIntel.turretSpotted}");
+      //  Debug.Log($"[Intel] 병력 수: {troopCount}, 유닛 탐지: {ScoutIntel.lastSeenUnitCount}, 터렛 발견: {ScoutIntel.turretSpotted}");
 
         if (!hasSeenUnits && !hasSeenTurret)
             return EnemyStrategyType.SCOUT;
@@ -115,11 +115,11 @@ public class EnemyStrategyController : MonoBehaviour
 
             case EnemyStrategyType.HOLD:
                 scoutInProgress = false;
-                Debug.Log("[EnemyStrategy] HOLD - 병력 수집 중");
+             //   Debug.Log("[EnemyStrategy] HOLD - 병력 수집 중");
                 break;
         }
 
-        Debug.Log($"[EnemyStrategy] 전략 적용: {strategy}");
+       // Debug.Log($"[EnemyStrategy] 전략 적용: {strategy}");
     }
 
     public void RegisterEnemy(BaseEnemy enemy)
