@@ -260,15 +260,26 @@ public class AntSelectionManager : MonoBehaviour
 
     public void IssueMoveCommand(Vector3 targetPos)
     {
-        if (selectedAnts.Count == 0) return;
+        Debug.Log($"[MoveCommand] 호출됨 → 타겟 위치: {targetPos}");
+
+        if (selectedAnts.Count == 0)
+        {
+            Debug.LogWarning("[MoveCommand] 선택된 개미가 없습니다!");
+            return;
+        }
 
         arrivedCount = 0;
 
         Vector3 centerPos = Vector3.zero;
         foreach (var ant in selectedAnts)
+        {
             centerPos += ant.transform.position;
+            Debug.Log($"[MoveCommand] 포함된 개미: {ant.name}, 위치: {ant.transform.position}");
+        }
         centerPos /= selectedAnts.Count;
+        Debug.Log($"[MoveCommand] 중심 위치: {centerPos}");
 
+        // 라인 렌더러 시각화
         if (moveLineRenderer != null)
         {
             moveLineRenderer.positionCount = 2;
@@ -277,6 +288,7 @@ public class AntSelectionManager : MonoBehaviour
 
             float len = Vector3.Distance(centerPos, targetPos);
             moveLineRenderer.material.SetFloat("_WorldLength", len);
+            Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
         }
 
         float radius = 3f;
@@ -288,17 +300,43 @@ public class AntSelectionManager : MonoBehaviour
             Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
             Vector3 movePos = targetPos + offset;
 
-            var movement = selectedAnts[i].GetComponent<AntMovement>();
+            GameObject ant = selectedAnts[i];
+            var movement = ant.GetComponent<AntMovement>();
             if (movement != null)
             {
+          //      Debug.Log($"[MoveCommand] {ant.name} 이동 명령 → 목표: {movePos}");
+
                 movement.OnArrive = () =>
                 {
                     arrivedCount++;
+            //        Debug.Log($"[MoveCommand] {ant.name} 도착. 현재 도착 수: {arrivedCount}");
+
                     if (arrivedCount >= selectedAnts.Count && moveLineRenderer != null)
+                    {
                         moveLineRenderer.positionCount = 0;
+              //          Debug.Log("[MoveCommand] 모든 유닛 도착 → 라인 렌더러 제거");
+                    }
                 };
 
                 movement.MoveTo(movePos);
+            }
+            else
+            {
+            //    Debug.LogError($"[MoveCommand] {ant.name} 에서 AntMovement 컴포넌트를 찾을 수 없습니다!");
+            }
+        }
+
+        if (selectedAnts.Count > 0)
+        {
+            GameObject leadUnit = selectedAnts[0];
+            if (leadUnit != null)
+            {
+                RTSCameraController.instance.followTransform = leadUnit.transform;
+             //   Debug.Log($"[MoveCommand] 카메라가 {leadUnit.name}을 따라갑니다.");
+            }
+            else
+            {
+             //   Debug.LogWarning("[MoveCommand] 첫 번째 유닛이 null입니다.");
             }
         }
     }

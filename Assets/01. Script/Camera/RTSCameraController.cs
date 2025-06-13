@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using static UnityEngine.GraphicsBuffer;
 
 public class RTSCameraController : MonoBehaviour
 {
@@ -46,16 +47,28 @@ public class RTSCameraController : MonoBehaviour
         newPosition = transform.position;
         movementSpeed = normalSpeed;
     }
-
+    private Vector3 followOffset = new Vector3(-20.83f, 43.93f, -24.87f);
+    [SerializeField] private float followLerpSpeed = 5f;
     private void Update()
     {
+        // 마우스 드래그 시 따라가기 해제
+        if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject())
+        {
+            followTransform = null;
+        }
+
         if (followTransform != null)
         {
-            transform.position = followTransform.position;
+            Vector3 targetPos = followTransform.position + followOffset;
+            targetPos.y = transform.position.y;
+
+            // newPosition도 같이 갱신해줘야 다른 기능(엣지 스크롤 등)이 이상 없어
+            transform.position = Vector3.Lerp(transform.position, targetPos, followLerpSpeed * Time.deltaTime);
+            newPosition = transform.position; // 💡 이거 없으면 끊기는 느낌 남
         }
         else
         {
-            HandleCameraMovement();
+            HandleCameraMovement(); // 수동 입력 처리
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -63,6 +76,7 @@ public class RTSCameraController : MonoBehaviour
             followTransform = null;
         }
     }
+
 
     void HandleCameraMovement()
     {
@@ -129,7 +143,7 @@ public class RTSCameraController : MonoBehaviour
             }
         }
 
-        transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementSensitivity);
+        transform.position = newPosition;
         Cursor.lockState = CursorLockMode.Confined;
     }
     private bool IsMouseOverUIRect(RectTransform rectTransform)
@@ -173,6 +187,14 @@ public class RTSCameraController : MonoBehaviour
             currentCursor = newCursor;
         }
     }
+
+    public void FollowUnit(Transform target)
+    {
+        followTransform = target;
+        newPosition = target.position;
+    }
+
+
     public void TeleportTo(Vector3 worldPos)
     {
         followTransform = null; // 수동 조작으로 전환
