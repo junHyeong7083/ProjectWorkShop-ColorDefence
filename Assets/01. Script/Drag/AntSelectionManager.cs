@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.EventSystems;
 
 public class AntSelectionManager : MonoBehaviour
@@ -279,18 +280,34 @@ public class AntSelectionManager : MonoBehaviour
         centerPos /= selectedAnts.Count;
         Debug.Log($"[MoveCommand] 중심 위치: {centerPos}");
 
-        // 라인 렌더러 시각화
-        if (moveLineRenderer != null)
+        // ✅ 실제 경로 기반 라인 렌더링
+        if (moveLineRenderer != null && selectedAnts.Count > 0)
         {
-            moveLineRenderer.positionCount = 2;
-            moveLineRenderer.SetPosition(0, centerPos);
-            moveLineRenderer.SetPosition(1, targetPos);
+            NavMeshAgent sampleAgent = selectedAnts[0].GetComponent<NavMeshAgent>();
+            if (sampleAgent != null)
+            {
+                NavMeshPath previewPath = new NavMeshPath();
+                if (sampleAgent.CalculatePath(targetPos, previewPath))
+                {
+                    moveLineRenderer.positionCount = previewPath.corners.Length;
+                    moveLineRenderer.SetPositions(previewPath.corners);
 
-            float len = Vector3.Distance(centerPos, targetPos);
-            moveLineRenderer.material.SetFloat("_WorldLength", len);
-            Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
+                    float len = 0f;
+                    for (int i = 1; i < previewPath.corners.Length; i++)
+                        len += Vector3.Distance(previewPath.corners[i - 1], previewPath.corners[i]);
+
+                    moveLineRenderer.material.SetFloat("_WorldLength", len);
+                    Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
+                }
+                else
+                {
+                    Debug.LogWarning("[MoveCommand] 경로 계산 실패");
+                    moveLineRenderer.positionCount = 0;
+                }
+            }
         }
 
+        // 유닛별 도착 처리
         float radius = 3f;
         int count = selectedAnts.Count;
 
@@ -304,42 +321,30 @@ public class AntSelectionManager : MonoBehaviour
             var movement = ant.GetComponent<AntMovement>();
             if (movement != null)
             {
-          //      Debug.Log($"[MoveCommand] {ant.name} 이동 명령 → 목표: {movePos}");
-
                 movement.OnArrive = () =>
                 {
                     arrivedCount++;
-            //        Debug.Log($"[MoveCommand] {ant.name} 도착. 현재 도착 수: {arrivedCount}");
-
                     if (arrivedCount >= selectedAnts.Count && moveLineRenderer != null)
                     {
                         moveLineRenderer.positionCount = 0;
-              //          Debug.Log("[MoveCommand] 모든 유닛 도착 → 라인 렌더러 제거");
                     }
                 };
 
                 movement.MoveTo(movePos);
             }
-            else
-            {
-            //    Debug.LogError($"[MoveCommand] {ant.name} 에서 AntMovement 컴포넌트를 찾을 수 없습니다!");
-            }
         }
 
+        // 카메라 추적
         if (selectedAnts.Count > 0)
         {
             GameObject leadUnit = selectedAnts[0];
             if (leadUnit != null)
             {
                 RTSCameraController.instance.followTransform = leadUnit.transform;
-             //   Debug.Log($"[MoveCommand] 카메라가 {leadUnit.name}을 따라갑니다.");
-            }
-            else
-            {
-             //   Debug.LogWarning("[MoveCommand] 첫 번째 유닛이 null입니다.");
             }
         }
     }
+
 
 
     /// <summary>
