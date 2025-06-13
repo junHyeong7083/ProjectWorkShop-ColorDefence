@@ -173,7 +173,12 @@ public class RTSCameraController : MonoBehaviour
             currentCursor = newCursor;
         }
     }
-
+    public void TeleportTo(Vector3 worldPos)
+    {
+        followTransform = null; // 수동 조작으로 전환
+        transform.position = worldPos;
+        newPosition = worldPos; // ← 여기 중요!!
+    }
     private void HandleMouseDragInput()
     {
         if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject())

@@ -164,10 +164,9 @@ public class AntSelectionManager : MonoBehaviour
                             if (nearby != null)
                                 bee.SetAttackTarget(nearby);
                         };
-                        movement.MoveTo(targetPos);
                     }
                 }
-                IssueMoveCommand();
+                IssueMoveCommand(targetPos);
             }
         }
     }
@@ -259,57 +258,51 @@ public class AntSelectionManager : MonoBehaviour
         }
     }
 
-    void IssueMoveCommand()
+    public void IssueMoveCommand(Vector3 targetPos)
     {
         if (selectedAnts.Count == 0) return;
 
         arrivedCount = 0;
 
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        Vector3 centerPos = Vector3.zero;
+        foreach (var ant in selectedAnts)
+            centerPos += ant.transform.position;
+        centerPos /= selectedAnts.Count;
+
+        if (moveLineRenderer != null)
         {
-            Vector3 targetPos = hit.point;
+            moveLineRenderer.positionCount = 2;
+            moveLineRenderer.SetPosition(0, centerPos);
+            moveLineRenderer.SetPosition(1, targetPos);
 
-            Vector3 centerPos = Vector3.zero;
-            foreach (var ant in selectedAnts)
-                centerPos += ant.transform.position;
-            centerPos /= selectedAnts.Count;
+            float len = Vector3.Distance(centerPos, targetPos);
+            moveLineRenderer.material.SetFloat("_WorldLength", len);
+        }
 
-            if (moveLineRenderer != null)
+        float radius = 3f;
+        int count = selectedAnts.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            float angle = i * Mathf.PI * 2f / count;
+            Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
+            Vector3 movePos = targetPos + offset;
+
+            var movement = selectedAnts[i].GetComponent<AntMovement>();
+            if (movement != null)
             {
-                moveLineRenderer.positionCount = 2;
-                moveLineRenderer.SetPosition(0, centerPos);
-                moveLineRenderer.SetPosition(1, targetPos);
-
-                // shader 동적길이 증가용 머티리얼 값 매핑해주기
-                float len = Vector3.Distance(centerPos, targetPos);
-                moveLineRenderer.material.SetFloat("_WorldLength", len);
-            }
-
-            float radius = 3f;
-            int count = selectedAnts.Count;
-
-            for (int i = 0; i < count; i++)
-            {
-                float angle = i * Mathf.PI * 2f / count;
-                Vector3 offset = new Vector3(Mathf.Cos(angle), 0, Mathf.Sin(angle)) * radius;
-                Vector3 movePos = targetPos + offset;
-
-                var movement = selectedAnts[i].GetComponent<AntMovement>();
-                if (movement != null)
+                movement.OnArrive = () =>
                 {
-                    movement.OnArrive = () =>
-                    {
-                        arrivedCount++;
-                        if (arrivedCount >= selectedAnts.Count && moveLineRenderer != null)
-                            moveLineRenderer.positionCount = 0;
-                    };
+                    arrivedCount++;
+                    if (arrivedCount >= selectedAnts.Count && moveLineRenderer != null)
+                        moveLineRenderer.positionCount = 0;
+                };
 
-                    movement.MoveTo(movePos);
-                }
+                movement.MoveTo(movePos);
             }
         }
     }
+
 
     /// <summary>
     /// 모든 UI 요소 위에 마우스가 있는지 검사
