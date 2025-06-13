@@ -25,9 +25,6 @@ public class SelectableAnt : MonoBehaviour
     public void SetSelected(bool selected)
     {
         IsSelected = selected;
-        AntSelectionManager.IsAttackMode = IsSelected;
-
-
         selectRing.gameObject.SetActive(IsSelected);
 
         if (!IsSelected && attackRangeRing != null)

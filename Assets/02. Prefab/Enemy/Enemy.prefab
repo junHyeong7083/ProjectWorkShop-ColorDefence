@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 3095321747138005669}
   - component: {fileID: 1157637018428568736}
   - component: {fileID: 5328340832646453544}
+  - component: {fileID: 3614131616716309448}
   m_Layer: 7
   m_Name: Enemy
   m_TagString: Enemy
@@ -196,12 +197,34 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 729411713807044554}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7e564e0351960c45a0885ade00cb53a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   goalGridPosition: {x: 0, y: 0}
+--- !u!195 &3614131616716309448
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 729411713807044554}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 20
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 1
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1001 &1161624995732024776
 PrefabInstance:
   m_ObjectHideFlags: 0

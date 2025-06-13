@@ -1,100 +1,75 @@
 using System;
 using UnityEngine;
+using UnityEngine.AI;
+using System.Collections;
 
 public interface IDamageable
 {
     void TakeDamage(int amount);
 }
 
-
 public enum EnemyState
 {
-    MOVE, // 이동
-    ATTACK, // 공격
-    FLEE, // 도주
-    DEAD // 사망
+    MOVE, ATTACK, FLEE, DEAD
 }
 
-
-
-
-[RequireComponent(typeof(EnemyPathfinder))]
+[RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyTargetFinder))]
+
 public class BaseEnemy : MonoBehaviour, IDamageable
 {
     public MonsterData Data;
 
-    protected EnemyPathfinder pathFinder;
-    protected EnemyTargetFinder targetFinder;
-    protected Transform targetTransform;
-    protected int currentHp;
-    public int GetCurrentHp() => currentHp;
-    public event Action<BaseEnemy> OnDie;
+    private NavMeshAgent navMeshAgent;
+    private Vector2Int goalGrid;
+
+    public EnemyState CurrentState { get; private set; } = EnemyState.MOVE;
+
+    private Transform targetTransform;
+    private EnemyTargetFinder targetFinder;
+    private GameObject hpBarInstance;
+    private HpBarUI hpBarUI;
+
+    private int currentHp;
+    private float attackTimer;
+    private bool isHolding;
 
     [SerializeField] private GameObject hpBarPrefab;
     [SerializeField] private float hpBarOffset = 1f;
 
-    private GameObject hpBarInstance;
-    private HpBarUI hpBarUI;
+    public event Action<BaseEnemy> OnDie;
 
-    public EnemyState CurrentState { get; protected set; } = EnemyState.MOVE;
-    private bool isHolding;
-    private Vector2Int lastGoalGrid = new(-1, -1);
-
-    public int GroupId { get; private set; } = -1;
-    public void SetGroupId(int id) => GroupId = id;
-
-    public void Hold()
+    private void Awake()
     {
-        isHolding = true;
-        targetTransform = null;
-    }
-
-    public void Resume()
-    {
-        isHolding = false;
-        CurrentState = EnemyState.MOVE;
-    }
-
-    public void ResetHP()
-    {
-        currentHp = Data.MaxHp;
-        /*CurrentState = EnemyState.MOVE;
-        targetTransform = null;*/
-    }
-
-
-    protected virtual void Awake()
-    {
-        pathFinder = GetComponent<EnemyPathfinder>();
+        navMeshAgent = GetComponent<NavMeshAgent>();
         targetFinder = GetComponent<EnemyTargetFinder>();
         currentHp = Data.MaxHp;
         CreateHpBar();
     }
 
-    protected virtual void OnEnable()
+    private void OnEnable()
     {
         currentHp = Data.MaxHp;
         CurrentState = EnemyState.MOVE;
         targetTransform = null;
-        attackTimer = 0f; 
+        attackTimer = 0f;
     }
 
-
-    protected virtual void Update()
+    private void Update()
     {
         if (isHolding) return;
         UpdateFSM();
     }
-
-    protected virtual void UpdateFSM()
+    public void Resume()
     {
-        if (isHolding) return;
-
+        isHolding = false;
+        CurrentState = EnemyState.MOVE;
+    }
+    private void UpdateFSM()
+    {
         if (targetTransform == null && targetFinder.TryFindTarget(out Transform t))
         {
             targetTransform = t;
-            ScoutIntelReport(t);
             CurrentState = EnemyState.ATTACK;
             return;
         }
@@ -110,23 +85,18 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         }
     }
 
-    protected virtual void Move()
+    private void Move()
     {
-        if (targetTransform != null) return; // 공격 중이면 이동하지 않음
+        if (targetTransform != null) return;
 
-        // 기존 path 업데이트
-        Vector3 destination = TileGridManager.GetWorldPositionFromGrid(pathFinder.goalGridPosition.x, pathFinder.goalGridPosition.y);
-        Vector2Int goalGrid = WorldToGrid(destination);
-
-        if (goalGrid != lastGoalGrid)
+        Vector2Int currentGoal = TileGridManager.GetGridPositionFromWorld(navMeshAgent.destination);
+        if (currentGoal != goalGrid)
         {
-            pathFinder.goalGridPosition = goalGrid;
-            pathFinder.RecalculatePath();
-            lastGoalGrid = goalGrid;
+            SetGoal(goalGrid);
         }
     }
-    private float attackTimer = 0f;
-    protected virtual void Attack()
+
+    private void Attack()
     {
         if (targetTransform == null || !targetTransform.gameObject.activeSelf)
         {
@@ -155,23 +125,53 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         }
     }
 
-    public virtual void TakeDamage(int dmg)
+    public void SetGoal(Vector2Int gridPos)
+    {
+        goalGrid = gridPos;
+        Vector3 worldPos = TileGridManager.GetWorldPositionFromGrid(gridPos.x, gridPos.y);
+
+        if (navMeshAgent.isOnNavMesh)
+            navMeshAgent.SetDestination(worldPos);
+        else
+            StartCoroutine(DelayedSetDestination(worldPos));
+    }
+
+    private IEnumerator DelayedSetDestination(Vector3 pos)
+    {
+        yield return new WaitForSeconds(0.05f);
+        if (navMeshAgent.isOnNavMesh)
+            navMeshAgent.SetDestination(pos);
+    }
+
+    public void TakeDamage(int dmg)
     {
         currentHp -= dmg;
         UpdateHpBar();
-        if (currentHp <= 0) Die();
+        if (currentHp <= 0)
+        {
+            Die();
+        }
     }
 
-    protected virtual void Die()
+    private void Die()
     {
         OnDie?.Invoke(this);
         EnemyPoolManager.Instance.Return(name.Replace("(Clone)", "").Trim(), gameObject);
     }
 
+    public void ResetHP()
+    {
+        currentHp = Data.MaxHp;
+        UpdateHpBar();
+
+    }
+    public int GetCurrentHp()
+    {
+        return currentHp;
+    }
     private void CreateHpBar()
     {
         if (hpBarPrefab == null) return;
-
         hpBarInstance = Instantiate(hpBarPrefab, transform);
         hpBarInstance.transform.localPosition = Vector3.up * hpBarOffset;
         hpBarUI = hpBarInstance.GetComponent<HpBarUI>();
@@ -182,30 +182,5 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (hpBarUI != null)
             hpBarUI.SetFill(Mathf.Clamp01((float)currentHp / Data.MaxHp));
-    }
-
-    private void SetPathToTarget(Vector3 destination)
-    {
-        Vector2Int goalGrid = WorldToGrid(destination);
-        pathFinder.goalGridPosition = goalGrid;
-        pathFinder.RecalculatePath();
-        lastGoalGrid = goalGrid;
-    }
-
-    private Vector2Int WorldToGrid(Vector3 position)
-    {
-        float size = TileGridManager.Instance.cubeSize;
-        return new Vector2Int(
-            Mathf.FloorToInt(position.x / size),
-            Mathf.FloorToInt(position.z / size)
-        );
-    }
-
-    private void ScoutIntelReport(Transform t)
-    {
-        if (t.CompareTag("FastAnt"))
-            ScoutIntel.ReportUnit(t);
-        else if (t.CompareTag("AttackAnt"))
-            ScoutIntel.ReportTurret(t);
     }
 }

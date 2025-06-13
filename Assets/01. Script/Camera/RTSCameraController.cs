@@ -31,6 +31,12 @@ public class RTSCameraController : MonoBehaviour
     public Texture2D cursorArrowLeft;
     public Texture2D cursorArrowRight;
 
+
+    [Header("UI")]
+    [SerializeField] private RectTransform bottomPanel;
+
+
+
     CursorArrow currentCursor = CursorArrow.DEFAULT;
     enum CursorArrow { UP, DOWN, LEFT, RIGHT, DEFAULT }
 
@@ -81,7 +87,7 @@ public class RTSCameraController : MonoBehaviour
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
                 newPosition += flatRight * movementSpeed;
 
-            if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) && !AntSelectionManager.IsAttackMode)
+            if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)))
                 newPosition -= flatRight * movementSpeed;
         }
 
@@ -107,9 +113,11 @@ public class RTSCameraController : MonoBehaviour
             }
             else if (Input.mousePosition.y < edgeSize)
             {
-                newPosition -= flatForward * movementSpeed;
-                ChangeCursor(CursorArrow.DOWN);
-                isCursorSet = true;
+               
+                    newPosition -= flatForward * movementSpeed;
+                    ChangeCursor(CursorArrow.DOWN);
+                   isCursorSet = true;
+                
             }
             else
             {
@@ -123,6 +131,20 @@ public class RTSCameraController : MonoBehaviour
 
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementSensitivity);
         Cursor.lockState = CursorLockMode.Confined;
+    }
+    private bool IsMouseOverUIRect(RectTransform rectTransform)
+    {
+        if (rectTransform == null) return false;
+
+        Vector2 localMousePosition;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            rectTransform,
+            Input.mousePosition,
+            null, // ← UI가 Screen Space - Overlay일 때는 null
+            out localMousePosition
+        );
+
+        return rectTransform.rect.Contains(localMousePosition);
     }
 
     private void ChangeCursor(CursorArrow newCursor)

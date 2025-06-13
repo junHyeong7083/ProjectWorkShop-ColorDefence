@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.AI;
 
 public class AntMovement : MonoBehaviour
@@ -6,7 +6,7 @@ public class AntMovement : MonoBehaviour
     private NavMeshAgent agent;
     [SerializeField] float moveSpeed = 7f;
 
-    public System.Action OnArrive;  // µµÂø ½Ã È£ÃâÇÒ Äİ¹é
+    public System.Action OnArrive;  // ë„ì°© ì‹œ í˜¸ì¶œí•  ì½œë°±
     private void Awake()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -18,13 +18,29 @@ public class AntMovement : MonoBehaviour
             if (OnArrive != null)
             {
                 OnArrive.Invoke();
-                OnArrive = null; // ÇÑ ¹ø¸¸ È£ÃâµÇµµ·Ï
+                OnArrive = null; // í•œ ë²ˆë§Œ í˜¸ì¶œë˜ë„ë¡
             }
         }
     }
     public void MoveTo(Vector3 position)
     {
-        agent.speed = moveSpeed;
-        agent.SetDestination(position);
+        if (agent == null)
+        {
+           // Debug.LogError($"[âŒ AntMovement] {name} NavMeshAgent ì—†ìŒ");
+            return;
+        }
+
+        if (!agent.isOnNavMesh)
+        {
+            return;
+        }
+
+        if (NavMesh.SamplePosition(position, out var hit, 5f, NavMesh.AllAreas))
+        {
+            agent.speed = moveSpeed;
+            bool success = agent.SetDestination(hit.position);
+           
+        }
     }
+
 }

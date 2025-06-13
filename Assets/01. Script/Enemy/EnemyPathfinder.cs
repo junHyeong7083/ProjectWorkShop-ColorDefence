@@ -29,13 +29,13 @@ public class EnemyPathfinder : MonoBehaviour
         );
     }
 
-    public void InitializePathfinder(Vector3 spawnPos, Dictionary<TileData, int> distanceMap = null)
+    public void InitializePathfinder(Transform spawnPos, Dictionary<TileData, int> distanceMap = null)
     {
-        transform.position = spawnPos;
+        transform.position = spawnPos.position;
 
         currentTile = TileGridManager.Instance.GetTile(
-            Mathf.FloorToInt(spawnPos.x / TileGridManager.Instance.cubeSize),
-            Mathf.FloorToInt(spawnPos.z / TileGridManager.Instance.cubeSize)
+            Mathf.FloorToInt(spawnPos.position.x / TileGridManager.Instance.cubeSize),
+            Mathf.FloorToInt(spawnPos.position.z / TileGridManager.Instance.cubeSize)
         );
 
         if (currentTile == null)

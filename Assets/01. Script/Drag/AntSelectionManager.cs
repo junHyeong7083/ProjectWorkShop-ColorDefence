@@ -5,7 +5,10 @@ using UnityEngine.EventSystems;
 
 public class AntSelectionManager : MonoBehaviour
 {
-    public static bool IsAttackMode;
+    public static AntSelectionManager Instance; 
+
+
+     bool IsAttackMode;
     [Header("드래그 박스 UI (Canvas)")]
     public RectTransform selectionBox;
 
@@ -27,11 +30,16 @@ public class AntSelectionManager : MonoBehaviour
     private bool readyToDrag = false;
     [SerializeField] private Texture2D originCursor;
     [SerializeField] private Texture2D attackCursor;
-
+    public List<GameObject> SelectedAnts => selectedAnts;
     private bool isCursorInAttackMode = false; // 중복 호출 방지용
     private void Awake()
     {
-        moveLineRenderer = GetComponent<LineRenderer>();
+        if (Instance == null) Instance = this;
+        else 
+            Destroy(Instance);
+
+
+            moveLineRenderer = GetComponent<LineRenderer>();
         selectionBox.gameObject.SetActive(false);
     }
 
@@ -159,6 +167,7 @@ public class AntSelectionManager : MonoBehaviour
                         movement.MoveTo(targetPos);
                     }
                 }
+                IssueMoveCommand();
             }
         }
     }
@@ -271,6 +280,10 @@ public class AntSelectionManager : MonoBehaviour
                 moveLineRenderer.positionCount = 2;
                 moveLineRenderer.SetPosition(0, centerPos);
                 moveLineRenderer.SetPosition(1, targetPos);
+
+                // shader 동적길이 증가용 머티리얼 값 매핑해주기
+                float len = Vector3.Distance(centerPos, targetPos);
+                moveLineRenderer.material.SetFloat("_WorldLength", len);
             }
 
             float radius = 3f;

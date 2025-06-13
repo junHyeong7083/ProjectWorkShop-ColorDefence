@@ -3,35 +3,40 @@ using UnityEngine;
 public class MinimapAutoSetup : MonoBehaviour
 {
     [SerializeField] private Camera minimapCam;
-    [SerializeField] private Terrain terrain;
-
-    [SerializeField] private float heightOffset = 50f; // 위에서 바라보는 높이
-
+    [SerializeField] private Transform mapRoot;  // Plane 오브젝트
+    [SerializeField] private float heightOffset = 50f;
 
     private void Start()
     {
-        if (minimapCam == null || terrain == null)
-        {
-            Debug.LogError("MinimapCamera 또는 Terrain이 비어 있습니다.");
+        if (minimapCam == null || mapRoot == null)
             return;
-        }
 
-        Bounds terrainBounds = terrain.terrainData.bounds;
-        Vector3 terrainSize = terrain.terrainData.size;
+        Bounds bounds = CalculateTotalBounds(mapRoot);
+        Vector3 center = bounds.center;
+        Vector3 size = bounds.size;
 
-        // Terrain 중심 계산
-        Vector3 center = terrain.transform.position + new Vector3(terrainSize.x / 2f, 0f, terrainSize.z / 2f);
-
-        // 카메라 위치 = Terrain 중심 위쪽
-        minimapCam.transform.position = center + Vector3.up * heightOffset;
+        minimapCam.transform.position = new Vector3(center.x, center.y + heightOffset, center.z);
         minimapCam.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
-
-        // 정사영 크기 설정 (세로 방향 기준)
         minimapCam.orthographic = true;
-        minimapCam.orthographicSize = terrainSize.z / 2f;
+        minimapCam.orthographicSize = size.z / 2f;
 
-        // (선택) 클리어 컬러 설정
         minimapCam.clearFlags = CameraClearFlags.SolidColor;
         minimapCam.backgroundColor = Color.black;
+    }
+
+    private Bounds CalculateTotalBounds(Transform root)
+    {
+        Renderer[] renderers = root.GetComponentsInChildren<Renderer>();
+
+        if (renderers.Length == 0)
+            return new Bounds(root.position, Vector3.zero);
+
+        Bounds totalBounds = renderers[0].bounds;
+        for (int i = 1; i < renderers.Length; i++)
+        {
+            totalBounds.Encapsulate(renderers[i].bounds);
+        }
+
+        return totalBounds;
     }
 }

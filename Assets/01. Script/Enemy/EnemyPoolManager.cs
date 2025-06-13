@@ -1,36 +1,34 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-
-
-
-
-
 public class EnemyPoolManager : MonoBehaviour
 {
     public static EnemyPoolManager Instance { get; private set; }
 
-    [SerializeField] GameObject[] enemyPrefabs;
-    [SerializeField] int poolSizePerType = 10;
+    [SerializeField] private GameObject[] enemyPrefabs;
+    [SerializeField] private int poolSizePerType = 10;
 
     private Dictionary<string, Queue<GameObject>> poolDict = new();
     private Dictionary<string, Transform> containerDict = new();
-
     private Transform rootContainer;
 
     void Awake()
     {
         if (Instance == null) Instance = this;
-        else Destroy(gameObject);
+        else
+        {
+            Destroy(gameObject);
+            return;
+        }
 
-        rootContainer = new GameObject("Enemy").transform;
+        rootContainer = new GameObject("EnemyPoolRoot").transform;
 
         foreach (var prefab in enemyPrefabs)
         {
             string key = prefab.name;
             poolDict[key] = new Queue<GameObject>();
 
-            GameObject containerGO = new GameObject(key);
+            GameObject containerGO = new GameObject($"{key}_Container");
             containerGO.transform.SetParent(rootContainer);
             containerDict[key] = containerGO.transform;
 
@@ -43,10 +41,13 @@ public class EnemyPoolManager : MonoBehaviour
         }
     }
 
-    public GameObject Get(string prefabName, Vector3 spawnPos, Vector2Int goalGridPos, Dictionary<TileData, int> distanceMap = null)
+    public GameObject Get(string prefabName, Transform spawnPos, Vector2Int goalGridPos)
     {
         if (!poolDict.ContainsKey(prefabName))
+        {
+            Debug.LogError($"[EnemyPoolManager] {prefabName} 프리팹이 풀에 없습니다.");
             return null;
+        }
 
         var pool = poolDict[prefabName];
         var container = containerDict[prefabName];
@@ -63,19 +64,21 @@ public class EnemyPoolManager : MonoBehaviour
             obj = Instantiate(prefab, container);
         }
 
+        obj.transform.position = spawnPos.position;
         obj.SetActive(true);
+
         var col = obj.GetComponent<Collider>();
-        col.enabled = false;
-        col.enabled = true;
-
-        var health = obj.GetComponent<BaseEnemy>();
-        var pathfinder = obj.GetComponent<EnemyPathfinder>();
-
-        health?.ResetHP();
-        if (pathfinder != null)
+        if (col != null)
         {
-            pathfinder.goalGridPosition = goalGridPos;
-            pathfinder.InitializePathfinder(spawnPos, distanceMap);
+            col.enabled = false;
+            col.enabled = true;
+        }
+
+        var enemy = obj.GetComponent<BaseEnemy>();
+        if (enemy != null)
+        {
+            enemy.ResetHP();
+            enemy.SetGoal(goalGridPos);
         }
 
         return obj;
@@ -84,7 +87,15 @@ public class EnemyPoolManager : MonoBehaviour
     public void Return(string prefabName, GameObject obj)
     {
         obj.SetActive(false);
-        poolDict[prefabName].Enqueue(obj);
+        if (poolDict.ContainsKey(prefabName))
+        {
+            poolDict[prefabName].Enqueue(obj);
+        }
+        else
+        {
+            Debug.LogWarning($"[EnemyPoolManager] {prefabName} 프리팹 이름이 풀에 없습니다. 즉시 삭제함.");
+            Destroy(obj);
+        }
     }
 
     private GameObject GetPrefabByName(string name)
@@ -94,6 +105,8 @@ public class EnemyPoolManager : MonoBehaviour
             if (prefab.name == name)
                 return prefab;
         }
+
+        Debug.LogError($"[EnemyPoolManager] {name} 프리팹을 찾을 수 없습니다.");
         return null;
     }
 }

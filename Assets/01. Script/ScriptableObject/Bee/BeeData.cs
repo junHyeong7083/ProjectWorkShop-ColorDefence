@@ -7,6 +7,7 @@ public class BeeData : ScriptableObject
     public float moveSpeed;
     public int attackPower;
     public float attackCooltime;
+
     public float attackRange;
 }
 

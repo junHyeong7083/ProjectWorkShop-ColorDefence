@@ -60,7 +60,11 @@ public class CannonBulletEnemy : MonoBehaviour
 
         // 궤도 따라 회전
         Vector3 next = GetQuadraticBezierPoint(startPoint, controlPoint, endPoint, Mathf.Min(1f, t + 0.01f));
-        transform.rotation = Quaternion.LookRotation(next - pos);
+        Vector3 dir = next - pos;
+        if (dir.sqrMagnitude > 0.0001f)
+        {
+            transform.rotation = Quaternion.LookRotation(dir);
+        }
 
         if (t >= 1f)
         {
