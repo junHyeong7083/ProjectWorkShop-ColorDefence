@@ -261,7 +261,7 @@ public class AntSelectionManager : MonoBehaviour
 
     public void IssueMoveCommand(Vector3 targetPos)
     {
-        Debug.Log($"[MoveCommand] 호출됨 → 타겟 위치: {targetPos}");
+       // Debug.Log($"[MoveCommand] 호출됨 → 타겟 위치: {targetPos}");
 
         if (selectedAnts.Count == 0)
         {
@@ -275,10 +275,10 @@ public class AntSelectionManager : MonoBehaviour
         foreach (var ant in selectedAnts)
         {
             centerPos += ant.transform.position;
-            Debug.Log($"[MoveCommand] 포함된 개미: {ant.name}, 위치: {ant.transform.position}");
+          //  Debug.Log($"[MoveCommand] 포함된 개미: {ant.name}, 위치: {ant.transform.position}");
         }
         centerPos /= selectedAnts.Count;
-        Debug.Log($"[MoveCommand] 중심 위치: {centerPos}");
+       // Debug.Log($"[MoveCommand] 중심 위치: {centerPos}");
 
         // ✅ 실제 경로 기반 라인 렌더링
         if (moveLineRenderer != null && selectedAnts.Count > 0)
@@ -297,11 +297,11 @@ public class AntSelectionManager : MonoBehaviour
                         len += Vector3.Distance(previewPath.corners[i - 1], previewPath.corners[i]);
 
                     moveLineRenderer.material.SetFloat("_WorldLength", len);
-                    Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
+                  //  Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
                 }
                 else
                 {
-                    Debug.LogWarning("[MoveCommand] 경로 계산 실패");
+                 //   Debug.LogWarning("[MoveCommand] 경로 계산 실패");
                     moveLineRenderer.positionCount = 0;
                 }
             }

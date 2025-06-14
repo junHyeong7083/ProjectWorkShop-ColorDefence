@@ -12,11 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ccc6ea3567e44459d53b0ef4b8fd15, type: 3}
   m_Name: BasicMonster
   m_EditorClassIdentifier: 
+  enemyAttackType: 0
   Width: 3
   Height: 3
   MaxHp: 20
   Speed: 4
   DetectRange: 25
+  AttackRange: 10
   AttackDamage: 0
   AttackCoolTime: 0
   InfectColor: 2

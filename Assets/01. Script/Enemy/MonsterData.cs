@@ -23,6 +23,7 @@ public class MonsterData : ScriptableObject
     public int MaxHp;
     public float Speed;
     public float DetectRange;
+    public float AttackRange;
     public float AttackDamage;
     public float AttackCoolTime;
     public TileColorState InfectColor = TileColorState.Enemy;

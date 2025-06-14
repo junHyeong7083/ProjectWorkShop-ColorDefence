@@ -25,7 +25,7 @@ RenderSettings:
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
   m_AmbientIntensity: 1
   m_AmbientMode: 0
-  m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
+  m_SubtractiveShadowColor: {r: 0.41960785, g: 0.47843137, b: 0.627451, a: 1}
   m_SkyboxMaterial: {fileID: 10304, guid: 0000000000000000f000000000000000, type: 0}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionBounces: 1
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
-  m_Sun: {fileID: 0}
+  m_Sun: {fileID: 410087040}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -7729,6 +7729,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Bee Hive
       objectReference: {fileID: 0}
+    - target: {fileID: 4689431251429289860, guid: e8782286bc7a8b24b8b6c97032e492c1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5359253097715512638, guid: e8782286bc7a8b24b8b6c97032e492c1, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.47
@@ -13502,7 +13506,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   monsterNames:
-  - Enemy
+  - Enemy1
   spawnInterval: 1
   spawnPositions:
   - {fileID: 2146933988}
@@ -13522,7 +13526,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefabs:
-  - {fileID: 729411713807044554, guid: 36ad74986ac7e2e4ba49548ca28bb0a6, type: 3}
+  - {fileID: 4941445892832155925, guid: 64147fa1a1c013045aff8dfa1066d31d, type: 3}
   poolSizePerType: 15
 --- !u!1 &1252148433
 GameObject:
@@ -17034,7 +17038,7 @@ Transform:
   m_GameObject: {fileID: 1532891987}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 44.2, y: 3.93, z: 13.9}
+  m_LocalPosition: {x: 44.2, y: 0, z: 13.9}
   m_LocalScale: {x: 5, y: 5, z: 5}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -22661,7 +22665,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3489577673271272309, guid: 59294755f63fd4f44a084d134472eff2, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3489577673271272309, guid: 59294755f63fd4f44a084d134472eff2, type: 3}
       propertyPath: m_LocalPosition.z
@@ -55060,6 +55064,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Map
       objectReference: {fileID: 0}
+    - target: {fileID: 6475664774979231390, guid: fc3928b2145182a40879d82a82dc926e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6476434152348675546, guid: fc3928b2145182a40879d82a82dc926e, type: 3}
       propertyPath: m_Layer
       value: 11
@@ -57435,6 +57443,10 @@ PrefabInstance:
     - target: {fileID: 6999749138848588313, guid: fc3928b2145182a40879d82a82dc926e, type: 3}
       propertyPath: m_Layer
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 6999784646665290591, guid: fc3928b2145182a40879d82a82dc926e, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7001264248383691275, guid: fc3928b2145182a40879d82a82dc926e, type: 3}
       propertyPath: m_Layer
@@ -71654,6 +71666,10 @@ PrefabInstance:
     - target: {fileID: 5013653581933712061, guid: 5c36368f3e7495a44952dbfaa0138658, type: 3}
       propertyPath: m_Name
       value: RangeMinimap
+      objectReference: {fileID: 0}
+    - target: {fileID: 5013653581933712061, guid: 5c36368f3e7495a44952dbfaa0138658, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6571047687902898589, guid: 5c36368f3e7495a44952dbfaa0138658, type: 3}
       propertyPath: m_LocalPosition.x

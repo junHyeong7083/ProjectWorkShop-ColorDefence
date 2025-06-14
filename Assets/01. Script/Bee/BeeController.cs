@@ -1,6 +1,7 @@
+using System.Collections;
 using UnityEngine;
 
-public class BeeController : MonoBehaviour
+public class BeeController : MonoBehaviour,IDamageable
 {
     public BeeData beeData;
     private int currentHp;
@@ -105,10 +106,22 @@ public class BeeController : MonoBehaviour
 
         if (currentHp <= 0)
         {
-            animator.SetTrigger("IsDie");
-            animator.SetBool("IsAttack", false);
+            animator.SetBool("IsDie",true);
+            animator.SetTrigger("IsAttack");
         }
     }
+
+    IEnumerator Die()
+    {
+        float time = Time.time;
+        while(Time.time- time < 0.5f)
+        {
+
+            yield return null;
+        }
+
+    }
+
 
     private void Attack()
     {

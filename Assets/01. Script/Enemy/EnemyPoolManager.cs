@@ -80,8 +80,9 @@ public class EnemyPoolManager : MonoBehaviour
             enemy.ResetHP();
             enemy.SetGoal(goalGridPos);
         }
-
+        Debug.Log($"[Get] 최종 위치: {obj.transform.position}");
         return obj;
+
     }
 
     public void Return(string prefabName, GameObject obj)

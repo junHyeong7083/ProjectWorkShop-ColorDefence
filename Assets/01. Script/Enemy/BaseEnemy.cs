@@ -29,14 +29,18 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     private EnemyTargetFinder targetFinder;
     private GameObject hpBarInstance;
     private HpBarUI hpBarUI;
+    private Animator animator;
 
     private int currentHp;
     private float attackTimer;
     private bool isHolding;
 
+    private Transform overrideTarget;  // À¯´Ö °¨ÁöµÇ¸é ÀúÀå
+    private bool HasOverrideTarget => overrideTarget != null;
+
+    [SerializeField] private GameObject modelPrefab;
     [SerializeField] private GameObject hpBarPrefab;
     [SerializeField] private float hpBarOffset = 1f;
-
     public event Action<BaseEnemy> OnDie;
 
     private void Awake()
@@ -44,11 +48,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         navMeshAgent = GetComponent<NavMeshAgent>();
         targetFinder = GetComponent<EnemyTargetFinder>();
         currentHp = Data.MaxHp;
+        animator = modelPrefab.GetComponent<Animator>();
+
         CreateHpBar();
     }
 
     private void OnEnable()
     {
+        Debug.Log($"[BaseEnemy] {name} ½ÃÀÛ À§Ä¡: {transform.position} / isOnNavMesh: {GetComponent<NavMeshAgent>().isOnNavMesh}");
         currentHp = Data.MaxHp;
         CurrentState = EnemyState.MOVE;
         targetTransform = null;
@@ -67,9 +74,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     }
     private void UpdateFSM()
     {
-        if (targetTransform == null && targetFinder.TryFindTarget(out Transform t))
+        if (!HasOverrideTarget && targetFinder.TryFindTarget(out Transform t))
         {
-            targetTransform = t;
+            Debug.Log("À¯´Ö °¨Áö ¡æ ÀÓ½Ã °ø°Ý ÀüÈ¯");
+            overrideTarget = t;
             CurrentState = EnemyState.ATTACK;
             return;
         }
@@ -85,9 +93,17 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         }
     }
 
+
+     void FindPlayerUnit()
+    {
+
+    }
+
+
+
     private void Move()
     {
-        if (targetTransform != null) return;
+        if (HasOverrideTarget) return;
 
         Vector2Int currentGoal = TileGridManager.GetGridPositionFromWorld(navMeshAgent.destination);
         if (currentGoal != goalGrid)
@@ -98,25 +114,30 @@ public class BaseEnemy : MonoBehaviour, IDamageable
 
     private void Attack()
     {
-        if (targetTransform == null || !targetTransform.gameObject.activeSelf)
+        if (!HasOverrideTarget || !overrideTarget.gameObject.activeSelf)
         {
-            targetTransform = null;
+            Debug.Log("Å¸°Ù »ç¶óÁü ¡æ º¹±Í");
+            overrideTarget = null;
             CurrentState = EnemyState.MOVE;
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, targetTransform.position);
+        float dist = Vector3.Distance(transform.position, overrideTarget.position);
         if (dist > Data.DetectRange)
         {
-            targetTransform = null;
+            Debug.Log("Å¸°Ù ¸Ö¾îÁü ¡æ º¹±Í");
+            overrideTarget = null;
             CurrentState = EnemyState.MOVE;
             return;
         }
 
-        if (attackTimer <= 0f)
+        navMeshAgent.SetDestination(overrideTarget.position);  // µû¶ó°¡±â
+
+        if (dist <= Data.AttackRange && attackTimer <= 0f)
         {
-            var damageable = targetTransform.GetComponent<IDamageable>();
+            var damageable = overrideTarget.GetComponent<IDamageable>();
             damageable?.TakeDamage((int)Data.AttackDamage);
+            animator.SetTrigger("IsAttack");
             attackTimer = Data.AttackCoolTime;
         }
         else
@@ -146,6 +167,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     public void TakeDamage(int dmg)
     {
         currentHp -= dmg;
+        animator.SetTrigger("IsHit");
         UpdateHpBar();
         if (currentHp <= 0)
         {
@@ -156,12 +178,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     private void Die()
     {
         OnDie?.Invoke(this);
+        animator.SetBool("IsDie", true);
         EnemyPoolManager.Instance.Return(name.Replace("(Clone)", "").Trim(), gameObject);
     }
 
     public void ResetHP()
     {
         currentHp = Data.MaxHp;
+        animator.SetBool("IsDie", false);
         UpdateHpBar();
 
     }
