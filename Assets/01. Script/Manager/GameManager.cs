@@ -51,8 +51,7 @@ public class GameManager : MonoBehaviour
     {
         int minutes = Mathf.FloorToInt(timer / 60f);
         int seconds = Mathf.FloorToInt(timer % 60f);
-        int milliseconds = Mathf.FloorToInt((timer * 100f) % 100f);
-        TimerText.text = $"{minutes:00}:{seconds:00}.{milliseconds:00}";
+        TimerText.text = $"{minutes:00}:{seconds:00}";
     }
 
     private void UpdateCostText()

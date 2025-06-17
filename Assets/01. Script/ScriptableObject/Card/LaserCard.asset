@@ -13,7 +13,8 @@ MonoBehaviour:
   m_Name: LaserCard
   m_EditorClassIdentifier: 
   cardName: Laser
-  cardIcon: {fileID: 21300000, guid: 7b9be9e0d18075248bc52a8a3f9e07d1, type: 3}
+  cardIcon: {fileID: 21300000, guid: c861902cb70790a4797cb71c44657323, type: 3}
   cost: 0
+  cardType: 0
   prefabToSpawn: {fileID: 5483216115147444546, guid: 25eca3ad31f20044198e2badd038c812, type: 3}
   scriptable: {fileID: 11400000, guid: 33153ec7e7f5ac243a398a5de5f78bab, type: 2}

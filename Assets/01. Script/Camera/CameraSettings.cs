@@ -90,7 +90,7 @@ public class CameraSettings : MonoBehaviour
             // 항상 여왕개미를 바라보게
             cam.transform.LookAt(queenAnt.position);
 
-            cam.rect = new Rect(0f, 0.3f, 1f, 0.7f);
+            cam.rect = new Rect(0f, 0.2f, 1f, 0.8f);
         }
     }
     

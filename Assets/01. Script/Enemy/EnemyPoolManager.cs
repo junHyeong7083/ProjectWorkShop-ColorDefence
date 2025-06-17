@@ -80,7 +80,7 @@ public class EnemyPoolManager : MonoBehaviour
             enemy.ResetHP();
             enemy.SetGoal(goalGridPos);
         }
-        Debug.Log($"[Get] 최종 위치: {obj.transform.position}");
+       // Debug.Log($"[Get] 최종 위치: {obj.transform.position}");
         return obj;
 
     }
@@ -94,7 +94,7 @@ public class EnemyPoolManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"[EnemyPoolManager] {prefabName} 프리팹 이름이 풀에 없습니다. 즉시 삭제함.");
+         //   Debug.LogWarning($"[EnemyPoolManager] {prefabName} 프리팹 이름이 풀에 없습니다. 즉시 삭제함.");
             Destroy(obj);
         }
     }

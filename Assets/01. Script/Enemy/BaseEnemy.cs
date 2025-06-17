@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
@@ -15,7 +15,6 @@ public enum EnemyState
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(EnemyTargetFinder))]
-
 public class BaseEnemy : MonoBehaviour, IDamageable
 {
     public MonsterData Data;
@@ -35,7 +34,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     private float attackTimer;
     private bool isHolding;
 
-    private Transform overrideTarget;  // À¯´Ö °¨ÁöµÇ¸é ÀúÀå
+    private Transform overrideTarget;
     private bool HasOverrideTarget => overrideTarget != null;
 
     [SerializeField] private GameObject modelPrefab;
@@ -43,19 +42,21 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     [SerializeField] private float hpBarOffset = 1f;
     public event Action<BaseEnemy> OnDie;
 
+    private float targetLockTime = 1.5f;
+    private float targetLastSetTime = -999f;
+
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
         targetFinder = GetComponent<EnemyTargetFinder>();
         currentHp = Data.MaxHp;
         animator = modelPrefab.GetComponent<Animator>();
-
         CreateHpBar();
     }
 
     private void OnEnable()
     {
-        Debug.Log($"[BaseEnemy] {name} ½ÃÀÛ À§Ä¡: {transform.position} / isOnNavMesh: {GetComponent<NavMeshAgent>().isOnNavMesh}");
+      //  Debug.Log($"[BaseEnemy] {name} ì‹œì‘ ìœ„ì¹˜: {transform.position} / isOnNavMesh: {navMeshAgent.isOnNavMesh}");
         currentHp = Data.MaxHp;
         CurrentState = EnemyState.MOVE;
         targetTransform = null;
@@ -67,17 +68,25 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         if (isHolding) return;
         UpdateFSM();
     }
+
     public void Resume()
     {
         isHolding = false;
         CurrentState = EnemyState.MOVE;
     }
+
     private void UpdateFSM()
     {
-        if (!HasOverrideTarget && targetFinder.TryFindTarget(out Transform t))
+        if ((!HasOverrideTarget || Time.time - targetLastSetTime > targetLockTime) &&
+            targetFinder.TryFindTarget(out Transform t))
         {
-            Debug.Log("À¯´Ö °¨Áö ¡æ ÀÓ½Ã °ø°İ ÀüÈ¯");
+            if (overrideTarget != t)
+            {
+             //   Debug.Log($"ğŸ”„ íƒ€ê²Ÿ ë³€ê²½: {overrideTarget?.name} â†’ {t.name}");
+            }
+
             overrideTarget = t;
+            targetLastSetTime = Time.time;
             CurrentState = EnemyState.ATTACK;
             return;
         }
@@ -92,14 +101,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable
                 break;
         }
     }
-
-
-     void FindPlayerUnit()
-    {
-
-    }
-
-
 
     private void Move()
     {
@@ -116,7 +117,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (!HasOverrideTarget || !overrideTarget.gameObject.activeSelf)
         {
-            Debug.Log("Å¸°Ù »ç¶óÁü ¡æ º¹±Í");
+           // Debug.Log("íƒ€ê²Ÿ ì‚¬ë¼ì§ â†’ ë³µê·€");
             overrideTarget = null;
             CurrentState = EnemyState.MOVE;
             return;
@@ -125,13 +126,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         float dist = Vector3.Distance(transform.position, overrideTarget.position);
         if (dist > Data.DetectRange)
         {
-            Debug.Log("Å¸°Ù ¸Ö¾îÁü ¡æ º¹±Í");
+           // Debug.Log("íƒ€ê²Ÿ ë©€ì–´ì§ â†’ ë³µê·€");
             overrideTarget = null;
             CurrentState = EnemyState.MOVE;
             return;
         }
 
-        navMeshAgent.SetDestination(overrideTarget.position);  // µû¶ó°¡±â
+        navMeshAgent.SetDestination(overrideTarget.position);
 
         if (dist <= Data.AttackRange && attackTimer <= 0f)
         {
@@ -187,12 +188,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         currentHp = Data.MaxHp;
         animator.SetBool("IsDie", false);
         UpdateHpBar();
-
     }
+
     public int GetCurrentHp()
     {
         return currentHp;
     }
+
     private void CreateHpBar()
     {
         if (hpBarPrefab == null) return;

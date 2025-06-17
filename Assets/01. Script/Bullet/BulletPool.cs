@@ -8,12 +8,16 @@ public class BulletPool : MonoBehaviour
     [SerializeField] private GatlingBulletEnemy gatlingEnemyBulletPrefab;
     [SerializeField] private GatlingBulletTile gatlingTileBulletPrefab;
     [SerializeField] private CannonBulletEnemy cannonEnemyBulletPrefab;
+    [SerializeField] private BeeBullet beeBulletPrefab;
+
 
     [SerializeField] private int BulletCount;
 
     private Queue<GatlingBulletEnemy> gatlingBulletEnemies = new();
     private Queue<GatlingBulletTile> gatlingBulletTiles = new();
     private Queue<CannonBulletEnemy> cannonBulletEnemies = new();
+    private Queue<BeeBullet> beeBulletEnemies = new();
+
 
     void Awake()
     {
@@ -21,6 +25,7 @@ public class BulletPool : MonoBehaviour
         InitPool(gatlingEnemyBulletPrefab, gatlingBulletEnemies, BulletCount);
         InitPool(gatlingTileBulletPrefab, gatlingBulletTiles, BulletCount);
         InitPool(cannonEnemyBulletPrefab, cannonBulletEnemies, BulletCount); // Ãß°¡
+        InitPool(beeBulletPrefab, beeBulletEnemies, BulletCount);
     }
 
     void InitPool<T>(T prefab, Queue<T> pool, int count) where T : MonoBehaviour
@@ -52,7 +57,11 @@ public class BulletPool : MonoBehaviour
         bullet.gameObject.SetActive(false);
         gatlingBulletTiles.Enqueue(bullet);
     }
-
+    public void Return(BeeBullet bullet)
+    {
+        bullet.gameObject.SetActive(false);
+        beeBulletEnemies.Enqueue(bullet);
+    }
     #endregion
 
     public void GetCannonEnemyBullet(Vector3 start, Vector3 end, float height, float duration, int damage, Action onHit)
@@ -88,5 +97,20 @@ public class BulletPool : MonoBehaviour
         bullet.transform.position = pos;
         bullet.transform.rotation = Quaternion.LookRotation(dir);
         bullet.Init(dir, onArrive);
+    }
+
+
+    public void GetBeeBullet(Vector3 pos, Transform target, int damage)
+    {
+        var bullet = beeBulletEnemies.Count > 0
+       ? beeBulletEnemies.Dequeue()
+       : Instantiate(beeBulletPrefab, transform);
+
+        bullet.transform.position = pos;
+
+        Vector3 dir = (target.position - pos).normalized;
+        bullet.transform.rotation = Quaternion.LookRotation(dir);
+        bullet.gameObject.SetActive(true);
+        bullet.Init(target, damage);
     }
 }

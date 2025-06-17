@@ -10,17 +10,17 @@ public class CardBinderUI : MonoBehaviour
 
     [Header("UI 요소")]
     public Image iconImage;        // 카드 아이콘을 표시할 Image
-    public Text nameText;         // 카드 이름을 표시할 Text
+  /*  public Text nameText;         // 카드 이름을 표시할 Text
     public Text costText;         // 카드 비용을 표시할 Text
     public Text descriptionText;  // 카드 설명을 표시할 Text
     public Text starText;
     public Text damageText;
     public Text attackRateText;
-    public Text attackRangeText;
+    public Text attackRangeText;*/
 
     
 
-    void ClearUI()
+ /*   void ClearUI()
     {
         // cardData가 할당되지 않았으면, UI를 모두 초기화(비움)
         if (iconImage != null) iconImage.enabled = false;
@@ -61,7 +61,7 @@ public class CardBinderUI : MonoBehaviour
 
         descriptionText.text = $"Description : 특정 타워를 강화하는 카드입니다.";
     }
-
+*/
 
     /// <summary>
     /// cardData를 기반으로 모든 UI(아이콘, 이름, 비용, 설명)를 업데이트합니다.
@@ -70,17 +70,17 @@ public class CardBinderUI : MonoBehaviour
     {
         if (cardData == null)
         {
-            ClearUI();
+         //   ClearUI();
             return;
         }
 
         // 공통 처리
         iconImage.sprite = cardData.cardIcon;
         iconImage.enabled = (cardData.cardIcon != null);
-        nameText.text = $"Name : {cardData.cardName}";
-        costText.text = $"Cost : {cardData.cost}";
+      //  nameText.text = $"Name : {cardData.cardName}";
+     //   costText.text = $"Cost : {cardData.cost}";
 
-        // 카드 타입에 따라 처리 분기
+     /*   // 카드 타입에 따라 처리 분기
         switch (cardData.cardType)
         {
             case CardType.TURRET:
@@ -92,6 +92,6 @@ public class CardBinderUI : MonoBehaviour
             case CardType.UPGRADE:
                 BindUpgradeCard();
                 break;
-        }
+        }*/
     }
 }

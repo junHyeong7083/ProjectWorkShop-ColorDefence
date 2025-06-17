@@ -32,51 +32,61 @@ public class RTSCameraController : MonoBehaviour
     public Texture2D cursorArrowLeft;
     public Texture2D cursorArrowRight;
 
-
     [Header("UI")]
     [SerializeField] private RectTransform bottomPanel;
 
-
-
     CursorArrow currentCursor = CursorArrow.DEFAULT;
     enum CursorArrow { UP, DOWN, LEFT, RIGHT, DEFAULT }
-
+    [SerializeField] private float edgeScrollSpeed = 0.5f;
     private void Start()
     {
         instance = this;
         newPosition = transform.position;
         movementSpeed = normalSpeed;
     }
-    private Vector3 followOffset = new Vector3(-20.83f, 43.93f, -24.87f);
+
+    [SerializeField] private Vector3 followOffset = new Vector3(-20.83f, 43.93f, -24.87f);
     [SerializeField] private float followLerpSpeed = 5f;
+    private bool isTemporaryFollow = false;
+
     private void Update()
     {
+        // 스페이스바 눌렀을 때만 따라감
+        if (Input.GetKeyDown(KeyCode.Space) && followTransform != null)
+        {
+            isTemporaryFollow = true;
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            isTemporaryFollow = false;
+        }
+
         // 마우스 드래그 시 따라가기 해제
         if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject())
         {
             followTransform = null;
+            isTemporaryFollow = false;
         }
 
-        if (followTransform != null)
+        if (followTransform != null && isTemporaryFollow)
         {
             Vector3 targetPos = followTransform.position + followOffset;
             targetPos.y = transform.position.y;
 
-            // newPosition도 같이 갱신해줘야 다른 기능(엣지 스크롤 등)이 이상 없어
             transform.position = Vector3.Lerp(transform.position, targetPos, followLerpSpeed * Time.deltaTime);
-            newPosition = transform.position; // 💡 이거 없으면 끊기는 느낌 남
+            newPosition = transform.position;
         }
         else
         {
-            HandleCameraMovement(); // 수동 입력 처리
+            HandleCameraMovement();
         }
 
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             followTransform = null;
+            isTemporaryFollow = false;
         }
     }
-
 
     void HandleCameraMovement()
     {
@@ -101,7 +111,7 @@ public class RTSCameraController : MonoBehaviour
             if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow))
                 newPosition += flatRight * movementSpeed;
 
-            if ((Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)))
+            if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow))
                 newPosition -= flatRight * movementSpeed;
         }
 
@@ -109,29 +119,27 @@ public class RTSCameraController : MonoBehaviour
         {
             if (Input.mousePosition.x > Screen.width - edgeSize)
             {
-                newPosition += flatRight * movementSpeed;
+                newPosition += flatRight * edgeScrollSpeed;
                 ChangeCursor(CursorArrow.RIGHT);
                 isCursorSet = true;
             }
             else if (Input.mousePosition.x < edgeSize)
             {
-                newPosition -= flatRight * movementSpeed;
+                newPosition -= flatRight * edgeScrollSpeed;
                 ChangeCursor(CursorArrow.LEFT);
                 isCursorSet = true;
             }
             else if (Input.mousePosition.y > Screen.height - edgeSize)
             {
-                newPosition += flatForward * movementSpeed;
+                newPosition += flatForward * edgeScrollSpeed;
                 ChangeCursor(CursorArrow.UP);
                 isCursorSet = true;
             }
             else if (Input.mousePosition.y < edgeSize)
             {
-               
-                    newPosition -= flatForward * movementSpeed;
-                    ChangeCursor(CursorArrow.DOWN);
-                   isCursorSet = true;
-                
+                newPosition -= flatForward * edgeScrollSpeed;
+                ChangeCursor(CursorArrow.DOWN);
+                isCursorSet = true;
             }
             else
             {
@@ -146,6 +154,7 @@ public class RTSCameraController : MonoBehaviour
         transform.position = newPosition;
         Cursor.lockState = CursorLockMode.Confined;
     }
+
     private bool IsMouseOverUIRect(RectTransform rectTransform)
     {
         if (rectTransform == null) return false;
@@ -154,7 +163,7 @@ public class RTSCameraController : MonoBehaviour
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
             rectTransform,
             Input.mousePosition,
-            null, // ← UI가 Screen Space - Overlay일 때는 null
+            null,
             out localMousePosition
         );
 
@@ -191,16 +200,24 @@ public class RTSCameraController : MonoBehaviour
     public void FollowUnit(Transform target)
     {
         followTransform = target;
-        newPosition = target.position;
-    }
+        isTemporaryFollow = false;
 
+        Vector3 targetPos = target.position + followOffset;
+        targetPos.y = transform.position.y;
+
+        transform.position = targetPos;
+        newPosition = targetPos;
+    }
 
     public void TeleportTo(Vector3 worldPos)
     {
-        followTransform = null; // 수동 조작으로 전환
+        followTransform = null;
+        isTemporaryFollow = false;
+
         transform.position = worldPos;
-        newPosition = worldPos; // ← 여기 중요!!
+        newPosition = worldPos;
     }
+
     private void HandleMouseDragInput()
     {
         if (Input.GetMouseButtonDown(2) && !EventSystem.current.IsPointerOverGameObject())

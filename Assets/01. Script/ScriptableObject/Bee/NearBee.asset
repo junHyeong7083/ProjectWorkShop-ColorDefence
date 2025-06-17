@@ -15,5 +15,5 @@ MonoBehaviour:
   maxHp: 100
   moveSpeed: 0
   attackPower: 5
-  attackCooltime: 3
-  attackRange: 3
+  attackCooltime: 2
+  attackRange: 7

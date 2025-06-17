@@ -18,11 +18,15 @@ public class MinimapAutoSetup : MonoBehaviour
         minimapCam.transform.position = new Vector3(center.x, center.y + heightOffset, center.z);
         minimapCam.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
         minimapCam.orthographic = true;
-        minimapCam.orthographicSize = size.z / 2f;
+
+        float orthoWidth = size.x * 0.5f;
+        float orthoHeight = size.z * 0.5f;
+        minimapCam.orthographicSize = Mathf.Max(orthoHeight, orthoWidth / minimapCam.aspect);
 
         minimapCam.clearFlags = CameraClearFlags.SolidColor;
         minimapCam.backgroundColor = Color.black;
     }
+
 
     private Bounds CalculateTotalBounds(Transform root)
     {

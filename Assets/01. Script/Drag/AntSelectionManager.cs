@@ -6,14 +6,13 @@ using UnityEngine.EventSystems;
 
 public class AntSelectionManager : MonoBehaviour
 {
-    public static AntSelectionManager Instance; 
+    public static AntSelectionManager Instance;
 
-
-     bool IsAttackMode;
-    [Header("드래그 박스 UI (Canvas)")]
+    bool IsAttackMode;
+    [Header("\uB4DC\uB798\uADF8 \uBC15\uC2A4 UI (Canvas)")]
     public RectTransform selectionBox;
 
-    [Header("UI 영역: BottomPanel")]
+    [Header("UI \uC601\uC5ED: BottomPanel")]
     public RectTransform bottomPanel;
 
     private LineRenderer moveLineRenderer;
@@ -32,15 +31,13 @@ public class AntSelectionManager : MonoBehaviour
     [SerializeField] private Texture2D originCursor;
     [SerializeField] private Texture2D attackCursor;
     public List<GameObject> SelectedAnts => selectedAnts;
-    private bool isCursorInAttackMode = false; // 중복 호출 방지용
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
-        else 
-            Destroy(Instance);
+        else Destroy(Instance);
 
-
-            moveLineRenderer = GetComponent<LineRenderer>();
+        moveLineRenderer = GetComponent<LineRenderer>();
         selectionBox.gameObject.SetActive(false);
     }
 
@@ -58,6 +55,39 @@ public class AntSelectionManager : MonoBehaviour
     private void Update()
     {
         if (!readyToDrag) return;
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            IsAttackMode = true;
+            Cursor.SetCursor(attackCursor, Vector2.zero, CursorMode.Auto);
+        }
+        else
+        {
+            IsAttackMode = false;
+            Cursor.SetCursor(originCursor, Vector2.zero, CursorMode.Auto);
+        }
+
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            foreach (var ant in selectedAnts)
+            {
+                var movement = ant.GetComponent<AntMovement>();
+                var bee = ant.GetComponent<BeeController>();
+
+                movement?.Stop();
+
+                if (bee != null)
+                {
+                    bee.SetAttackTarget(null);
+                    bee.SetCombatMode(true);
+                    var nearby = bee.FindClosestEnemyInRange();
+                    if (nearby != null) bee.SetAttackTarget(nearby);
+                }
+            }
+            moveLineRenderer.positionCount = 0;
+            return;
+        }
+
         if (Input.GetMouseButtonDown(0) && !IsPointerOverUIElement())
         {
             isDragging = true;
@@ -77,70 +107,57 @@ public class AntSelectionManager : MonoBehaviour
 
         if (Input.GetMouseButtonUp(0))
         {
-            if (isCursorInAttackMode)
-            {
-                Cursor.SetCursor(attackCursor, Vector2.zero, CursorMode.Auto);
-                isCursorInAttackMode = false;
-            }
-
             selectionBox.gameObject.SetActive(false);
             isDragging = false;
+
+            if (IsAttackMode) return;
 
             if (Vector2.Distance(startPos, Input.mousePosition) < clickThreshold)
                 SelectSingleAnt(Input.mousePosition);
             else
                 SelectAntsInBox();
         }
-        if (IsAttackMode && Input.GetMouseButtonDown(0) && !IsPointerOverUIElement())
+
+        if (IsAttackMode && Input.GetMouseButtonDown(0))
         {
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            Debug.Log($"AttackMode !! ||| MousePos {ray}");
             if (Physics.Raycast(ray, out RaycastHit hit))
             {
                 GameObject clicked = hit.collider.gameObject;
-                Debug.Log($"Raycast hit: {clicked.name}");
 
                 if (clicked.CompareTag("Enemy"))
                 {
-                    Debug.Log("적 태그 확인됨!");
-                    if (!isCursorInAttackMode)
+                    foreach (var ant in selectedAnts)
                     {
-                        Cursor.SetCursor(attackCursor, Vector2.zero, CursorMode.Auto);
-                        isCursorInAttackMode = true;
-                    }
+                        var movement = ant.GetComponent<AntMovement>();
+                        var bee = ant.GetComponent<BeeController>();
 
-                    {
-                        foreach (var ant in selectedAnts)
+                        if (movement != null && bee != null)
                         {
-                            var movement = ant.GetComponent<AntMovement>();
-                            var bee = ant.GetComponent<BeeController>();
-
-                            if (movement != null && bee != null)
-                            {
-                                movement.OnArrive = () =>
-                                {
-                                    bee.SetAttackTarget(clicked);
-                                };
-                                movement.MoveTo(clicked.transform.position);
-                            }
+                            bee.SetCombatMode(true);
+                            movement.OnArrive = () => bee.SetAttackTarget(clicked);
+                            movement.MoveTo(clicked.transform.position);
                         }
-                    } // 선택된 유닛 foreach
+                    }
                 }
                 else
                 {
-                    if (isCursorInAttackMode)
+                    IssueMoveCommand(hit.point);
+                    foreach (var ant in selectedAnts)
                     {
-                        Cursor.SetCursor(originCursor, Vector2.zero, CursorMode.Auto);
-                        isCursorInAttackMode = false;
+                        var movement = ant.GetComponent<AntMovement>();
+                        var bee = ant.GetComponent<BeeController>();
+
+                        if (movement != null && bee != null)
+                        {
+                            bee.SetCombatMode(true);
+                            movement.OnArrive = () =>
+                            {
+                                GameObject nearby = bee.FindClosestEnemyInRange();
+                                if (nearby != null) bee.SetAttackTarget(nearby);
+                            };
+                        }
                     }
-                }
-            }
-            else
-            {
-                if (isCursorInAttackMode)
-                {
-                    Cursor.SetCursor(originCursor, Vector2.zero, CursorMode.Auto);
-                    isCursorInAttackMode = false;
                 }
             }
             IsAttackMode = false;
@@ -159,36 +176,23 @@ public class AntSelectionManager : MonoBehaviour
 
                     if (movement != null && bee != null)
                     {
-                        movement.OnArrive = () =>
-                        {
-                            GameObject nearby = bee.FindClosestEnemyInRange();
-                            if (nearby != null)
-                                bee.SetAttackTarget(nearby);
-                        };
+                        bee.SetCombatMode(false);
+                        movement.OnArrive = null;
                     }
                 }
+
                 IssueMoveCommand(targetPos);
             }
         }
     }
+
     void UpdateSelectionBox()
     {
-        Vector2 boxStart = startPos;
-        Vector2 boxEnd = endPos;
+        Vector2 size = endPos - startPos;
+        Vector2 pos = startPos;
 
-        Vector2 size = boxEnd - boxStart;
-        Vector2 pos = boxStart;
-
-        if (size.x < 0)
-        {
-            pos.x = boxEnd.x;
-            size.x = -size.x;
-        }
-        if (size.y < 0)
-        {
-            pos.y = boxEnd.y;
-            size.y = -size.y;
-        }
+        if (size.x < 0) { pos.x = endPos.x; size.x = -size.x; }
+        if (size.y < 0) { pos.y = endPos.y; size.y = -size.y; }
 
         selectionBox.position = pos + size * 0.5f;
         selectionBox.sizeDelta = size;
@@ -210,30 +214,18 @@ public class AntSelectionManager : MonoBehaviour
                     selectedAnts.Add(ant);
                 }
             }
-            else
-            {
-                ClearSelection();
-            }
+            else ClearSelection();
         }
-        else
-        {
-            ClearSelection();
-        }
+        else ClearSelection();
     }
 
     void ClearSelection()
     {
         foreach (var ant in selectedAnts)
-        {
-            var selectable = ant.GetComponent<SelectableAnt>();
-            if (selectable != null)
-                selectable.SetSelected(false);
-        }
+            ant.GetComponent<SelectableAnt>()?.SetSelected(false);
 
         selectedAnts.Clear();
-
-        if (moveLineRenderer != null)
-            moveLineRenderer.positionCount = 0;
+        moveLineRenderer.positionCount = 0;
     }
 
     void SelectAntsInBox()
@@ -246,42 +238,30 @@ public class AntSelectionManager : MonoBehaviour
             Vector3 screenPos = Camera.main.WorldToScreenPoint(ant.transform.position);
             if (screenPos.z < 0) continue;
 
-            Vector2 localPoint;
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(selectionBox, screenPos, null, out localPoint);
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(selectionBox, screenPos, null, out Vector2 localPoint);
 
             bool isInBox = selectionBox.rect.Contains(localPoint);
-            var selectable = ant.GetComponent<SelectableAnt>();
-            if (selectable != null)
-                selectable.SetSelected(isInBox);
+            ant.GetComponent<SelectableAnt>()?.SetSelected(isInBox);
 
-            if (isInBox)
-                selectedAnts.Add(ant);
+            if (isInBox) selectedAnts.Add(ant);
         }
     }
 
     public void IssueMoveCommand(Vector3 targetPos)
     {
-       // Debug.Log($"[MoveCommand] 호출됨 → 타겟 위치: {targetPos}");
-
         if (selectedAnts.Count == 0)
         {
-            Debug.LogWarning("[MoveCommand] 선택된 개미가 없습니다!");
+            Debug.LogWarning("[MoveCommand] \uC120\uD0DD\uB41C \uAC1C\uBBF8\uAC00 \uC5C6\uC2B5\uB2C8\uB2E4!");
             return;
         }
 
         arrivedCount = 0;
-
         Vector3 centerPos = Vector3.zero;
         foreach (var ant in selectedAnts)
-        {
             centerPos += ant.transform.position;
-          //  Debug.Log($"[MoveCommand] 포함된 개미: {ant.name}, 위치: {ant.transform.position}");
-        }
         centerPos /= selectedAnts.Count;
-       // Debug.Log($"[MoveCommand] 중심 위치: {centerPos}");
 
-        // ✅ 실제 경로 기반 라인 렌더링
-        if (moveLineRenderer != null && selectedAnts.Count > 0)
+        if (moveLineRenderer != null)
         {
             NavMeshAgent sampleAgent = selectedAnts[0].GetComponent<NavMeshAgent>();
             if (sampleAgent != null)
@@ -297,17 +277,14 @@ public class AntSelectionManager : MonoBehaviour
                         len += Vector3.Distance(previewPath.corners[i - 1], previewPath.corners[i]);
 
                     moveLineRenderer.material.SetFloat("_WorldLength", len);
-                  //  Debug.Log($"[MoveCommand] 라인 렌더러 그려짐 → 길이: {len}");
                 }
                 else
                 {
-                 //   Debug.LogWarning("[MoveCommand] 경로 계산 실패");
                     moveLineRenderer.positionCount = 0;
                 }
             }
         }
 
-        // 유닛별 도착 처리
         float radius = 3f;
         int count = selectedAnts.Count;
 
@@ -324,32 +301,16 @@ public class AntSelectionManager : MonoBehaviour
                 movement.OnArrive = () =>
                 {
                     arrivedCount++;
-                    if (arrivedCount >= selectedAnts.Count && moveLineRenderer != null)
-                    {
+                    if (arrivedCount >= selectedAnts.Count)
                         moveLineRenderer.positionCount = 0;
-                    }
                 };
-
                 movement.MoveTo(movePos);
             }
         }
 
-        // 카메라 추적
-        if (selectedAnts.Count > 0)
-        {
-            GameObject leadUnit = selectedAnts[0];
-            if (leadUnit != null)
-            {
-                RTSCameraController.instance.followTransform = leadUnit.transform;
-            }
-        }
+        RTSCameraController.instance.followTransform = selectedAnts[0].transform;
     }
 
-
-
-    /// <summary>
-    /// 모든 UI 요소 위에 마우스가 있는지 검사
-    /// </summary>
     private bool IsPointerOverUIElement()
     {
         PointerEventData eventData = new PointerEventData(EventSystem.current);
