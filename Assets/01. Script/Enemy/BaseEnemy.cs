@@ -22,7 +22,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     private NavMeshAgent navMeshAgent;
     private Vector2Int goalGrid;
 
-    public EnemyState CurrentState { get; private set; } = EnemyState.MOVE;
+    public EnemyState CurrentState= EnemyState.MOVE;
 
     private Transform targetTransform;
     private EnemyTargetFinder targetFinder;
@@ -45,6 +45,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     private float targetLockTime = 1.5f;
     private float targetLastSetTime = -999f;
 
+    public Vector3 ModelPosition => modelPrefab != null ? modelPrefab.transform.position : transform.position;
+
     private void Awake()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
@@ -52,11 +54,12 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         currentHp = Data.MaxHp;
         animator = modelPrefab.GetComponent<Animator>();
         CreateHpBar();
+
+        navMeshAgent.stoppingDistance = Data.AttackRange;
     }
 
     private void OnEnable()
     {
-      //  Debug.Log($"[BaseEnemy] {name} 시작 위치: {transform.position} / isOnNavMesh: {navMeshAgent.isOnNavMesh}");
         currentHp = Data.MaxHp;
         CurrentState = EnemyState.MOVE;
         targetTransform = null;
@@ -77,14 +80,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable
 
     private void UpdateFSM()
     {
-        if ((!HasOverrideTarget || Time.time - targetLastSetTime > targetLockTime) &&
-            targetFinder.TryFindTarget(out Transform t))
+        if (targetFinder.TryFindTarget(out Transform t))
         {
-            if (overrideTarget != t)
-            {
-             //   Debug.Log($"🔄 타겟 변경: {overrideTarget?.name} → {t.name}");
-            }
-
             overrideTarget = t;
             targetLastSetTime = Time.time;
             CurrentState = EnemyState.ATTACK;
@@ -117,24 +114,19 @@ public class BaseEnemy : MonoBehaviour, IDamageable
     {
         if (!HasOverrideTarget || !overrideTarget.gameObject.activeSelf)
         {
-           // Debug.Log("타겟 사라짐 → 복귀");
             overrideTarget = null;
             CurrentState = EnemyState.MOVE;
             return;
         }
 
-        float dist = Vector3.Distance(transform.position, overrideTarget.position);
-        if (dist > Data.DetectRange)
-        {
-           // Debug.Log("타겟 멀어짐 → 복귀");
-            overrideTarget = null;
-            CurrentState = EnemyState.MOVE;
-            return;
-        }
+        Debug.DrawLine(ModelPosition, overrideTarget.position, Color.green);
 
+        float sqrDist = SqrXZDistance(ModelPosition, overrideTarget.position);
+        float sqrRange = Data.AttackRange * Data.AttackRange;
+       // Debug.Log($"sqrDist : {sqrDist} || sqrRange : {sqrRange}");
         navMeshAgent.SetDestination(overrideTarget.position);
 
-        if (dist <= Data.AttackRange && attackTimer <= 0f)
+        if (sqrDist/3.75f <= sqrRange && attackTimer <= 0f)
         {
             var damageable = overrideTarget.GetComponent<IDamageable>();
             damageable?.TakeDamage((int)Data.AttackDamage);
@@ -163,6 +155,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable
         yield return new WaitForSeconds(0.05f);
         if (navMeshAgent.isOnNavMesh)
             navMeshAgent.SetDestination(pos);
+    }
+
+    float SqrXZDistance(Vector3 a, Vector3 b)
+    {
+        float dx = a.x - b.x;
+        float dz = a.z - b.z;
+        return dx * dx + dz * dz;
     }
 
     public void TakeDamage(int dmg)

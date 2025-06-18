@@ -9,7 +9,7 @@ public static class TileUtility
         {
             if (occupied)
             {
-                tile.OccupyingFence = new DummyFence(); // 임시 점유용 더미 울타리 객체
+               // tile.OccupyingFence = new DummyFence(); // 임시 점유용 더미 울타리 객체
             }
             else
             {

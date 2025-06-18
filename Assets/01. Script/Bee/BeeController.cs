@@ -1,4 +1,4 @@
-using System;
+Ôªøusing System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
@@ -20,6 +20,11 @@ public class BeeController : MonoBehaviour,IDamageable
     private GameObject targetEnemy;
     private GameObject explicitTarget;
 
+    [SerializeField] private GameObject hpBarPrefab;
+    private GameObject hpBarInstance;
+    [SerializeField] private float hpBarOffset;
+    private HpBarUI hpBarUI;
+
     [SerializeField] BeeAttackType attackType;
 
     public event Action<BeeController> OnDie;
@@ -27,8 +32,30 @@ public class BeeController : MonoBehaviour,IDamageable
     {
         currentHp = beeData.maxHp;
         lastAttackTime = -beeData.attackCooltime;
+
+        CreateHpBar();
     }
     GameObject target;
+
+
+    private void CreateHpBar()
+    {
+        if (hpBarPrefab == null) return;
+        hpBarInstance = Instantiate(hpBarPrefab, transform);
+        hpBarInstance.transform.localPosition = Vector3.up * hpBarOffset;
+        hpBarUI = hpBarInstance.GetComponent<HpBarUI>();
+        UpdateHpBar();
+    }
+
+
+
+    private void UpdateHpBar()
+    {
+        if (hpBarUI != null)
+            hpBarUI.SetFill(Mathf.Clamp01((float)currentHp / beeData.maxHp));
+    }
+
+
     private void Update()
     {
         if (currentHp <= 0) return;
@@ -45,29 +72,27 @@ public class BeeController : MonoBehaviour,IDamageable
                 if (agent != null)
                     agent.SetDestination(target.transform.position);
             }
-
             bool shouldAttack = explicitTarget != null || isInCombatMode;
-            if (shouldAttack && dist <= beeData.attackRange)
+            bool canAttack = shouldAttack && dist <= beeData.attackRange;
+            bool isInAttackCooldown = Time.time < lastAttackTime + beeData.attackCooltime;
+
+            if (canAttack)
             {
                 var agent = GetComponent<NavMeshAgent>();
-
-                // ?? ∞¯∞› ¿¸ø° π›µÂΩ√ ¿Ãµø ∏ÿ√„
                 if (agent != null && agent.hasPath && agent.remainingDistance > agent.stoppingDistance)
-                {
-                    // æ∆¡˜ µµ¬¯ æ»«ﬂ¿∏∏È ∞¯∞› ±›¡ˆ
                     return;
-                }
 
-                // µµ¬¯ »ƒ ∞¯∞› ∞°¥…
-                Vector3 lookDir = new Vector3(target.transform.position.x, transform.position.y, target.transform.position.z) - transform.position;
-                if (lookDir != Vector3.zero)
+                // ‚úÖ Í≥µÍ≤© Ïø®ÌÉÄÏûÑÏù¥ ÎÅùÎÇ¨ÏùÑ ÎïåÎßå ÌöåÏ†Ñ Î∞è Í≥µÍ≤© Ïã§Ìñâ
+                if (!isInAttackCooldown)
                 {
-                    Quaternion targetRot = Quaternion.LookRotation(lookDir);
-                    transform.rotation = Quaternion.Slerp(transform.rotation, targetRot, Time.deltaTime * 10f);
-                }
+                    Vector3 lookDir = target.transform.position - transform.position;
+                    lookDir.y = 0f;
+                    if (lookDir != Vector3.zero)
+                    {
+                        Quaternion targetRot = Quaternion.LookRotation(lookDir);
+                        transform.rotation = targetRot;
+                    }
 
-                if (Time.time >= lastAttackTime + beeData.attackCooltime)
-                {
                     Attack();
                     lastAttackTime = Time.time;
 
@@ -76,14 +101,14 @@ public class BeeController : MonoBehaviour,IDamageable
                         enemyHealth.TakeDamage(beeData.attackPower);
                 }
             }
-        }
-        else
-        {
-            explicitTarget = null;
+            else
+            {
+                explicitTarget = null;
+            }
         }
     }
 
-    private bool isInCombatMode = false;  // A-click Ω√ true, øÏ≈¨∏Ø¿Ã∏È false
+    private bool isInCombatMode = false;  // A-click Ïãú true, Ïö∞ÌÅ¥Î¶≠Ïù¥Î©¥ false
 
     public void SetCombatMode(bool enabled)
     {
@@ -94,7 +119,7 @@ public class BeeController : MonoBehaviour,IDamageable
         explicitTarget = target;
     }
 
-    // ¿˚¿ª √£±‚
+    // Ï†ÅÏùÑ Ï∞æÍ∏∞
     public GameObject FindClosestEnemy()
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
@@ -136,8 +161,8 @@ public class BeeController : MonoBehaviour,IDamageable
         if (currentHp <= 0) return;
 
         currentHp -= damage;
-      //  animator.SetTrigger("IsHit");
-
+        animator.SetTrigger("IsHit");
+        UpdateHpBar();
         if (currentHp <= 0)
         {
             animator.SetBool("IsDie",true);
@@ -152,9 +177,10 @@ public class BeeController : MonoBehaviour,IDamageable
         {
             yield return null;
         }
-        OnDie?.Invoke(this);
-        animator.SetBool("IsDie", true);
-        EnemyPoolManager.Instance.Return(name.Replace("(Clone)", "").Trim(), gameObject);
+
+        Destroy(this.gameObject);
+        
+        // EnemyPoolManager.Instance.Return(name.Replace("(Clone)", "").Trim(), gameObject);
 
     }
 
@@ -183,7 +209,7 @@ public class BeeController : MonoBehaviour,IDamageable
         Debug.Log($"delay : {delay} ");
         yield return YieldCache.WaitForSeconds(delay);
 
-        if (target != null) // ≈∏∞Ÿ¿Ã ø©¿¸»˜ ¡∏¿Á«“ ∞ÊøÏ∏∏ πﬂªÁ
+        if (target != null) // ÌÉÄÍ≤üÏù¥ Ïó¨Ï†ÑÌûà Ï°¥Ïû¨Ìï† Í≤ΩÏö∞Îßå Î∞úÏÇ¨
         {
             BulletPool.Instance.GetBeeBullet(firePos.position, target.transform, beeData.attackPower);
         }

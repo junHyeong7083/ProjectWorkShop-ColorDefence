@@ -116,7 +116,9 @@ public class CardDragHandler : MonoBehaviour,
                     case CardType.UPGRADE:
                         HandleUpgradeCard(hit);
                         return;
-
+                    case CardType.UNIT:
+                        HandlePlaceableCard(hit);
+                        break;
                     default:
                         ReturnImmediately();
                         return;
@@ -127,10 +129,12 @@ public class CardDragHandler : MonoBehaviour,
         ReturnImmediately();
     }
 
+    // 타워 및 소환(설치가능한)유닛들
     private void HandlePlaceableCard(RaycastHit hit)
     {
         int width = 0, height = 0;
 
+        // 타입별 width, height 설정
         if (cardData.scriptable is TurretData tData)
         {
             width = tData.width;
@@ -143,8 +147,9 @@ public class CardDragHandler : MonoBehaviour,
         }
         else
         {
-            ReturnImmediately();
-            return;
+            // UNIT은 기본 1x1 타일로 가정
+            width = 1;
+            height = 1;
         }
 
         float tileSize = TileGridManager.Instance.cubeSize;
@@ -157,7 +162,6 @@ public class CardDragHandler : MonoBehaviour,
             startZ * tileSize + (height - 1) * 0.5f * tileSize
         );
 
-        //  설치 가능 여부 먼저 체크
         if (!PlacementManager.Instance.IsCanPlace)
         {
             ShowCannotPlaceFeedback();
@@ -165,15 +169,29 @@ public class CardDragHandler : MonoBehaviour,
             return;
         }
 
-        // 🛠 설치 실행
-        if (cardData.scriptable is TurretData)
-            PlacementManager.Instance.PlaceTurret(startX, startZ, worldPos);
-        else
-            PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
+        switch (cardData.cardType)
+        {
+            case CardType.TURRET:
+                PlacementManager.Instance.PlaceTurret(startX, startZ, worldPos);
+                break;
+
+
+            case CardType.UNIT: 
+                PlacementManager.Instance.PlaceUnit(startX, startZ, worldPos);
+                break;
+            case CardType.FENCE:
+                PlacementManager.Instance.PlaceFence(startX, startZ, worldPos);
+                break;
+            default:
+                ReturnImmediately();
+                return;
+        }
 
         animationController.UseCardAndReposition(slotIndex);
         PlacementManager.Instance.CancelPreview();
     }
+
+
 
 
     private void HandleUpgradeCard(RaycastHit hit)
@@ -219,6 +237,7 @@ public class CardDragHandler : MonoBehaviour,
 
         switch (cardData.cardType)
         {
+            case CardType.UNIT:
             case CardType.TURRET:
             case CardType.FENCE:
                 canvasGroup.alpha = 0f;
@@ -282,6 +301,7 @@ public class CardDragHandler : MonoBehaviour,
                     }
                 }
                 break;
+
         }
     }
 

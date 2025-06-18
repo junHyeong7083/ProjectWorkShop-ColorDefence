@@ -2,17 +2,22 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
+[System.Serializable]
+public class MonsterSpawnData
+{
+    public string monsterName;
+    public float spawnInterval;
+}
+
 public class SpawnManager : MonoBehaviour
 {
-    [SerializeField] private string[] monsterNames;
-    [SerializeField] private float spawnInterval = 2f;
-    [SerializeField] private Transform[] spawnPositions; // 스폰 위치들
+    [SerializeField] private MonsterSpawnData[] spawnSettings;
+    [SerializeField] private Transform[] spawnPositions;
 
     private Vector2Int goalGrid;
 
     private void Start()
     {
-        // 목표는 여왕개미 위치, 없으면 중앙
         GameObject queen = GameObject.FindGameObjectWithTag("QueenAnt");
         if (queen != null)
         {
@@ -22,58 +27,49 @@ public class SpawnManager : MonoBehaviour
                 Mathf.FloorToInt(worldPos.z / TileGridManager.Instance.cubeSize)
             );
         }
-        else
-        {
-            goalGrid = TileGridManager.GetCenterGrid();
-        }
 
-        StartCoroutine(SpawnLoop());
+        foreach (var setting in spawnSettings)
+        {
+            StartCoroutine(SpawnLoop(setting));
+        }
     }
 
-    IEnumerator SpawnLoop()
+    private IEnumerator SpawnLoop(MonsterSpawnData setting)
     {
         while (true)
         {
-            yield return new WaitForSeconds(spawnInterval);
+            yield return new WaitForSeconds(setting.spawnInterval);
 
-            GameObject go = GetEnemyFromPool();
+            Transform spawnPos = spawnPositions[Random.Range(0, spawnPositions.Length)];
+            GameObject go = EnemyPoolManager.Instance.Get(setting.monsterName, spawnPos, goalGrid);
             if (go == null) continue;
 
-            BaseEnemy enemy = go.GetComponent<BaseEnemy>();
+            var enemy = go.GetComponent<BaseEnemy>();
             if (enemy == null)
             {
-                Debug.LogError($"[SpawnManager] {go.name}에 BaseEnemy 컴포넌트 없음.");
+                Debug.LogError($"[SpawnManager] {go.name}에 BaseEnemy 없음.");
                 continue;
             }
 
-            // 전략 컨트롤러 등록
             EnemyStrategyController.Instance.RegisterEnemy(enemy);
-
-            // Hold 필요 시 여기서 enemy.Hold() 호출 가능
         }
     }
 
-    private GameObject GetEnemyFromPool()
-    {
-        string monsterName = monsterNames[Random.Range(0, monsterNames.Length)];
-        Transform spawnPos = spawnPositions[Random.Range(0, spawnPositions.Length)];
-
-        return EnemyPoolManager.Instance.Get(monsterName, spawnPos, goalGrid);
-    }
-
-    // 외부에서 수동 호출 가능 (전략적 생성 등)
+    // 수동 스폰용
     public void SpawnEnemies(int count, int groupId = -1)
     {
         for (int i = 0; i < count; i++)
         {
-            GameObject go = GetEnemyFromPool();
+            var setting = spawnSettings[Random.Range(0, spawnSettings.Length)];
+            Transform spawnPos = spawnPositions[Random.Range(0, spawnPositions.Length)];
+            GameObject go = EnemyPoolManager.Instance.Get(setting.monsterName, spawnPos, goalGrid);
             if (go == null) continue;
 
-            BaseEnemy enemy = go.GetComponent<BaseEnemy>();
+            var enemy = go.GetComponent<BaseEnemy>();
             if (enemy == null) continue;
 
-          //  enemy.SetGroupId(groupId);
             go.SetActive(true);
         }
     }
 }
+

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public abstract class TurretBase : PlaceableBase, IFogRevealer
+public abstract class TurretBase : PlaceableBase
 {
     public TurretData turretData { get; private set; }
 
@@ -17,8 +17,6 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
         turretData = data as TurretData;
         CurrentLevel = 1;
 
-        FogOfWarSystem.Instance?.Register(this);
-        FogOfWarSystem.Instance?.RegisterAssetFog(this);
     }
 
     public override void Upgrade()
@@ -43,8 +41,6 @@ public abstract class TurretBase : PlaceableBase, IFogRevealer
                 tile.IsReserved = false;
             }
         }
-        FogOfWarSystem.Instance?.Unregister(this);
-        FogOfWarSystem.Instance.UnregisterAssetFog(this);
        // GameManager.instance.AddGold(GetSellPrice());
         Destroy(this.gameObject);
     }

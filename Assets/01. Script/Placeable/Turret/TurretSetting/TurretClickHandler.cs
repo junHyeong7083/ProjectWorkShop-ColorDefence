@@ -17,7 +17,7 @@ public class TurretClickHandler : MonoBehaviour
         visualizer = GetComponent<TurretRangeVisualizer>();
     }
 
-    // 마우스 클릭시 호출
+/*    // 마우스 클릭시 호출
     private void OnMouseDown()
     {
         PlaceableUIManager.Instance.Select(turret);
@@ -34,5 +34,5 @@ public class TurretClickHandler : MonoBehaviour
        // if (turret != null)
           //  turret.HideSelectBox();
         visualizer.Hide();
-    }
+    }*/
 }

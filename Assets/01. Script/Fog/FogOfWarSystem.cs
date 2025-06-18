@@ -1,5 +1,4 @@
-using FischlWorks_FogWar;
-using JetBrains.Annotations;
+/*using JetBrains.Annotations;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -135,4 +134,4 @@ public class FogOfWarSystem : MonoBehaviour
                     tile.fogState = FogState.Explored;
             }
     }
-}
+}*/

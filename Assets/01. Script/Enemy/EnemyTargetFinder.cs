@@ -1,11 +1,11 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 [DisallowMultipleComponent]
 public class EnemyTargetFinder : MonoBehaviour
 {
     private BaseEnemy enemy;
 
-    [Header("Å½Áö ´ë»ó ·¹ÀÌ¾î")]
+    [Header("íƒì§€ ëŒ€ìƒ ë ˆì´ì–´")]
     [SerializeField] private LayerMask targetLayer;
 
     public Transform CurrentTarget { get; private set; }
@@ -14,34 +14,32 @@ public class EnemyTargetFinder : MonoBehaviour
     {
         enemy = GetComponent<BaseEnemy>();
     }
-
-
     public bool TryFindTarget(out Transform target)
     {
-        float detectRange = enemy.Data.DetectRange;
-        Collider[] hits = Physics.OverlapSphere(transform.position, detectRange, targetLayer);
+        target = FindClosestEnemyInAttackRange(enemy.Data.AttackRange);
+        return target != null;
+    } 
+    public Transform FindClosestEnemyInAttackRange(float attackRange)
+    {
+        Vector3 center = enemy.transform.position;
+        Collider[] hits = Physics.OverlapSphere(center, attackRange, targetLayer);
 
-     //   Debug.Log($"[TargetFinder] °¨Áö ½Ãµµ - ¹üÀ§: {detectRange}, Å½ÁöµÈ °³¼ö: {hits.Length}");
-
-        target = null;
+        Transform closest = null;
         float minDist = float.MaxValue;
 
         foreach (var hit in hits)
         {
-
-            if(hit.TryGetComponent<IDamageable>(out _))
+            if (hit.TryGetComponent<IDamageable>(out _))
             {
-                float dist = Vector3.SqrMagnitude(hit.transform.position - transform.position);
+                float dist = Vector3.SqrMagnitude(hit.transform.position - center);
                 if (dist < minDist)
                 {
                     minDist = dist;
-                    target = hit.transform;
+                    closest = hit.transform;
                 }
             }
-           
         }
 
-        CurrentTarget = target;
-        return target != null;
+        return closest;
     }
 }

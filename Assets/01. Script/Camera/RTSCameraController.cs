@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using static UnityEngine.GraphicsBuffer;
 
@@ -35,6 +36,13 @@ public class RTSCameraController : MonoBehaviour
     [Header("UI")]
     [SerializeField] private RectTransform bottomPanel;
 
+
+    [Header("카메라이동제한")]
+    [SerializeField] private Vector2 cameraMinBound;
+    [SerializeField] private Vector2 cameraMaxBound;
+   // [SerializeField] private Transform cameraTransform;
+
+
     CursorArrow currentCursor = CursorArrow.DEFAULT;
     enum CursorArrow { UP, DOWN, LEFT, RIGHT, DEFAULT }
     [SerializeField] private float edgeScrollSpeed = 0.5f;
@@ -43,12 +51,37 @@ public class RTSCameraController : MonoBehaviour
         instance = this;
         newPosition = transform.position;
         movementSpeed = normalSpeed;
+
+        CalculateNavMeshBounds();
     }
 
     [SerializeField] private Vector3 followOffset = new Vector3(-20.83f, 43.93f, -24.87f);
     [SerializeField] private float followLerpSpeed = 5f;
     private bool isTemporaryFollow = false;
+    void CalculateNavMeshBounds()
+    {
+        NavMeshTriangulation navMeshData = NavMesh.CalculateTriangulation();
 
+        if (navMeshData.vertices == null || navMeshData.vertices.Length == 0)
+        {
+            Debug.LogWarning("NavMesh에 유효한 데이터 없음.");
+            return;
+        }
+
+        Vector3 min = navMeshData.vertices[0];
+        Vector3 max = navMeshData.vertices[0];
+
+        foreach (Vector3 v in navMeshData.vertices)
+        {
+            min = Vector3.Min(min, v);
+            max = Vector3.Max(max, v);
+        }
+
+        cameraMinBound = new Vector2(min.x, min.z);
+        cameraMaxBound = new Vector2(max.x, max.z);
+
+        Debug.Log($"[NavMesh Bounds] Min: {cameraMinBound}, Max: {cameraMaxBound}");
+    }
     private void Update()
     {
         // 스페이스바 눌렀을 때만 따라감
@@ -151,6 +184,9 @@ public class RTSCameraController : MonoBehaviour
             }
         }
 
+        newPosition.x = Mathf.Clamp(newPosition.x, cameraMinBound.x, cameraMaxBound.x);
+        newPosition.z = Mathf.Clamp(newPosition.z, cameraMinBound.y, cameraMaxBound.y);
+
         transform.position = newPosition;
         Cursor.lockState = CursorLockMode.Confined;
     }
@@ -176,7 +212,7 @@ public class RTSCameraController : MonoBehaviour
         {
             switch (newCursor)
             {
-                case CursorArrow.UP:
+               /* case CursorArrow.UP:
                     Cursor.SetCursor(cursorArrowUp, Vector2.zero, CursorMode.Auto);
                     break;
                 case CursorArrow.DOWN:
@@ -190,7 +226,7 @@ public class RTSCameraController : MonoBehaviour
                     break;
                 case CursorArrow.DEFAULT:
                     Cursor.SetCursor(null, Vector2.zero, CursorMode.Auto);
-                    break;
+                    break;*/
             }
 
             currentCursor = newCursor;

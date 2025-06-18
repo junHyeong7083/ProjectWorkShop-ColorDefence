@@ -61,10 +61,6 @@ public class MinimapClickHandler : MonoBehaviour, IPointerDownHandler, IDragHand
                 ));
             }
         }
-        else
-        {
-          //  Debug.LogWarning("❌ 바닥 레이어에서 감지 실패 (레이캐스트 실패)");
-        }
     }
 
 

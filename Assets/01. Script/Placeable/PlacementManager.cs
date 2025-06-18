@@ -1,19 +1,18 @@
-﻿using UnityEngine;
+﻿// ✅ 수정 완료된 PlacementManager.cs
+using UnityEngine;
 using System.Collections.Generic;
-using FischlWorks_FogWar;
 
-public enum PlacementType { Turret, Fence, Upgrade }
+public enum PlacementType { Turret, Fence, Upgrade, Unit }
 
 public class PlacementManager : MonoBehaviour
 {
     public static PlacementManager Instance;
 
-    [BigHeader("PlacementManager")]
     [SerializeField] private Material previewGreen;
     [SerializeField] private Material previewRed;
     [SerializeField] private Material previewUpgrade;
 
-    [SerializeField] Material currentmaterial;
+    [SerializeField] private Material currentmaterial;
     [SerializeField] private Texture2D cursorTexture;
 
     private Texture2D originCursorTexture;
@@ -22,13 +21,11 @@ public class PlacementManager : MonoBehaviour
     private GameObject previewInstance;
     private PlacementType placementType;
 
-    private int lastStartX;
-    private int lastStartZ;
     private Vector3 lastPreviewPos;
     private bool isCanPlace = false;
     public bool IsCanPlace => isCanPlace;
 
-    public bool IsPlacing { get;  set; } = false;
+    public bool IsPlacing { get; set; } = false;
 
     private List<TileData> simulatedTiles = new();
 
@@ -50,10 +47,7 @@ public class PlacementManager : MonoBehaviour
         placementType = type;
 
         if (type == PlacementType.Upgrade)
-        {
-            // 업그레이드는 설치 시스템과 분리
             return;
-        }
 
         IsPlacing = true;
 
@@ -64,6 +58,7 @@ public class PlacementManager : MonoBehaviour
         if (installParts != null)
             installParts.gameObject.SetActive(false);
 
+        // ✅ 유닛도 포함하여 머티리얼 적용
         foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
             r.material = previewGreen;
 
@@ -73,101 +68,93 @@ public class PlacementManager : MonoBehaviour
 
     private void Update()
     {
+        if (!IsPlacing || previewInstance == null) return;
+
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (!Physics.Raycast(ray, out var hit)) return;
 
-        // 업그레이드 프리뷰 처리
+        // 업그레이드 전용 처리
         if (placementType == PlacementType.Upgrade)
         {
-           /* if (!IsPlacing)
-                return; // 업그레이드 완료 후에도 마우스 올릴 때 보이는 문제 방지*/
-
             var turret = hit.collider.GetComponent<TurretBase>();
-            if (turret != null)
+            if (turret != null && upgradeTarget != turret)
             {
-                if (upgradeTarget != turret)
+                ClearUpgradePreview();
+                upgradeTarget = turret;
+                var renderers = turret.GetComponentsInChildren<Renderer>();
+                originalMaterials = new Material[renderers.Length];
+                for (int i = 0; i < renderers.Length; i++)
                 {
-                    ClearUpgradePreview();
-                    upgradeTarget = turret;
-
-                    var renderers = turret.GetComponentsInChildren<Renderer>();
-                    originalMaterials = new Material[renderers.Length];
-                    for (int i = 0; i < renderers.Length; i++)
-                    {
-                        originalMaterials[i] = renderers[i].material;
-                        renderers[i].material = previewUpgrade;
-                    }
-
-                    Transform installParts = turret.transform.Find("InstallParts");
-                    if (installParts != null)
-                        installParts.gameObject.SetActive(false);
+                    originalMaterials[i] = renderers[i].material;
+                    renderers[i].material = previewUpgrade;
                 }
+
+                Transform installParts = turret.transform.Find("InstallParts");
+                if (installParts != null)
+                    installParts.gameObject.SetActive(false);
             }
-            else
+            else if (turret == null)
             {
                 ClearUpgradePreview();
             }
             return;
         }
 
-
-        if (!IsPlacing || previewInstance == null) return;
-
-        int width = 0, height = 0;
-        if (placementType == PlacementType.Turret)
-        {
-            var data = currentData as TurretData;
-            if (data == null) return;
-            width = data.width;
-            height = data.height;
-        }
-        else if (placementType == PlacementType.Fence)
-        {
-            var data = currentData as FenceData;
-            if (data == null) return;
-            width = data.Width;
-            height = data.Height;
-        }
-
+        // ✅ 타일 크기 및 시작 좌표 계산
         float tileSize = TileGridManager.Instance.cubeSize;
+        int width = 1, height = 1;
+        if (placementType == PlacementType.Turret && currentData is TurretData tData)
+        {
+            width = tData.width;
+            height = tData.height;
+        }
+        else if (placementType == PlacementType.Fence && currentData is FenceData fData)
+        {
+            width = fData.Width;
+            height = fData.Height;
+        }
+
         int startX = Mathf.FloorToInt(hit.point.x / tileSize);
         int startZ = Mathf.FloorToInt(hit.point.z / tileSize);
 
         float offsetX = (width - 1) * 0.5f * tileSize;
         float offsetZ = (height - 1) * 0.5f * tileSize;
         Vector3 previewPos = new Vector3(startX * tileSize + offsetX, 0f, startZ * tileSize + offsetZ);
-
         previewInstance.transform.position = previewPos;
-        simulatedTiles = new();
+
+        simulatedTiles.Clear();
         for (int x = 0; x < width; x++)
         {
             for (int z = 0; z < height; z++)
             {
                 var tile = TileGridManager.Instance.GetTile(startX + x, startZ + z);
-                if (tile != null)
-                    simulatedTiles.Add(tile);
+                if (tile != null) simulatedTiles.Add(tile);
             }
         }
+
         isCanPlace = TileGridManager.Instance.CanPlaceTurret(startX, startZ, width, height);
         foreach (var tile in simulatedTiles)
         {
-            if (tile == null)
+            if (tile == null || tile.ColorState != TileColorState.Player)
             {
-                Debug.LogWarning("[설치불가] 타일이 null임");
-                isCanPlace = false;
-                break;
-            }
-
-            if (tile.ColorState != TileColorState.Player)
-            {
-                Debug.LogWarning($"[설치불가] 타일 ({tile.GridPos}) = {tile.ColorState}");
                 isCanPlace = false;
                 break;
             }
         }
 
-        foreach (var renderer in previewInstance.GetComponentsInChildren<Renderer>())
-            renderer.material = isCanPlace ? previewGreen : previewRed;
+        foreach (var r in previewInstance.GetComponentsInChildren<Renderer>())
+            r.material = isCanPlace ? previewGreen : previewRed;
+    }
+
+    public void PlaceUnit(int startX, int startZ, Vector3 pos)
+    {
+        if (!isCanPlace) return;
+
+        GameObject unit = Instantiate(currentPrefab, pos, Quaternion.identity);
+        if (unit.transform.childCount > 0)
+            unit.transform.GetChild(0).gameObject.SetActive(true);
+
+        CancelPreview();
     }
 
     public void PlaceTurret(int startX, int startZ, Vector3 pos)
@@ -176,12 +163,11 @@ public class PlacementManager : MonoBehaviour
         if (data == null) return;
 
         GameObject turret = Instantiate(currentPrefab, pos, Quaternion.identity);
-        Transform installParts = turret.transform.Find("InstallParts");
+        var installParts = turret.transform.Find("InstallParts");
         if (installParts != null)
             installParts.gameObject.SetActive(true);
 
-
-        TurretBase turretBase = turret?.GetComponent<TurretBase>();
+        var turretBase = turret.GetComponent<TurretBase>();
         turretBase.SetData(data);
 
         for (int x = 0; x < data.width; x++)
@@ -196,10 +182,6 @@ public class PlacementManager : MonoBehaviour
                 }
             }
         }
-
-        //var marker = turret.GetComponent<MiniMapMarker>();
-        //if (marker != null) marker.enabled = true;
-
         CancelPreview();
     }
 
@@ -209,7 +191,7 @@ public class PlacementManager : MonoBehaviour
         if (data == null) return;
 
         GameObject fence = Instantiate(currentPrefab, pos, Quaternion.identity);
-        Fence fenceBase = fence?.GetComponent<Fence>();
+        var fenceBase = fence.GetComponent<Fence>();
         fenceBase.SetData(data);
 
         for (int x = 0; x < data.Width; x++)
@@ -224,12 +206,10 @@ public class PlacementManager : MonoBehaviour
                 }
             }
         }
-
         CancelPreview();
-        foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
-        {
-            enemyPathfinder.RecalculatePath();
-        }
+
+       /* foreach (var enemyPathfinder in FindObjectsByType<EnemyPathfinder>(FindObjectsSortMode.None))
+            enemyPathfinder.RecalculatePath();*/
     }
 
     public void CancelPreview()
@@ -254,29 +234,20 @@ public class PlacementManager : MonoBehaviour
         {
             var renderers = upgradeTarget.GetComponentsInChildren<Renderer>();
             for (int i = 0; i < renderers.Length; i++)
-            {
-                if (i < originalMaterials.Length)
-                    renderers[i].material = originalMaterials[i];
-            }
+                renderers[i].material = originalMaterials[i];
 
-            Transform installParts = upgradeTarget.transform.Find("InstallParts");
+            var installParts = upgradeTarget.transform.Find("InstallParts");
             if (installParts != null)
             {
                 installParts.gameObject.SetActive(true);
-
                 if (currentmaterial != null && installParts.childCount > 0)
                 {
                     var childRenderer = installParts.GetChild(0).GetComponent<Renderer>();
                     if (childRenderer != null)
                         childRenderer.material = currentmaterial;
-
-                    Debug.Log($"ChildName : {childRenderer.gameObject.name}");
-
-                    //currentmaterial = null;
                 }
             }
         }
-
         upgradeTarget = null;
         originalMaterials = null;
     }

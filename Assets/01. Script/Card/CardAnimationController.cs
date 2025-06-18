@@ -80,12 +80,18 @@ public class CardAnimationController : MonoBehaviour
         RectTransform targetSlot = handSlots[targetIndex];
         float targetZ = slotZRotations[targetIndex];
 
+        // 기존 덱 카드 애니메이션 처리
         yield return AnimateDeckCardDraw(targetSlot, targetZ);
 
+        // 카드 인스턴스 생성: deckPoint.parent 기준
         GameObject newCard = Instantiate(cardPrefab, deckPoint.parent);
         RectTransform rt = newCard.GetComponent<RectTransform>();
 
-        rt.anchoredPosition = targetSlot.anchoredPosition;
+        // ✅ 슬롯의 월드 좌표를 → newCard의 부모 기준 로컬로 변환해서 위치 정확히 맞추기
+        Vector3 worldTargetPos = targetSlot.position;
+        Vector3 localTargetPos = deckPoint.parent.InverseTransformPoint(worldTargetPos);
+        rt.anchoredPosition = localTargetPos;
+
         rt.localScale = Vector3.one;
         rt.localRotation = Quaternion.Euler(0, 0, targetZ);
 
@@ -96,13 +102,15 @@ public class CardAnimationController : MonoBehaviour
             binder.Bind();
         }
 
+
+
         var dragHandler = newCard.GetComponent<CardDragHandler>();
         if (dragHandler != null)
         {
             dragHandler.animationController = this;
             dragHandler.topPanel = topPanel;
             dragHandler.slotIndex = targetIndex;
-            dragHandler.InitializeSlot(targetSlot.anchoredPosition, targetZ, cd);
+            dragHandler.InitializeSlot(localTargetPos, targetZ, cd);
         }
 
         handCards.Add(newCard);
@@ -114,7 +122,7 @@ public class CardAnimationController : MonoBehaviour
 
         GameObject topCard = deckVisualStack.Pop();
         RectTransform rt = topCard.GetComponent<RectTransform>();
-       // rt.SetParent(targetSlot.parent, false);
+
         // 카드 보이게 만들고 위치 초기화
         rt.gameObject.SetActive(true);
 
@@ -142,6 +150,7 @@ public class CardAnimationController : MonoBehaviour
     }
 
 
+
     public void UseCardAndReposition(int i)
     {
         if (i < 0 || i >= handCards.Count) return;
@@ -157,19 +166,23 @@ public class CardAnimationController : MonoBehaviour
         for (int j = i; j < handCards.Count; j++)
         {
             rt = handCards[j].GetComponent<RectTransform>();
-            Vector2 newPos = handSlots[j].anchoredPosition;
+
+            // 💡 위치 좌표를 카드 부모 기준으로 변환
+            Vector3 worldPos = handSlots[j].position;
+            Vector3 localPos = deckPoint.parent.InverseTransformPoint(worldPos);
             float newZ = slotZRotations[j];
 
-            rt.DOAnchorPos(newPos, shiftDuration).SetEase(Ease.OutCubic);
+            rt.DOAnchorPos((Vector2)localPos, shiftDuration).SetEase(Ease.OutCubic);
             rt.DOLocalRotate(new Vector3(0f, 0f, newZ), shiftDuration).SetEase(Ease.OutCubic);
 
             var dragHandler = handCards[j].GetComponent<CardDragHandler>();
             if (dragHandler != null)
             {
                 dragHandler.slotIndex = j;
-                dragHandler.InitializeSlot(newPos, newZ, dragHandler.cardData);
+                dragHandler.InitializeSlot(localPos, newZ, dragHandler.cardData);
             }
         }
+
 
         int newIndex = handCards.Count;
         if (newIndex < 5)

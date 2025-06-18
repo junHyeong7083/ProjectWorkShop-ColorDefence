@@ -1,4 +1,3 @@
-using FischlWorks_FogWar;
 using UnityEngine;
 using UnityEngine.UI;
 

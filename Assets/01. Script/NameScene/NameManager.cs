@@ -22,6 +22,7 @@ public class NameManager : MonoBehaviour
         PlayerPrefs.SetString("PlayerName", _playerName);
         PlayerPrefs.Save();
 
+        SoundManager.Instance.PlaySFXSound("beep1", 0.3f);
         SceneManager.LoadScene(2);
     }
 }

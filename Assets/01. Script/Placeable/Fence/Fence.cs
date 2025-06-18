@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Fence : PlaceableBase, IFogRevealer
+public class Fence : PlaceableBase
 {
     public FenceData fenceData { get; private set; }
     public int FogRevealerIndex { get; set; } = -1;
@@ -11,8 +11,6 @@ public class Fence : PlaceableBase, IFogRevealer
     {
         fenceData = data as FenceData;
 
-        FogOfWarSystem.Instance?.Register(this);
-        FogOfWarSystem.Instance?.RegisterAssetFog(this);
     }
 
     public override void Sell()

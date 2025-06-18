@@ -1,9 +1,7 @@
-﻿using FischlWorks_FogWar;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class CameraSettings : MonoBehaviour
 {
-    [BigHeader("1) RTS 카메라 배열")]
     [SerializeField] private Camera[] cameras;
 
 

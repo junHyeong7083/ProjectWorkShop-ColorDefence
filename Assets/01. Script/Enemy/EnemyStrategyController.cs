@@ -144,14 +144,14 @@ public class EnemyStrategyController : MonoBehaviour
             );
             enemy.transform.position += offset;
 
-            var pathfinder = enemy.GetComponent<EnemyPathfinder>();
+           /* var pathfinder = enemy.GetComponent<EnemyPathfinder>();
             if (pathfinder != null)
             {
                 Vector2Int originalGoal = pathfinder.goalGridPosition;
                 pathfinder.goalGridPosition = originalGoal + new Vector2Int(
                     Random.Range(-1, 2), Random.Range(-1, 2)
                 );
-            }
+            }*/
 
             enemy.gameObject.SetActive(true);
             enemy.Resume();

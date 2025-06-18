@@ -1,8 +1,9 @@
+ï»¿
 Shader "Unlit/CircularVision"
 {
     Properties
     {
-        _Color("Color", Color) = (0.0, 0.5, 1.0, 1.0) // ÆÄ¶û ±âº»
+        _Color("Color", Color) = (0.0, 0.5, 1.0, 1.0)
         _Radius("Radius", Range(0, 1)) = 0.5
         _Softness("Edge Softness", Range(0.01, 1)) = 0.2
         _MinAlpha("Minimum Alpha", Range(0, 1)) = 0.1
